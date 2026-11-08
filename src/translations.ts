@@ -12,7 +12,6 @@ export interface TranslationData {
     certified: string;
     directDesk: string;
     email1: string;
-    email2: string;
     phone: string;
     login: string;
     register: string;
@@ -168,7 +167,6 @@ export const translations: Record<Language, TranslationData> = {
       certified: 'Certified Travel & Visa Management',
       directDesk: 'Direct Concierge: 0666-484815',
       email1: 'Info@goldengrouptravels.com',
-      email2: 'M.reda@goldengrouptravels.com',
       phone: '+212 666-484815',
       login: 'Login',
       register: 'Register',
@@ -186,11 +184,11 @@ export const translations: Record<Language, TranslationData> = {
       faq: 'FAQ',
       contact: 'CONTACT',
       callNow: 'Call Now: 0666-484815',
-      tagline: 'Golden Travel & Tourism'
+      tagline: 'Travel Services & Events'
     },
     hero: {
       talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
-      arabicTitle: 'الوكالة الذهبية للأسفار و السياحة و الحج و العمرة',
+      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Organized Tours',
       tabHotel: 'Hotel',
       destinationTitle: 'Destination',
@@ -440,7 +438,6 @@ export const translations: Record<Language, TranslationData> = {
       certified: 'Gestion Certifiée des Voyages et Visas',
       directDesk: 'Conciergerie Directe : 0666-484815',
       email1: 'Info@goldengrouptravels.com',
-      email2: 'M.reda@goldengrouptravels.com',
       phone: '+212 666-484815',
       login: 'Connexion',
       register: "S'inscrire",
@@ -458,11 +455,11 @@ export const translations: Record<Language, TranslationData> = {
       faq: 'FAQ',
       contact: 'CONTACT',
       callNow: 'Appeler : 0666-484815',
-      tagline: 'Golden Travel & Tourism'
+      tagline: 'Travel Services & Events'
     },
     hero: {
       talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
-      arabicTitle: 'الوكالة الذهبية للأسفار و السياحة و الحج و العمرة',
+      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Voyage Organisé',
       tabHotel: 'Hôtel',
       destinationTitle: 'Destination',
@@ -712,7 +709,6 @@ export const translations: Record<Language, TranslationData> = {
       certified: 'Gestión Certificada de Viajes y Visados',
       directDesk: 'Conserjería Directa: 0666-484815',
       email1: 'Info@goldengrouptravels.com',
-      email2: 'M.reda@goldengrouptravels.com',
       phone: '+212 666-484815',
       login: 'Iniciar sesión',
       register: 'Registrarse',
@@ -730,11 +726,11 @@ export const translations: Record<Language, TranslationData> = {
       faq: 'Preguntas Frecuentes',
       contact: 'CONTACTO',
       callNow: 'Llamar: 0666-484815',
-      tagline: 'Golden Travel & Tourism'
+      tagline: 'Travel Services & Events'
     },
     hero: {
       talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
-      arabicTitle: 'الوكالة الذهبية للأسفار و السياحة و الحج و العمرة',
+      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Viaje Organizado',
       tabHotel: 'Hotel',
       destinationTitle: 'Destino',
@@ -984,7 +980,6 @@ export const translations: Record<Language, TranslationData> = {
       certified: 'إدارة معتمدة للسياحة وحجوزات السفر والتأشيرات',
       directDesk: 'المكتب المباشر: 0666-484815',
       email1: 'Info@goldengrouptravels.com',
-      email2: 'M.reda@goldengrouptravels.com',
       phone: '+212 666-484815',
       login: 'تسجيل الدخول',
       register: 'حساب جديد',
@@ -1002,11 +997,11 @@ export const translations: Record<Language, TranslationData> = {
       faq: 'الأسئلة الشائعة',
       contact: 'اتصل بنا',
       callNow: 'اتصل الآن: 0666-484815',
-      tagline: 'الذهبية للأسفار والسياحة'
+      tagline: 'مجموعة جولدن لخدمات السفر والسياحة'
     },
     hero: {
       talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
-      arabicTitle: 'الوكالة الذهبية للأسفار و السياحة و الحج و العمرة',
+      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'رحلات منظمة',
       tabHotel: 'فنادق',
       destinationTitle: 'الوجهة',

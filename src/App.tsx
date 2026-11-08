@@ -15,9 +15,6 @@ import {
   Palmtree,
   ArrowRight,
   CheckCircle2,
-  Calendar,
-  Users,
-  MapPin,
   ChevronDown,
   ChevronUp,
   Menu,
@@ -25,10 +22,7 @@ import {
   Award,
   Headphones,
   Send,
-  ShoppingBag,
-  Mail,
-  Globe,
-  SlidersHorizontal
+  Mail
 } from 'lucide-react';
 import { translations, Language } from './translations.ts';
 
@@ -59,44 +53,22 @@ const LANGUAGES: { code: Language; name: string; flag: string; label: string }[]
 const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
 const DISPLAY_PHONE = '0666-484815';
 
-// Golden Travel & Tourism Logo matching the screenshot
-const GoldenLogo = () => (
+// Official Brand Logo (Golden Group Travels - Travel Services & Events)
+const GoldenLogo = ({ className = 'h-13 sm:h-15' }: { className?: string }) => (
   <div className="flex items-center gap-3 group shrink-0">
-    <div className="w-12 h-12 relative flex items-center justify-center shrink-0">
-      <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-xs">
-        <defs>
-          <linearGradient id="goldGradHero" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fceda2" />
-            <stop offset="35%" stopColor="#d1a847" />
-            <stop offset="70%" stopColor="#b88628" />
-            <stop offset="100%" stopColor="#8c6114" />
-          </linearGradient>
-        </defs>
-        {/* Stylized Golden G with curved flight wing */}
-        <path
-          d="M 50 14 C 28 14 14 30 14 52 C 14 74 30 88 52 88 C 70 88 84 76 86 60 L 52 60 L 52 48 L 96 48 C 97 52 97 57 97 62 C 97 84 76 99 50 99 C 22 99 3 78 3 50 C 3 22 24 3 52 3 C 68 3 82 10 91 21 L 80 30 C 73 21 63 14 50 14 Z"
-          fill="url(#goldGradHero)"
-        />
-        {/* Flight birds / wing arcs */}
-        <path
-          d="M 68 8 C 76 12 84 10 93 4 C 88 12 85 18 84 25 C 80 18 75 14 68 8 Z"
-          fill="url(#goldGradHero)"
-        />
-        <path
-          d="M 54 18 C 60 21 66 20 73 15 C 69 21 67 26 66 31 C 63 26 59 23 54 18 Z"
-          fill="url(#goldGradHero)"
-        />
-      </svg>
+    <div className="relative flex items-center justify-center p-1 rounded-xl bg-[#050e1a] border border-[#d1a847]/40 shadow-lg group-hover:border-[#d1a847] transition-all duration-300">
+      <img
+        src="/assets/aistudio/image_1f4d444d.png"
+        alt="Golden Group - Travel Services & Events"
+        className={`${className} w-auto object-contain transition-transform duration-300 group-hover:scale-105`}
+      />
     </div>
-    <div className="flex flex-col text-left rtl:text-right">
-      <span className="font-serif-luxury font-black text-2xl tracking-tight gold-gradient-text leading-none">
-        Golden
+    <div className="hidden sm:flex flex-col text-left rtl:text-right">
+      <span className="text-xs sm:text-sm font-amiri font-bold text-[#fceda2] leading-tight">
+        مجموعة جولدن لخدمات السفر والسياحة
       </span>
-      <span className="text-[10px] font-bold tracking-[0.2em] text-[#d1a847] uppercase leading-tight mt-0.5">
-        travel & tourism
-      </span>
-      <span className="text-[11px] font-amiri font-bold text-[#fceda2] leading-none mt-0.5">
-        الذهبية للأسفار والسياحة
+      <span className="text-[10px] font-bold text-[#d1a847] tracking-wider uppercase mt-0.5">
+        Golden Group Travels
       </span>
     </div>
   </div>
@@ -107,14 +79,6 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
   const [floatingLangOpen, setFloatingLangOpen] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-
-  // Hero Tab: Voyage Organisé vs Hôtel
-  const [heroTab, setHeroTab] = useState<'tours' | 'hotel'>('tours');
-  const [heroDestination, setHeroDestination] = useState('');
-  const [heroDates, setHeroDates] = useState('');
-  const [advancedPax, setAdvancedPax] = useState('2');
-  const [advancedClass, setAdvancedClass] = useState('Confort');
 
   const t = translations[lang];
   const isRtl = t.dir === 'rtl';
@@ -320,8 +284,8 @@ export default function App() {
               </a>
             </div>
             <span className="w-px h-3.5 bg-[#d1a847]/30 hidden sm:inline" />
-            {/* Official Emails */}
-            <div className="flex items-center gap-2 text-[11px] sm:text-xs">
+            {/* Official Email */}
+            <div className="flex items-center text-[11px] sm:text-xs">
               <a
                 href="mailto:Info@goldengrouptravels.com"
                 className="hover:underline flex items-center gap-1.5 text-slate-200 hover:text-[#fceda2] transition-colors"
@@ -329,18 +293,11 @@ export default function App() {
                 <Mail className="w-3 h-3 text-[#d1a847]" />
                 <span>Info@goldengrouptravels.com</span>
               </a>
-              <span className="text-[#d1a847]/40 hidden md:inline">|</span>
-              <a
-                href="mailto:M.reda@goldengrouptravels.com"
-                className="hover:underline hidden md:flex items-center gap-1 text-slate-200 hover:text-[#fceda2] transition-colors"
-              >
-                <span>M.reda@goldengrouptravels.com</span>
-              </a>
             </div>
           </div>
 
-          {/* Right: Phone, Connexion, S'inscrire, Currency MAD */}
-          <div className="flex items-center gap-2 sm:gap-3 text-[11px] sm:text-xs">
+          {/* Right: Direct Phone Call */}
+          <div className="flex items-center text-[11px] sm:text-xs">
             <a
               href="tel:0666484815"
               className="font-semibold text-[#fceda2] tracking-wide hover:underline flex items-center gap-1.5 transition-colors"
@@ -349,54 +306,22 @@ export default function App() {
               <Phone className="w-3 h-3 text-[#d1a847]" />
               <span>+212 666-484815</span>
             </a>
-            <span className="w-px h-3 bg-[#d1a847]/30 hidden sm:inline" />
-            <button
-              onClick={() => {
-                const el = document.getElementById('consultation');
-                el?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="hover:text-[#d1a847] text-slate-300 hidden sm:inline cursor-pointer transition-colors"
-            >
-              {t.topStrip.login}
-            </button>
-            <span className="w-px h-3 bg-[#d1a847]/30 hidden sm:inline" />
-            <button
-              onClick={() => {
-                const el = document.getElementById('consultation');
-                el?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="hover:text-[#d1a847] text-slate-300 hidden sm:inline cursor-pointer transition-colors"
-            >
-              {t.topStrip.register}
-            </button>
-            <span className="w-px h-3 bg-[#d1a847]/30" />
-            <div className="flex items-center gap-1 text-slate-200 hover:text-[#fceda2] font-medium cursor-pointer transition-colors">
-              <span>{t.topStrip.currency}</span>
-              <ChevronDown className="w-3 h-3 text-[#d1a847]" />
-            </div>
           </div>
         </div>
       </div>
 
       {/* Main Navigation Bar (Luxury Deep Navy Blue & Gold, Sticky) */}
       <header className="sticky top-0 z-40 bg-[#0b1d3a]/95 backdrop-blur-md text-slate-100 shadow-md border-b border-[#d1a847]/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-20 sm:min-h-22 py-2 flex items-center justify-between gap-6">
           {/* Logo */}
           <a href="#" className="focus:outline-none">
             <GoldenLogo />
           </a>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 text-[13px] font-bold tracking-wider text-slate-200 uppercase">
+          <nav className="hidden lg:flex items-center gap-8 text-[13px] font-bold tracking-wider text-slate-200 uppercase">
             <a href="#" className="hover:text-[#d1a847] transition-colors">
               {t.nav.accueil}
-            </a>
-            <a
-              href="#consultation"
-              onClick={() => setFormService('Haj & Omra')}
-              className="text-[#fceda2] hover:text-white transition-colors font-extrabold"
-            >
-              {t.nav.hajOmra}
             </a>
             <a
               href="#services"
@@ -437,27 +362,11 @@ export default function App() {
             </a>
           </nav>
 
-          {/* Right Action: Shopping Bag / Basket Icon + Mobile Menu */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                const el = document.getElementById('consultation');
-                el?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="w-10 h-10 rounded-full border border-[#d1a847]/40 bg-[#081528] text-[#fceda2] hover:text-[#d1a847] hover:border-[#d1a847] flex items-center justify-center transition-colors relative cursor-pointer"
-              title="Réservation / Panier"
-              aria-label="Booking basket"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-[#d1a847] to-[#b88628] text-[#0b1d3a] text-[10px] rounded-full flex items-center justify-center font-bold">
-                0
-              </span>
-            </button>
-
-            {/* Mobile Hamburger Toggle */}
+          {/* Mobile Hamburger Toggle (Right Action) */}
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-slate-200 hover:text-[#d1a847] hover:bg-[#13284c] transition-colors cursor-pointer"
+              className="p-2 rounded-lg text-slate-200 hover:text-[#d1a847] hover:bg-[#13284c] transition-colors cursor-pointer"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -500,16 +409,6 @@ export default function App() {
                 className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors"
               >
                 {t.nav.accueil}
-              </a>
-              <a
-                href="#consultation"
-                onClick={() => {
-                  setFormService('Haj & Omra');
-                  setMobileMenuOpen(false);
-                }}
-                className="py-1 text-[#fceda2] font-bold hover:text-white transition-colors"
-              >
-                {t.nav.hajOmra}
               </a>
               <a
                 href="#services"
@@ -564,8 +463,8 @@ export default function App() {
         )}
       </header>
 
-      {/* Hero Section: Exact Structure with Sacred Sanctuary Atmosphere & Arabic Calligraphy in Dark Blue & Gold */}
-      <section className="relative overflow-hidden min-h-[580px] md:min-h-[660px] flex flex-col justify-between pt-12 sm:pt-16 pb-12 bg-[#06101e]">
+      {/* Hero Section: Sacred Sanctuary Atmosphere & Arabic Calligraphy in Dark Blue & Gold */}
+      <section className="relative overflow-hidden min-h-[460px] md:min-h-[520px] flex flex-col justify-center items-center py-16 sm:py-20 bg-[#06101e]">
         {/* Background Atmosphere: Twilight Sacred Sanctuary Architecture Artwork in Royal Navy & Gold */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {/* Night Sky Gradient with Dusk Warmth */}
@@ -613,204 +512,33 @@ export default function App() {
         </div>
 
         {/* Central Calligraphy Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center mt-2 sm:mt-6">
-          {/* Top Line: Labbayk Allahumma Labbayk */}
-          <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-amiri font-bold text-[#fceda2] tracking-wide drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] mb-3">
-            {t.hero.talbiyah}
-          </div>
-
-          {/* Main Grand Calligraphy: Al-Wakala Al-Dhahabiya Lil-Asfar Wa Al-Siyaha Wa Al-Haj Wa Al-Omra */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center my-auto py-16 sm:py-24">
+          {/* Main Grand Calligraphy: Majmuat Golden Likhadamat As-Safar Wa As-Siyaha */}
           <h1
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-calligraphy text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.98)] drop-shadow-[0_0_25px_rgba(209,168,71,0.25)] leading-[1.3] text-center max-w-5xl tracking-normal px-2 select-none"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-calligraphy text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.98)] drop-shadow-[0_0_25px_rgba(209,168,71,0.25)] leading-[1.35] text-center max-w-5xl tracking-normal px-4 select-none"
             dir="rtl"
           >
             {t.hero.arabicTitle}
           </h1>
-        </div>
 
-        {/* Floating Search & Booking Card (Sitting over lower hero, matching screenshot structure) */}
-        <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10 sm:mt-14">
-          {/* Connected Top Tabs */}
-          <div className="flex items-end gap-1.5 -mb-px relative z-10">
-            <button
-              onClick={() => {
-                setHeroTab('tours');
-                setFormService('Holiday Packages');
-              }}
-              className={`px-6 py-2.5 rounded-t-lg font-medium text-xs sm:text-sm transition-all cursor-pointer ${
-                heroTab === 'tours'
-                  ? 'bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] text-[#0b1d3a] shadow-md font-bold'
-                  : 'bg-[#08172c] text-slate-300 border-t border-l border-r border-[#d1a847]/30 hover:text-[#fceda2] hover:bg-[#0b1d3a]'
-              }`}
+          {/* Quick Action Buttons */}
+          <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-[#0b1d3a] bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] hover:shadow-[0_0_25px_rgba(209,168,71,0.6)] transition-all hover:scale-105 shadow-xl cursor-pointer"
             >
-              {t.hero.tabTours}
-            </button>
-            <button
-              onClick={() => {
-                setHeroTab('hotel');
-                setFormService('Hotel Reservations');
-              }}
-              className={`px-6 py-2.5 rounded-t-lg font-medium text-xs sm:text-sm transition-all cursor-pointer ${
-                heroTab === 'hotel'
-                  ? 'bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] text-[#0b1d3a] shadow-md font-bold'
-                  : 'bg-[#08172c] text-slate-300 border-t border-l border-r border-[#d1a847]/30 hover:text-[#fceda2] hover:bg-[#0b1d3a]'
-              }`}
+              <WhatsAppIcon className="w-4 h-4 fill-current" />
+              <span>{t.consultation.whatsappCta}</span>
+            </a>
+            <a
+              href="#services"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-200 border border-[#d1a847]/40 bg-[#0b1d3a]/80 hover:bg-[#0b1d3a] hover:border-[#d1a847] hover:text-[#fceda2] transition-all backdrop-blur-md cursor-pointer"
             >
-              {t.hero.tabHotel}
-            </button>
-          </div>
-
-          {/* Search Box Card (Luxury Dark Navy & Gold) */}
-          <div className="bg-[#0b1d3a]/95 backdrop-blur-md text-white rounded-b-xl sm:rounded-tr-xl rounded-tl-none shadow-[0_20px_50px_rgba(0,0,0,0.7)] p-4 sm:p-5 border border-[#d1a847]/40 relative">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const serviceName = heroTab === 'tours' ? 'Holiday Packages' : 'Hotel Reservations';
-                setFormService(serviceName);
-                if (heroDestination) setDestination(sanitizeText(heroDestination, 80));
-                if (heroDates) setTravelDate(heroDates);
-                if (advancedPax) setTravelersCount(advancedPax);
-
-                const dest = heroDestination ? `📍 *Destination:* ${heroDestination}\n` : '';
-                const dates = heroDates ? `📅 *Dates:* ${heroDates}\n` : '';
-                const pax = `👥 *Voyageurs:* ${advancedPax} (${advancedClass})\n`;
-                const tabLabel = heroTab === 'tours' ? 'Voyage Organisé' : 'Hôtel';
-                const waText = `✈️ *Demande de ${tabLabel} - Golden Group Travels*\n━━━━━━━━━━━━━━━━━━━━\n${dest}${dates}${pax}━━━━━━━━━━━━━━━━━━━━\nEnvoyé depuis le site officiel Golden Group Travels`;
-
-                const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}&text=${encodeURIComponent(waText)}`;
-                
-                try {
-                  const link = document.createElement('a');
-                  link.href = waUrl;
-                  link.target = '_blank';
-                  link.rel = 'noopener noreferrer';
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                } catch {
-                  window.location.href = waUrl;
-                }
-
-                const consultationSection = document.getElementById('consultation');
-                if (consultationSection) {
-                  consultationSection.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-              className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center"
-            >
-              {/* Field 1: Destination */}
-              <div className="md:col-span-4 flex items-center gap-3 md:border-r md:rtl:border-r-0 md:rtl:border-l border-[#d1a847]/25 md:pr-4 md:rtl:pr-0 md:rtl:pl-4">
-                <div className="w-8 h-8 rounded-full bg-[#081528] border border-[#d1a847]/35 text-[#d1a847] flex items-center justify-center shrink-0">
-                  <MapPin className="w-4 h-4 text-[#d1a847]" />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-[11px] font-semibold text-[#d1a847] uppercase tracking-wider">
-                    {t.hero.destinationTitle}
-                  </label>
-                  <input
-                    type="text"
-                    value={heroDestination}
-                    onChange={(e) => setHeroDestination(e.target.value)}
-                    placeholder={
-                      heroTab === 'tours'
-                        ? t.hero.destinationPlaceholder
-                        : (lang === 'fr' ? 'Hôtel, ville ou région...' : 'Hotel, city or region...')
-                    }
-                    className="w-full text-xs sm:text-sm font-medium text-white placeholder:text-slate-400 focus:outline-none bg-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Field 2: De - à (Dates) */}
-              <div className="md:col-span-4 flex items-center gap-3 md:border-r md:rtl:border-r-0 md:rtl:border-l border-[#d1a847]/25 md:pr-4 md:rtl:pr-0 md:rtl:pl-4">
-                <div className="w-8 h-8 rounded-full bg-[#081528] border border-[#d1a847]/35 text-[#d1a847] flex items-center justify-center shrink-0">
-                  <Calendar className="w-4 h-4 text-[#d1a847]" />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-[11px] font-semibold text-[#d1a847] uppercase tracking-wider">
-                    {t.hero.datesTitle}
-                  </label>
-                  <input
-                    type="text"
-                    value={heroDates}
-                    onChange={(e) => setHeroDates(e.target.value)}
-                    placeholder={t.hero.datesPlaceholder}
-                    className="w-full text-xs sm:text-sm font-medium text-white placeholder:text-slate-400 focus:outline-none bg-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Field 3: Avancé (Plus) */}
-              <div className="md:col-span-2 relative">
-                <button
-                  type="button"
-                  onClick={() => setAdvancedOpen(!advancedOpen)}
-                  className="w-full text-left rtl:text-right flex items-center justify-between cursor-pointer focus:outline-none py-1"
-                >
-                  <div>
-                    <span className="block text-[11px] font-semibold text-[#d1a847] uppercase tracking-wider">
-                      {t.hero.advancedTitle}
-                    </span>
-                    <span className="text-xs sm:text-sm font-medium text-slate-200 flex items-center gap-1">
-                      {t.hero.advancedSubtitle}
-                      <ChevronDown className={`w-3.5 h-3.5 text-[#d1a847] transition-transform ${advancedOpen ? 'rotate-180' : ''}`} />
-                    </span>
-                  </div>
-                </button>
-
-                {/* Advanced Popup */}
-                {advancedOpen && (
-                  <div className="absolute top-full left-0 rtl:left-auto rtl:right-0 mt-3 w-64 bg-[#0b1d3a] border border-[#d1a847]/40 rounded-xl shadow-2xl p-4 z-50 space-y-3 text-white backdrop-blur-md">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Voyageurs / Personnes
-                      </label>
-                      <select
-                        value={advancedPax}
-                        onChange={(e) => setAdvancedPax(e.target.value)}
-                        className="w-full text-xs border border-[#d1a847]/30 bg-[#081528] rounded-lg p-2 text-white focus:outline-none focus:border-[#d1a847]"
-                      >
-                        <option value="1">1 Adulte (Solo)</option>
-                        <option value="2">2 Adultes (Couple)</option>
-                        <option value="3-5">3–5 (Famille)</option>
-                        <option value="6+">6+ (Groupe)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Catégorie
-                      </label>
-                      <select
-                        value={advancedClass}
-                        onChange={(e) => setAdvancedClass(e.target.value)}
-                        className="w-full text-xs border border-[#d1a847]/30 bg-[#081528] rounded-lg p-2 text-white focus:outline-none focus:border-[#d1a847]"
-                      >
-                        <option value="Standard">Standard Économique</option>
-                        <option value="Confort">Confort Supérieur</option>
-                        <option value="VIP 5 Etoiles">VIP 5 Étoiles</option>
-                      </select>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setAdvancedOpen(false)}
-                      className="w-full py-1.5 bg-gradient-to-r from-[#d1a847] to-[#b88628] text-[#0b1d3a] text-xs rounded-lg font-bold hover:brightness-110 transition-all cursor-pointer"
-                    >
-                      OK
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Field 4: Rechercher Button (Metallic Gold) */}
-              <div className="md:col-span-2">
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] hover:from-[#fff1b0] hover:to-[#dfaf46] text-[#0b1d3a] font-bold text-xs sm:text-sm py-3 px-6 rounded-lg shadow-lg hover:shadow-[0_0_25px_rgba(209,168,71,0.5)] transition-all duration-200 hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>{t.hero.searchBtn}</span>
-                </button>
-              </div>
-            </form>
+              <span>{t.nav.services}</span>
+              <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
+            </a>
           </div>
         </div>
 
@@ -1332,16 +1060,9 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
             {/* Brand Column */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#d1a847] to-[#9a7220] p-0.5 shadow-md">
-                  <div className="w-full h-full bg-[#0b1d3a] rounded-[6px] flex items-center justify-center">
-                    <Compass className="w-4 h-4 text-[#d1a847]" />
-                  </div>
-                </div>
-                <span className="font-serif-luxury text-xl font-bold tracking-wider gold-gradient-text uppercase">
-                  {isRtl ? 'جولدن جروب ترافيلز' : 'Golden Group Travels'}
-                </span>
-              </div>
+              <a href="#" className="inline-block focus:outline-none">
+                <GoldenLogo className="h-14" />
+              </a>
               <p className="text-xs text-slate-400 leading-relaxed">
                 {t.footer.desc}
               </p>
@@ -1446,10 +1167,10 @@ export default function App() {
                   </div>
                 </a>
 
-                {/* Official Emails */}
+                {/* Official Email */}
                 <div className="pt-2 border-t border-slate-800 space-y-1.5">
                   <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                    {lang === 'ar' ? 'البريد الإلكتروني الرسمي' : 'Emails Officiels'}
+                    {lang === 'ar' ? 'البريد الإلكتروني الرسمي' : 'Email Officiel'}
                   </div>
                   <a
                     href="mailto:Info@goldengrouptravels.com"
@@ -1457,13 +1178,6 @@ export default function App() {
                   >
                     <Mail className="w-4 h-4 text-[#d1a847] shrink-0" />
                     <span className="font-mono text-xs truncate">Info@goldengrouptravels.com</span>
-                  </a>
-                  <a
-                    href="mailto:M.reda@goldengrouptravels.com"
-                    className="flex items-center gap-2 text-xs text-slate-200 hover:text-[#d1a847] transition-colors p-2 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/20"
-                  >
-                    <Mail className="w-4 h-4 text-[#d1a847] shrink-0" />
-                    <span className="font-mono text-xs truncate">M.reda@goldengrouptravels.com</span>
                   </a>
                 </div>
               </div>
