@@ -29,6 +29,14 @@
   }
 }
 
+.font-calligraphy {
+  font-family: 'Aref Ruqaa', 'Amiri', 'Cairo', serif;
+}
+
+.font-amiri {
+  font-family: 'Amiri', 'Cairo', serif;
+}
+
 /* Custom metallic gold gradient utilities and subtle lighting */
 .gold-gradient-text {
   background: linear-gradient(135deg, #fceda2 0%, #d1a847 45%, #c59b38 80%, #9a7220 100%);

@@ -11,8 +11,18 @@ export interface TranslationData {
     hours: string;
     certified: string;
     directDesk: string;
+    email1: string;
+    email2: string;
+    phone: string;
+    login: string;
+    register: string;
+    currency: string;
   };
   nav: {
+    accueil: string;
+    hajOmra: string;
+    voyageOrganise: string;
+    circuitsMaroc: string;
     services: string;
     packages: string;
     whyUs: string;
@@ -23,13 +33,24 @@ export interface TranslationData {
     tagline: string;
   };
   hero: {
+    talbiyah: string;
+    arabicTitle: string;
+    tabTours: string;
+    tabHotel: string;
+    destinationTitle: string;
+    destinationPlaceholder: string;
+    datesTitle: string;
+    datesPlaceholder: string;
+    advancedTitle: string;
+    advancedSubtitle: string;
+    searchBtn: string;
     headlinePart1: string;
     headlinePart2: string;
     ctaPrimary: string;
     ctaPhone: string;
     selectService: string;
     destinationLabel: string;
-    destinationPlaceholder: string;
+    destinationPlaceholderOld: string;
     dateLabel: string;
     travelersLabel: string;
     requestQuote: string;
@@ -145,26 +166,47 @@ export const translations: Record<Language, TranslationData> = {
     topStrip: {
       hours: 'Mon – Sat: 9:00 AM – 8:00 PM | Sun: On-Call',
       certified: 'Certified Travel & Visa Management',
-      directDesk: 'Direct Concierge: 0666-484815'
+      directDesk: 'Direct Concierge: 0666-484815',
+      email1: 'Info@goldengrouptravels.com',
+      email2: 'M.reda@goldengrouptravels.com',
+      phone: '+212 666-484815',
+      login: 'Login',
+      register: 'Register',
+      currency: 'MAD'
     },
     nav: {
-      services: 'Our Services',
+      accueil: 'HOME',
+      hajOmra: 'HAJJ & UMRAH',
+      voyageOrganise: 'ORGANIZED TOURS',
+      circuitsMaroc: 'MOROCCO TOURS',
+      services: 'SERVICES',
       packages: 'Curated Itineraries',
       whyUs: 'Why Golden Group',
       inquiry: 'Inquiry & Booking',
       faq: 'FAQ',
-      contact: 'Contact',
+      contact: 'CONTACT',
       callNow: 'Call Now: 0666-484815',
-      tagline: 'Premium Global Journeys'
+      tagline: 'Golden Travel & Tourism'
     },
     hero: {
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
+      arabicTitle: 'الوكالة الذهبية للأسفار و السياحة و الحج و العمرة',
+      tabTours: 'Organized Tours',
+      tabHotel: 'Hotel',
+      destinationTitle: 'Destination',
+      destinationPlaceholder: 'Where do you want to go?',
+      datesTitle: 'From - To',
+      datesPlaceholder: 'dd/mm/yyyy - dd/mm/yyyy',
+      advancedTitle: 'Advanced',
+      advancedSubtitle: 'More',
+      searchBtn: 'Search',
       headlinePart1: 'Discover the World with',
       headlinePart2: 'Golden Group Travels',
       ctaPrimary: 'Plan Your Journey',
       ctaPhone: 'Call 0666-484815',
       selectService: 'Select Service',
       destinationLabel: 'Destination / Country',
-      destinationPlaceholder: 'e.g. Dubai, London, Makkah',
+      destinationPlaceholderOld: 'e.g. Dubai, London, Makkah',
       dateLabel: 'Estimated Travel Date',
       travelersLabel: 'Travelers / Pax',
       requestQuote: 'Request Quote',
@@ -396,26 +438,47 @@ export const translations: Record<Language, TranslationData> = {
     topStrip: {
       hours: 'Lun – Sam: 9h00 – 20h00 | Dim: Sur appel',
       certified: 'Gestion Certifiée des Voyages et Visas',
-      directDesk: 'Conciergerie Directe : 0666-484815'
+      directDesk: 'Conciergerie Directe : 0666-484815',
+      email1: 'Info@goldengrouptravels.com',
+      email2: 'M.reda@goldengrouptravels.com',
+      phone: '+212 666-484815',
+      login: 'Connexion',
+      register: "S'inscrire",
+      currency: 'MAD'
     },
     nav: {
-      services: 'Nos Services',
+      accueil: 'ACCUEIL',
+      hajOmra: 'HAJ & OMRA',
+      voyageOrganise: 'VOYAGE ORGANISÉ',
+      circuitsMaroc: 'CIRCUITS MAROC',
+      services: 'SERVICES',
       packages: 'Itinéraires Exclusifs',
       whyUs: 'Pourquoi Golden Group',
       inquiry: 'Réservation & Devis',
       faq: 'FAQ',
-      contact: 'Contact',
+      contact: 'CONTACT',
       callNow: 'Appeler : 0666-484815',
-      tagline: 'Voyages d’Exception à Travers le Monde'
+      tagline: 'Golden Travel & Tourism'
     },
     hero: {
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
+      arabicTitle: 'الوكالة الذهبية للأسفار و السياحة و الحج و العمرة',
+      tabTours: 'Voyage Organisé',
+      tabHotel: 'Hôtel',
+      destinationTitle: 'Destination',
+      destinationPlaceholder: 'Où voulez-vous aller ?',
+      datesTitle: 'De - à',
+      datesPlaceholder: 'dd/mm/yyyy - dd/mm/yyyy',
+      advancedTitle: 'Avancé',
+      advancedSubtitle: 'Plus',
+      searchBtn: 'Rechercher',
       headlinePart1: 'Découvrez le Monde avec',
       headlinePart2: 'Golden Group Travels',
       ctaPrimary: 'Planifier Votre Voyage',
       ctaPhone: 'Appelez le 0666-484815',
       selectService: 'Choisir le Service',
       destinationLabel: 'Destination / Pays',
-      destinationPlaceholder: 'ex. Dubaï, Londres, La Mecque',
+      destinationPlaceholderOld: 'ex. Dubaï, Londres, La Mecque',
       dateLabel: 'Date Prévue du Voyage',
       travelersLabel: 'Nombre de Voyageurs',
       requestQuote: 'Demander un Devis',
@@ -647,26 +710,47 @@ export const translations: Record<Language, TranslationData> = {
     topStrip: {
       hours: 'Lun – Sáb: 9:00 – 20:00 | Dom: De Guardia',
       certified: 'Gestión Certificada de Viajes y Visados',
-      directDesk: 'Conserjería Directa: 0666-484815'
+      directDesk: 'Conserjería Directa: 0666-484815',
+      email1: 'Info@goldengrouptravels.com',
+      email2: 'M.reda@goldengrouptravels.com',
+      phone: '+212 666-484815',
+      login: 'Iniciar sesión',
+      register: 'Registrarse',
+      currency: 'MAD'
     },
     nav: {
-      services: 'Nuestros Servicios',
+      accueil: 'INICIO',
+      hajOmra: 'HAJ Y UMRA',
+      voyageOrganise: 'VIAJE ORGANIZADO',
+      circuitsMaroc: 'CIRCUITOS MARRUECOS',
+      services: 'SERVICIOS',
       packages: 'Itinerarios Exclusivos',
       whyUs: 'Por Qué Golden Group',
       inquiry: 'Presupuesto & Reserva',
       faq: 'Preguntas Frecuentes',
-      contact: 'Contacto',
+      contact: 'CONTACTO',
       callNow: 'Llamar: 0666-484815',
-      tagline: 'Viajes de Prestigio Internacional'
+      tagline: 'Golden Travel & Tourism'
     },
     hero: {
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
+      arabicTitle: 'الوكالة الذهبية للأسفار و السياحة و الحج و العمرة',
+      tabTours: 'Viaje Organizado',
+      tabHotel: 'Hotel',
+      destinationTitle: 'Destino',
+      destinationPlaceholder: '¿A dónde quieres ir?',
+      datesTitle: 'De - a',
+      datesPlaceholder: 'dd/mm/aaaa - dd/mm/aaaa',
+      advancedTitle: 'Avanzado',
+      advancedSubtitle: 'Más',
+      searchBtn: 'Buscar',
       headlinePart1: 'Descubra el Mundo con',
       headlinePart2: 'Golden Group Travels',
       ctaPrimary: 'Planificar Su Viaje',
       ctaPhone: 'Llamar al 0666-484815',
       selectService: 'Seleccionar Servicio',
       destinationLabel: 'Destino o País',
-      destinationPlaceholder: 'ej. Dubái, Londres, La Meca',
+      destinationPlaceholderOld: 'ej. Dubái, Londres, La Meca',
       dateLabel: 'Fecha Prevista de Viaje',
       travelersLabel: 'Pasajeros / Viajeros',
       requestQuote: 'Solicitar Presupuesto',
@@ -898,26 +982,47 @@ export const translations: Record<Language, TranslationData> = {
     topStrip: {
       hours: 'السبت – الخميس: 9:00 صباحاً – 8:00 مساءً | الجمعة: تحت الطلب',
       certified: 'إدارة معتمدة للسياحة وحجوزات السفر والتأشيرات',
-      directDesk: 'المكتب المباشر: 0666-484815'
+      directDesk: 'المكتب المباشر: 0666-484815',
+      email1: 'Info@goldengrouptravels.com',
+      email2: 'M.reda@goldengrouptravels.com',
+      phone: '+212 666-484815',
+      login: 'تسجيل الدخول',
+      register: 'حساب جديد',
+      currency: 'درهم مغربي MAD'
     },
     nav: {
-      services: 'خدماتنا',
+      accueil: 'الرئيسية',
+      hajOmra: 'حج وعمرة',
+      voyageOrganise: 'رحلات منظمة',
+      circuitsMaroc: 'جولات المغرب',
+      services: 'الخدمات',
       packages: 'رحلاتنا المختارة',
       whyUs: 'لماذا جولدن جروب',
       inquiry: 'الحجز والاستفسار',
       faq: 'الأسئلة الشائعة',
       contact: 'اتصل بنا',
       callNow: 'اتصل الآن: 0666-484815',
-      tagline: 'رحلات راقية حول العالم'
+      tagline: 'الذهبية للأسفار والسياحة'
     },
     hero: {
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
+      arabicTitle: 'الوكالة الذهبية للأسفار و السياحة و الحج و العمرة',
+      tabTours: 'رحلات منظمة',
+      tabHotel: 'فنادق',
+      destinationTitle: 'الوجهة',
+      destinationPlaceholder: 'إلى أين تريد الذهاب؟',
+      datesTitle: 'من - إلى',
+      datesPlaceholder: 'يوم/شهر/سنة - يوم/شهر/سنة',
+      advancedTitle: 'خيارات متقدمة',
+      advancedSubtitle: 'المزيد',
+      searchBtn: 'بحث',
       headlinePart1: 'اكتشف العالم مع',
       headlinePart2: 'جولدن جروب ترافيلز',
       ctaPrimary: 'خطط لرحلتك الآن',
       ctaPhone: 'اتصل بنا: 0666-484815',
       selectService: 'اختر الخدمة المطلوبة',
       destinationLabel: 'الوجهة / الدولة',
-      destinationPlaceholder: 'مثال: دبي، لندن، مكة المكرمة',
+      destinationPlaceholderOld: 'مثال: دبي، لندن، مكة المكرمة',
       dateLabel: 'تاريخ السفر التقريبي',
       travelersLabel: 'عدد المسافرين',
       requestQuote: 'طلب عرض أسعار',
