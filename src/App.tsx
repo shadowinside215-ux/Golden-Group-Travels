@@ -77,14 +77,28 @@ export default function App() {
   const [travelDate, setTravelDate] = useState('');
   const [travelersCount, setTravelersCount] = useState('2');
   const [specialRequests, setSpecialRequests] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+
+  // Sanitization helpers to prevent injection / malicious payloads
+  const sanitizeText = (val: string, maxLen = 120): string => {
+    return val ? val.replace(/[<>'"`;(){}[\]\\/]/g, '').trim().slice(0, maxLen) : '';
+  };
+
+  const sanitizePhone = (val: string): string => {
+    return val ? val.replace(/[^0-9+\s\-()]/g, '').trim().slice(0, 30) : '';
+  };
+
+  const sanitizeEmail = (val: string): string => {
+    return val ? val.replace(/[<>'";(){}[\]\\/]/g, '').trim().slice(0, 100) : '';
+  };
 
   // Check if current selected service is Flight Bookings
   const isFlightBooking = formService === t.services.items[0].name || formService.toLowerCase().includes('flight') || formService.toLowerCase().includes('vol') || formService.toLowerCase().includes('vuelo') || formService.includes('طيران');
   const isQuickFlightBooking = quickService === 'flights';
 
-  // Construct structured WhatsApp message with client booking data
+  // Construct structured WhatsApp message with client booking data (sanitized)
   const generateWhatsAppMessage = () => {
     const header = lang === 'ar'
       ? '✈️ *طلب حجز واستفسار - جولدن جروب ترافيلز*'
@@ -102,17 +116,23 @@ export default function App() {
     const paxLabel = lang === 'ar' ? 'عدد المسافرين' : lang === 'fr' ? 'Nombre de voyageurs' : lang === 'es' ? 'Pasajeros' : 'Travelers';
     const notesLabel = lang === 'ar' ? 'ملاحظات وتفاصيل' : lang === 'fr' ? 'Demandes spéciales' : lang === 'es' ? 'Notas especiales' : 'Special Requests';
 
+    const safeName = sanitizeText(fullName, 80);
+    const safePhone = sanitizePhone(phone);
+    const safeEmail = sanitizeEmail(email);
+    const safeDest = sanitizeText(destination, 80);
+    const safeNotes = sanitizeText(specialRequests, 400);
+
     const lines = [
       header,
       '━━━━━━━━━━━━━━━━━━━━',
       `📌 *${serviceLabel}:* ${formService}`,
-      `👤 *${nameLabel}:* ${fullName || '-'}`,
-      `📞 *${phoneLabel}:* ${phone || '-'}`,
-      email ? `✉️ *Email:* ${email}` : '',
-      (isFlightBooking && destination) ? `📍 *${destLabel}:* ${destination}` : '',
+      `👤 *${nameLabel}:* ${safeName || '-'}`,
+      `📞 *${phoneLabel}:* ${safePhone || '-'}`,
+      safeEmail ? `✉️ *Email:* ${safeEmail}` : '',
+      (isFlightBooking && safeDest) ? `📍 *${destLabel}:* ${safeDest}` : '',
       travelDate ? `📅 *${dateLabel}:* ${travelDate}` : '',
       `👥 *${paxLabel}:* ${travelersCount || '1'}`,
-      specialRequests ? `📝 *${notesLabel}:* ${specialRequests}` : '',
+      safeNotes ? `📝 *${notesLabel}:* ${safeNotes}` : '',
       '━━━━━━━━━━━━━━━━━━━━',
       lang === 'ar'
         ? 'تم إرسال هذا الطلب عبر الموقع الرسمي لجولدن جروب ترافيلز'
@@ -138,7 +158,7 @@ export default function App() {
       setFormService(serviceObj.name);
     }
     if (quickDestination && quickService === 'flights') {
-      setDestination(quickDestination);
+      setDestination(sanitizeText(quickDestination, 80));
     }
     if (quickDate) {
       setTravelDate(quickDate);
@@ -163,10 +183,28 @@ export default function App() {
 
   const handleConsultationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Anti-bot honeypot check: if bot filled this hidden field, safely ignore
+    if (honeypot) {
+      setSubmitted(true);
+      return;
+    }
+
     setFormLoading(true);
 
     const waUrl = getWhatsAppUrl();
-    window.open(waUrl, '_blank');
+
+    // Secure anchor dispatch preventing window.open popup blockers and tabnabbing
+    try {
+      const link = document.createElement('a');
+      link.href = waUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch {
+      window.location.href = waUrl;
+    }
 
     setTimeout(() => {
       setFormLoading(false);
@@ -182,6 +220,7 @@ export default function App() {
     setDestination('');
     setTravelDate('');
     setSpecialRequests('');
+    setHoneypot('');
   };
 
   return (
@@ -739,6 +778,19 @@ export default function App() {
               </div>
             ) : (
               <form onSubmit={handleConsultationSubmit} className="space-y-6">
+                {/* Anti-bot Honeypot field (hidden from legitimate users) */}
+                <div className="hidden" aria-hidden="true">
+                  <label htmlFor="hp_website">Website</label>
+                  <input
+                    id="hp_website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </div>
+
                 {/* Service Selector Tabs */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-[#d1a847] mb-2">
