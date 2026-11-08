@@ -1,0 +1,7 @@
+{
+  "name": "Golden Group Travels",
+  "description": "Premier travel agency offering flight bookings, luxury hotel reservations, visa assistance, travel insurance, and bespoke holiday packages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
