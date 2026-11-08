@@ -7,7 +7,6 @@
 import React, { useState } from 'react';
 import {
   Phone,
-  Clock,
   Compass,
   Plane,
   Building2,
@@ -23,10 +22,8 @@ import {
   Menu,
   X,
   Award,
-  Globe,
   Headphones,
-  Send,
-  Check
+  Send
 } from 'lucide-react';
 import { translations, Language } from './translations.ts';
 
@@ -83,8 +80,9 @@ export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
-  // Quick inquiry modal state
-  const [modalServiceId, setModalServiceId] = useState<string | null>(null);
+  // Check if current selected service is Flight Bookings
+  const isFlightBooking = formService === t.services.items[0].name || formService.toLowerCase().includes('flight') || formService.toLowerCase().includes('vol') || formService.toLowerCase().includes('vuelo') || formService.includes('طيران');
+  const isQuickFlightBooking = quickService === 'flights';
 
   // Construct structured WhatsApp message with client booking data
   const generateWhatsAppMessage = () => {
@@ -111,7 +109,7 @@ export default function App() {
       `👤 *${nameLabel}:* ${fullName || '-'}`,
       `📞 *${phoneLabel}:* ${phone || '-'}`,
       email ? `✉️ *Email:* ${email}` : '',
-      destination ? `📍 *${destLabel}:* ${destination}` : '',
+      (isFlightBooking && destination) ? `📍 *${destLabel}:* ${destination}` : '',
       travelDate ? `📅 *${dateLabel}:* ${travelDate}` : '',
       `👥 *${paxLabel}:* ${travelersCount || '1'}`,
       specialRequests ? `📝 *${notesLabel}:* ${specialRequests}` : '',
@@ -139,7 +137,7 @@ export default function App() {
     if (serviceObj) {
       setFormService(serviceObj.name);
     }
-    if (quickDestination) {
+    if (quickDestination && quickService === 'flights') {
       setDestination(quickDestination);
     }
     if (quickDate) {
@@ -160,9 +158,6 @@ export default function App() {
     const consultationSection = document.getElementById('consultation');
     if (consultationSection) {
       consultationSection.scrollIntoView({ behavior: 'smooth' });
-    }
-    if (modalServiceId) {
-      setModalServiceId(null);
     }
   };
 
@@ -188,10 +183,6 @@ export default function App() {
     setTravelDate('');
     setSpecialRequests('');
   };
-
-  const activeModalService = modalServiceId
-    ? t.services.items.find(s => s.id === modalServiceId)
-    : null;
 
   return (
     <div
@@ -221,13 +212,10 @@ export default function App() {
             </div>
           </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-200">
+          {/* Desktop Navigation Links (Clean, Curated Journeys removed as requested) */}
+          <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-200">
             <a href="#services" className="hover:text-[#d1a847] transition-colors whitespace-nowrap">
               {t.nav.services}
-            </a>
-            <a href="#packages" className="hover:text-[#d1a847] transition-colors whitespace-nowrap">
-              {t.nav.packages}
             </a>
             <a href="#why-us" className="hover:text-[#d1a847] transition-colors whitespace-nowrap">
               {t.nav.whyUs}
@@ -334,13 +322,6 @@ export default function App() {
                 {t.nav.services}
               </a>
               <a
-                href="#packages"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors"
-              >
-                {t.nav.packages}
-              </a>
-              <a
                 href="#why-us"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors"
@@ -394,26 +375,8 @@ export default function App() {
         )}
       </header>
 
-      {/* Hero Section: Impactful dark navy backdrop with subtle celestial / compass vector styling (NO images, NO AI logos, NO descriptions) */}
-      <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28 bg-radial-luxury">
-        {/* Decorative Pure SVG Celestial / Nautical Coordinate Elements */}
-        <div className="absolute inset-0 pointer-events-none opacity-20">
-          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <radialGradient id="goldGlow" cx="50%" cy="30%" r="60%">
-                <stop offset="0%" stopColor="#d1a847" stopOpacity="0.15" />
-                <stop offset="60%" stopColor="#0b1d3a" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#goldGlow)" />
-            <circle cx="50%" cy="35%" r="180" fill="none" stroke="#d1a847" strokeWidth="0.7" strokeDasharray="3,6" />
-            <circle cx="50%" cy="35%" r="320" fill="none" stroke="#d1a847" strokeWidth="0.8" />
-            <circle cx="50%" cy="35%" r="480" fill="none" stroke="#d1a847" strokeWidth="0.5" strokeDasharray="4,8" />
-            <line x1="50%" y1="0%" x2="50%" y2="85%" stroke="#d1a847" strokeWidth="0.6" strokeDasharray="6,6" />
-            <line x1="10%" y1="35%" x2="90%" y2="35%" stroke="#d1a847" strokeWidth="0.6" strokeDasharray="6,6" />
-          </svg>
-        </div>
-
+      {/* Hero Section: Clean, impactful, without screenshot metrics, without AI logos or fake descriptions */}
+      <section className="relative overflow-hidden pt-20 pb-20 md:pt-28 md:pb-28 bg-radial-luxury">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center text-center mb-6">
             {/* Main Headline */}
@@ -422,7 +385,7 @@ export default function App() {
               <span className="gold-gradient-text">{t.hero.headlinePart2}</span>
             </h1>
 
-            {/* Clean Hero CTAs without raw phone numbers cluttering the top */}
+            {/* Clean Hero CTAs without raw phone numbers */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
               <a
                 href="#consultation"
@@ -444,9 +407,9 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quick Travel Inquiry / Booking Bar */}
-          <div className="mt-14 max-w-5xl mx-auto bg-[#0b1d3a]/90 border border-[#d1a847]/40 rounded-2xl p-4 sm:p-6 shadow-[0_12px_40px_rgba(3,8,16,0.7)] backdrop-blur-md">
-            <form onSubmit={handleHeroQuickSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
+          {/* Quick Travel Inquiry / Booking Bar (Destination only appears for Flight Bookings) */}
+          <div className="mt-12 max-w-4xl mx-auto bg-[#0b1d3a]/90 border border-[#d1a847]/40 rounded-2xl p-4 sm:p-6 shadow-[0_12px_40px_rgba(3,8,16,0.7)] backdrop-blur-md">
+            <form onSubmit={handleHeroQuickSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-end">
               {/* Service Selection */}
               <div>
                 <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#d1a847] mb-1.5">
@@ -468,39 +431,41 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Destination / Route */}
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#d1a847] mb-1.5">
-                  {t.hero.destinationLabel}
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={quickDestination}
-                    onChange={(e) => setQuickDestination(e.target.value)}
-                    placeholder={t.hero.destinationPlaceholder}
-                    className={`w-full bg-[#081528] border border-[#d1a847]/30 text-white text-xs sm:text-sm rounded-lg py-2.5 focus:outline-none focus:border-[#d1a847] placeholder:text-slate-500 ${
-                      isRtl ? 'pr-8 pl-3' : 'pl-8 pr-3'
-                    }`}
-                  />
-                  <MapPin className={`w-4 h-4 text-[#d1a847] absolute top-3 pointer-events-none ${isRtl ? 'right-2.5' : 'left-2.5'}`} />
+              {/* Destination / Country (ONLY appears if Flight Bookings is selected) */}
+              {isQuickFlightBooking ? (
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#d1a847] mb-1.5">
+                    {t.hero.destinationLabel}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={quickDestination}
+                      onChange={(e) => setQuickDestination(e.target.value)}
+                      placeholder={t.hero.destinationPlaceholder}
+                      className={`w-full bg-[#081528] border border-[#d1a847]/30 text-white text-xs sm:text-sm rounded-lg py-2.5 focus:outline-none focus:border-[#d1a847] placeholder:text-slate-500 ${
+                        isRtl ? 'pr-8 pl-3' : 'pl-8 pr-3'
+                      }`}
+                    />
+                    <MapPin className={`w-4 h-4 text-[#d1a847] absolute top-3 pointer-events-none ${isRtl ? 'right-2.5' : 'left-2.5'}`} />
+                  </div>
                 </div>
-              </div>
-
-              {/* Travel Date */}
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#d1a847] mb-1.5">
-                  {t.hero.dateLabel}
-                </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={quickDate}
-                    onChange={(e) => setQuickDate(e.target.value)}
-                    className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-xs sm:text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#d1a847] [color-scheme:dark]"
-                  />
+              ) : (
+                /* Travel Date shown in place when not flight bookings */
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#d1a847] mb-1.5">
+                    {t.hero.dateLabel}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={quickDate}
+                      onChange={(e) => setQuickDate(e.target.value)}
+                      className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-xs sm:text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#d1a847] [color-scheme:dark]"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Number of Travelers */}
               <div>
@@ -534,129 +499,88 @@ export default function App() {
               </div>
             </form>
           </div>
-
-          {/* Quick Metrics Strip */}
-          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-[#d1a847]/20 text-center">
-            <div>
-              <div className="font-serif-luxury text-3xl sm:text-4xl font-bold gold-gradient-text tabular-nums">100%</div>
-              <div className="text-xs uppercase tracking-wider text-slate-400 mt-1">{t.hero.kpiConcierge}</div>
-            </div>
-            <div>
-              <div className="font-serif-luxury text-3xl sm:text-4xl font-bold gold-gradient-text tabular-nums">500+</div>
-              <div className="text-xs uppercase tracking-wider text-slate-400 mt-1">{t.hero.kpiPartners}</div>
-            </div>
-            <div>
-              <div className="font-serif-luxury text-3xl sm:text-4xl font-bold gold-gradient-text tabular-nums">99.4%</div>
-              <div className="text-xs uppercase tracking-wider text-slate-400 mt-1">{t.hero.kpiVisa}</div>
-            </div>
-            <div>
-              <div className="font-serif-luxury text-3xl sm:text-4xl font-bold gold-gradient-text tabular-nums">24 / 7</div>
-              <div className="text-xs uppercase tracking-wider text-slate-400 mt-1">{t.hero.kpiSupport}</div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Services Section: 5 Core Services styled with Navy Blue background & Gold accents */}
+      {/* Services Section: Clean Premium Cards WITHOUT Descriptions, Highlights, or Destination Text */}
       <section id="services" className="py-20 md:py-28 bg-[#0b1d3a] relative border-t border-b border-[#d1a847]/25">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#d1a847]/30 bg-[#081528] text-xs font-semibold uppercase tracking-widest text-[#fceda2] mb-3">
-              <Compass className="w-3.5 h-3.5 text-[#d1a847]" />
-              <span>{t.services.eyebrow}</span>
-            </div>
             <h2 className="font-serif-luxury text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
               {t.services.title}
             </h2>
-            <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto mb-5" />
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              {t.services.subtitle}
-            </p>
+            <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto" />
           </div>
 
-          {/* Service Cards Grid (5 core required services + direct concierge card) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Clean Service Cards Grid: 5 Core Services styled with Navy Blue background & Gold accents */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {t.services.items.map((service, index) => {
               const IconComponent = SERVICE_ICONS[service.id] || Compass;
 
               return (
                 <div
                   key={service.id}
-                  className="bg-[#081528] border border-[#d1a847]/30 rounded-xl p-6 sm:p-7 relative flex flex-col justify-between gold-card-hover group"
+                  className="bg-[#081528] border border-[#d1a847]/30 hover:border-[#d1a847] rounded-xl p-8 relative flex flex-col justify-between gold-card-hover group min-h-[220px]"
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-5">
-                      <div className="w-12 h-12 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/40 flex items-center justify-center group-hover:border-[#d1a847] group-hover:shadow-[0_0_15px_rgba(209,168,71,0.3)] transition-all duration-300">
-                        <IconComponent className="w-6 h-6 text-[#d1a847] transition-transform duration-300 group-hover:scale-110" />
+                    {/* Top Bar with Number & Luxury Icon */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-14 h-14 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/40 flex items-center justify-center group-hover:border-[#d1a847] group-hover:shadow-[0_0_15px_rgba(209,168,71,0.3)] transition-all duration-300">
+                        <IconComponent className="w-7 h-7 text-[#d1a847] transition-transform duration-300 group-hover:scale-110" />
                       </div>
-                      <span className="font-serif-luxury text-xl font-bold text-[#d1a847]/40 group-hover:text-[#d1a847] transition-colors">
+                      <span className="font-serif-luxury text-2xl font-bold text-[#d1a847]/40 group-hover:text-[#d1a847] transition-colors">
                         0{index + 1}
                       </span>
                     </div>
 
-                    <h3 className="font-serif-luxury text-2xl font-bold text-white group-hover:text-[#fceda2] transition-colors mb-2">
+                    {/* Service Title */}
+                    <h3 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-white group-hover:text-[#fceda2] transition-colors mb-2">
                       {service.name}
                     </h3>
-
-                    <p className="text-xs uppercase tracking-wider text-[#d1a847] font-semibold mb-3">
-                      {service.tagline}
-                    </p>
-
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
-                      {service.description}
-                    </p>
-
-                    {/* Highlights List */}
-                    <div className="space-y-2 mb-6 pt-4 border-t border-[#d1a847]/15">
-                      {service.highlights.map((highlight, hIdx) => (
-                        <div key={hIdx} className="flex items-start gap-2 text-xs text-slate-300">
-                          <Check className="w-3.5 h-3.5 text-[#d1a847] shrink-0 mt-0.5" />
-                          <span>{highlight}</span>
-                        </div>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Card Bottom CTA Actions */}
-                  <div className="pt-4 border-t border-[#d1a847]/20 flex items-center justify-between gap-3">
+                  <div className="pt-6 border-t border-[#d1a847]/15 flex items-center justify-between gap-3">
                     <button
                       onClick={() => handleServiceSelectForInquiry(service.name)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#d1a847] hover:text-[#fceda2] transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#d1a847] hover:text-[#fceda2] transition-colors cursor-pointer"
                     >
                       <span>{t.services.inquireNow}</span>
                       <ArrowRight className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
                     </button>
 
-                    <button
-                      onClick={() => setModalServiceId(service.id)}
-                      className="text-[11px] text-slate-400 hover:text-white transition-colors underline underline-offset-4 cursor-pointer"
+                    <a
+                      href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}&text=${encodeURIComponent(`Hello Golden Group Travels, I am inquiring about ${service.name}.`)}`}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1.5"
                     >
-                      {t.services.viewDetails}
-                    </button>
+                      <WhatsAppIcon className="w-3.5 h-3.5 fill-current" />
+                      <span>WhatsApp</span>
+                    </a>
                   </div>
                 </div>
               );
             })}
 
-            {/* 6th Card: Direct Personalized Human Assistance with WhatsApp */}
-            <div className="bg-gradient-to-br from-[#0f264c] via-[#0b1d3a] to-[#081528] border border-[#d1a847]/50 rounded-xl p-6 sm:p-7 flex flex-col justify-between shadow-[0_4px_20px_rgba(209,168,71,0.15)]">
+            {/* 6th Card: Direct Personalized Assistance */}
+            <div className="bg-gradient-to-br from-[#0f264c] via-[#0b1d3a] to-[#081528] border border-[#d1a847]/50 rounded-xl p-8 flex flex-col justify-between min-h-[220px]">
               <div>
-                <div className="w-12 h-12 rounded-lg bg-[#d1a847]/20 border border-[#d1a847] flex items-center justify-center mb-5">
-                  <Headphones className="w-6 h-6 text-[#fceda2]" />
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-14 h-14 rounded-xl bg-[#d1a847]/20 border border-[#d1a847] flex items-center justify-center">
+                    <Headphones className="w-7 h-7 text-[#fceda2]" />
+                  </div>
+                  <span className="font-serif-luxury text-2xl font-bold text-[#d1a847]/40">
+                    VIP
+                  </span>
                 </div>
-                <h3 className="font-serif-luxury text-2xl font-bold text-white mb-2">
+                <h3 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-white mb-2">
                   {t.services.customCardTitle}
                 </h3>
-                <p className="text-xs uppercase tracking-wider text-[#d1a847] font-semibold mb-3">
-                  {t.services.customCardTagline}
-                </p>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-                  {t.services.customCardDesc}
-                </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="pt-6 border-t border-[#d1a847]/20">
                 <a
                   href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
                   target="_blank"
@@ -664,138 +588,39 @@ export default function App() {
                   className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-emerald-700 hover:bg-emerald-600 shadow-md transition-all hover:scale-[1.02]"
                 >
                   <WhatsAppIcon className="w-4 h-4 fill-current" />
-                  <span>WhatsApp</span>
+                  <span>WhatsApp Booking</span>
                 </a>
-
-                <p className="text-[11px] text-center text-slate-400">
-                  {t.services.customCardSub}
-                </p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Curated Itineraries Section (Architectural & Typographic Design - Zero Images) */}
-      <section id="packages" className="py-20 md:py-28 bg-[#081528] relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#d1a847]/30 bg-[#0b1d3a] text-xs font-semibold uppercase tracking-widest text-[#fceda2] mb-3">
-              <Globe className="w-3.5 h-3.5 text-[#d1a847]" />
-              <span>{t.packages.eyebrow}</span>
-            </div>
-            <h2 className="font-serif-luxury text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-              {t.packages.title}
-            </h2>
-            <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto mb-5" />
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              {t.packages.subtitle}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-            {t.packages.items.map((journey) => (
-              <div
-                key={journey.code}
-                className="bg-[#0b1d3a] border border-[#d1a847]/30 rounded-xl p-6 sm:p-8 relative gold-card-hover group flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between pb-4 border-b border-[#d1a847]/20 mb-5">
-                    <span className="font-mono text-xs tracking-wider text-[#d1a847] font-semibold" dir="ltr">
-                      {journey.code}
-                    </span>
-                    <span className="text-[11px] uppercase tracking-wider text-[#fceda2] bg-[#081528] border border-[#d1a847]/40 px-2.5 py-0.5 rounded">
-                      {journey.tier}
-                    </span>
-                  </div>
-
-                  <h3 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-white mb-2 group-hover:text-[#fceda2] transition-colors">
-                    {journey.title}
-                  </h3>
-
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-[#d1a847] font-medium mb-3">
-                    <MapPin className="w-4 h-4 text-[#d1a847] shrink-0" />
-                    <span>{journey.route}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-xs text-slate-400 mb-6">
-                    <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>{t.packages.durationLabel}: {journey.duration}</span>
-                  </div>
-
-                  <div className="space-y-2.5 mb-6">
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
-                      {t.packages.inclusionsLabel}
-                    </div>
-                    {journey.perks.map((perk, pIdx) => (
-                      <div key={pIdx} className="flex items-center gap-2 text-xs text-slate-300">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
-                        <span>{perk}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-[#d1a847]/20 flex items-center justify-between gap-4">
-                  <button
-                    onClick={() => {
-                      setFormService(t.services.items[4].name);
-                      setDestination(journey.title);
-                      const consultationSection = document.getElementById('consultation');
-                      if (consultationSection) {
-                        consultationSection.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-[#0b1d3a] bg-gradient-to-r from-[#fceda2] to-[#d1a847] hover:shadow-[0_0_12px_rgba(209,168,71,0.4)] transition-all cursor-pointer"
-                  >
-                    <span>{t.packages.ctaQuote}</span>
-                    <ArrowRight className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  <a
-                    href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}&text=${encodeURIComponent(`Hello Golden Group Travels, I am inquiring about package ${journey.title} (${journey.code}).`)}`}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
-                  >
-                    <WhatsAppIcon className="w-3.5 h-3.5 fill-current shrink-0" />
-                    <span>WhatsApp</span>
-                  </a>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
       {/* Why Choose Us Section */}
-      <section id="why-us" className="py-20 md:py-28 bg-[#0b1d3a] relative border-t border-b border-[#d1a847]/25">
+      <section id="why-us" className="py-20 md:py-28 bg-[#081528] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#d1a847]/30 bg-[#081528] text-xs font-semibold uppercase tracking-widest text-[#fceda2] mb-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#d1a847]/30 bg-[#0b1d3a] text-xs font-semibold uppercase tracking-widest text-[#fceda2] mb-3">
               <Award className="w-3.5 h-3.5 text-[#d1a847]" />
               <span>{t.whyUs.eyebrow}</span>
             </div>
             <h2 className="font-serif-luxury text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
               {t.whyUs.title}
             </h2>
-            <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto mb-5" />
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-              {t.whyUs.subtitle}
-            </p>
+            <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {t.whyUs.pillars.map((pillar, idx) => {
-              const PillarIcons = [Globe, FileCheck2, Headphones, ShieldCheck];
+              const PillarIcons = [Compass, FileCheck2, Headphones, ShieldCheck];
               const IconComp = PillarIcons[idx % PillarIcons.length];
 
               return (
                 <div
                   key={idx}
-                  className="bg-[#081528] border border-[#d1a847]/25 rounded-xl p-6 relative group hover:border-[#d1a847] transition-all"
+                  className="bg-[#0b1d3a] border border-[#d1a847]/25 rounded-xl p-6 relative group hover:border-[#d1a847] transition-all"
                 >
-                  <div className="w-12 h-12 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/40 flex items-center justify-center mb-5 text-[#d1a847]">
+                  <div className="w-12 h-12 rounded-lg bg-[#081528] border border-[#d1a847]/40 flex items-center justify-center mb-5 text-[#d1a847]">
                     <IconComp className="w-6 h-6" />
                   </div>
                   <h3 className="font-serif-luxury text-xl font-bold text-white mb-2">
@@ -812,7 +637,7 @@ export default function App() {
       </section>
 
       {/* Interactive Consultation / Booking Form Section (DISPATCHES DIRECTLY TO WHATSAPP 0666-484815) */}
-      <section id="consultation" className="py-20 md:py-28 bg-[#081528] relative">
+      <section id="consultation" className="py-20 md:py-28 bg-[#0b1d3a] relative border-t border-b border-[#d1a847]/25">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/40 bg-emerald-950/40 text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-3">
@@ -828,7 +653,7 @@ export default function App() {
             </p>
           </div>
 
-          <div className="bg-[#0b1d3a] border border-[#d1a847]/40 rounded-2xl p-6 sm:p-10 shadow-[0_15px_50px_rgba(2,6,12,0.8)]">
+          <div className="bg-[#081528] border border-[#d1a847]/40 rounded-2xl p-6 sm:p-10 shadow-[0_15px_50px_rgba(2,6,12,0.8)]">
             {submitted ? (
               <div className="text-center py-8 space-y-6 animate-in fade-in duration-300">
                 <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center mx-auto text-emerald-400">
@@ -851,7 +676,7 @@ export default function App() {
                 </div>
 
                 {/* Prepared Booking Summary Card */}
-                <div className="p-5 bg-[#081528] rounded-xl border border-[#d1a847]/30 max-w-lg mx-auto text-xs text-slate-300 space-y-2 text-left rtl:text-right">
+                <div className="p-5 bg-[#0b1d3a] rounded-xl border border-[#d1a847]/30 max-w-lg mx-auto text-xs text-slate-300 space-y-2 text-left rtl:text-right">
                   <div className="flex justify-between border-b border-slate-800 pb-2">
                     <span className="text-slate-400">{lang === 'ar' ? 'الخدمة' : 'Service'}:</span>
                     <span className="font-semibold text-[#fceda2]">{formService}</span>
@@ -864,7 +689,7 @@ export default function App() {
                     <span className="text-slate-400">{lang === 'ar' ? 'الهاتف' : 'Phone'}:</span>
                     <span className="font-semibold text-white" dir="ltr">{phone}</span>
                   </div>
-                  {destination && (
+                  {isFlightBooking && destination && (
                     <div className="flex justify-between border-b border-slate-800 pb-2">
                       <span className="text-slate-400">{lang === 'ar' ? 'الوجهة' : 'Destination'}:</span>
                       <span className="font-semibold text-white">{destination}</span>
@@ -896,7 +721,7 @@ export default function App() {
 
                   <a
                     href="tel:0666484815"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-lg text-xs font-semibold uppercase tracking-wider text-[#fceda2] border border-[#d1a847]/60 hover:bg-[#081528] transition-colors"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-lg text-xs font-semibold uppercase tracking-wider text-[#fceda2] border border-[#d1a847]/60 hover:bg-[#0b1d3a] transition-colors"
                   >
                     <Phone className="w-3.5 h-3.5 text-[#d1a847]" />
                     <span>{lang === 'ar' ? 'اتصال' : lang === 'fr' ? 'Appeler' : lang === 'es' ? 'Llamar' : 'Call'}</span>
@@ -928,7 +753,7 @@ export default function App() {
                         className={`px-3 py-2.5 rounded-lg text-xs font-medium border text-center transition-all cursor-pointer ${
                           formService === s.name
                             ? 'bg-[#d1a847] text-[#0b1d3a] border-[#fceda2] font-bold shadow-[0_0_12px_rgba(209,168,71,0.4)]'
-                            : 'bg-[#081528] text-slate-300 border-[#d1a847]/20 hover:border-[#d1a847]/60 hover:text-white'
+                            : 'bg-[#0b1d3a] text-slate-300 border-[#d1a847]/20 hover:border-[#d1a847]/60 hover:text-white'
                         }`}
                       >
                         {s.name}
@@ -949,7 +774,7 @@ export default function App() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="e.g. Alexander Vance"
-                      className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847]"
+                      className="w-full bg-[#0b1d3a] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847]"
                     />
                   </div>
 
@@ -965,7 +790,7 @@ export default function App() {
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="0666-484815"
                       dir="ltr"
-                      className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847]"
+                      className="w-full bg-[#0b1d3a] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847]"
                     />
                   </div>
                 </div>
@@ -982,29 +807,29 @@ export default function App() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
                       dir="ltr"
-                      className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847]"
+                      className="w-full bg-[#0b1d3a] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847]"
                     />
                   </div>
 
-                  {/* Destination */}
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-                      {t.consultation.destination}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      placeholder="e.g. Geneva, London, Dubai, Jeddah"
-                      className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847]"
-                    />
-                  </div>
-                </div>
+                  {/* Destination / Country (ONLY rendered for Flight Bookings) */}
+                  {isFlightBooking && (
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
+                        {t.consultation.destination}
+                      </label>
+                      <input
+                        type="text"
+                        required={isFlightBooking}
+                        value={destination}
+                        onChange={(e) => setDestination(e.target.value)}
+                        placeholder="e.g. Geneva, London, Dubai, Jeddah"
+                        className="w-full bg-[#0b1d3a] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847]"
+                      />
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Travel Date */}
-                  <div>
+                  <div className={!isFlightBooking ? '' : ''}>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
                       {t.consultation.travelDate}
                     </label>
@@ -1012,7 +837,7 @@ export default function App() {
                       type="date"
                       value={travelDate}
                       onChange={(e) => setTravelDate(e.target.value)}
-                      className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847] [color-scheme:dark]"
+                      className="w-full bg-[#0b1d3a] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847] [color-scheme:dark]"
                     />
                   </div>
 
@@ -1024,7 +849,7 @@ export default function App() {
                     <select
                       value={travelersCount}
                       onChange={(e) => setTravelersCount(e.target.value)}
-                      className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847] appearance-none"
+                      className="w-full bg-[#0b1d3a] border border-[#d1a847]/30 text-white text-sm rounded-lg px-3.5 py-2.5 focus:outline-none focus:border-[#d1a847] appearance-none"
                     >
                       <option value="1">{t.hero.paxSolo}</option>
                       <option value="2">{t.hero.paxCouple}</option>
@@ -1044,7 +869,7 @@ export default function App() {
                     value={specialRequests}
                     onChange={(e) => setSpecialRequests(e.target.value)}
                     placeholder={t.consultation.notesPlaceholder}
-                    className="w-full bg-[#081528] border border-[#d1a847]/30 text-white text-sm rounded-lg p-3.5 focus:outline-none focus:border-[#d1a847]"
+                    className="w-full bg-[#0b1d3a] border border-[#d1a847]/30 text-white text-sm rounded-lg p-3.5 focus:outline-none focus:border-[#d1a847]"
                   />
                 </div>
 
@@ -1075,17 +900,13 @@ export default function App() {
       </section>
 
       {/* Frequently Asked Questions Section */}
-      <section id="faq" className="py-20 md:py-24 bg-[#0b1d3a] relative border-t border-b border-[#d1a847]/25">
+      <section id="faq" className="py-20 md:py-24 bg-[#081528] relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#d1a847]/30 bg-[#081528] text-xs font-semibold uppercase tracking-widest text-[#fceda2] mb-3">
-              <Compass className="w-3.5 h-3.5 text-[#d1a847]" />
-              <span>{t.faq.eyebrow}</span>
-            </div>
             <h2 className="font-serif-luxury text-3xl sm:text-4xl font-bold text-white mb-3">
               {t.faq.title}
             </h2>
-            <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto mb-4" />
+            <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto" />
           </div>
 
           <div className="space-y-4">
@@ -1094,7 +915,7 @@ export default function App() {
               return (
                 <div
                   key={index}
-                  className="bg-[#081528] border border-[#d1a847]/25 rounded-xl overflow-hidden transition-colors"
+                  className="bg-[#0b1d3a] border border-[#d1a847]/25 rounded-xl overflow-hidden transition-colors"
                 >
                   <button
                     onClick={() => setActiveFaq(isOpen ? null : index)}
@@ -1121,72 +942,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* Service Detail Modal */}
-      {activeModalService && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#0b1d3a] border border-[#d1a847] rounded-2xl max-w-lg w-full p-6 sm:p-8 relative shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
-            <button
-              onClick={() => setModalServiceId(null)}
-              className={`absolute top-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#081528] cursor-pointer ${
-                isRtl ? 'left-5' : 'right-5'
-              }`}
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-[#081528] border border-[#d1a847]/40 flex items-center justify-center text-[#d1a847]">
-                <Compass className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-serif-luxury text-2xl font-bold text-white">
-                  {activeModalService.name}
-                </h3>
-                <span className="text-xs text-[#d1a847] uppercase tracking-wider font-semibold">
-                  {activeModalService.tagline}
-                </span>
-              </div>
-            </div>
-
-            <p className="text-sm text-slate-300 leading-relaxed mb-5">
-              {activeModalService.description}
-            </p>
-
-            <div className="space-y-2 mb-6">
-              <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">
-                {t.services.specializations}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {activeModalService.popularOptions.map((opt, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 rounded bg-[#081528] border border-[#d1a847]/20 text-xs text-slate-200">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
-                    <span>{opt}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-[#d1a847]/20">
-              <button
-                onClick={() => handleServiceSelectForInquiry(activeModalService.name)}
-                className="flex-1 py-3 px-4 rounded-lg text-xs font-bold uppercase tracking-wider text-[#0b1d3a] bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] hover:shadow-lg transition-all text-center cursor-pointer"
-              >
-                {t.services.inquireService}
-              </button>
-              <a
-                href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}&text=${encodeURIComponent(`Hello Golden Group Travels, I am inquiring about ${activeModalService.name}.`)}`}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="py-3 px-4 rounded-lg text-xs font-semibold uppercase tracking-wider text-white bg-emerald-700 hover:bg-emerald-600 text-center flex items-center justify-center gap-1.5"
-              >
-                <WhatsAppIcon className="w-3.5 h-3.5 fill-current" />
-                <span>WhatsApp</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Floating WhatsApp Action Button */}
       <aside
         aria-label="Direct WhatsApp contact"
@@ -1204,7 +959,7 @@ export default function App() {
         </a>
       </aside>
 
-      {/* Footer Section: Prominently displays business details, phone number 0666-484815, and socials */}
+      {/* Footer Section: Prominently displays business details and phone number 0666-484815 */}
       <footer id="contact" className="bg-[#050e1a] border-t border-[#d1a847]/30 text-slate-300 pt-16 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
@@ -1279,14 +1034,13 @@ export default function App() {
               </ul>
             </div>
 
-            {/* Quick Navigation */}
+            {/* Quick Navigation (Curated itineraries removed) */}
             <div>
               <div className="font-serif-luxury text-lg font-bold text-white mb-4">
                 {t.footer.navTitle}
               </div>
               <ul className="space-y-2.5 text-xs">
                 <li><a href="#services" className="hover:text-[#d1a847] transition-colors">{t.nav.services}</a></li>
-                <li><a href="#packages" className="hover:text-[#d1a847] transition-colors">{t.nav.packages}</a></li>
                 <li><a href="#why-us" className="hover:text-[#d1a847] transition-colors">{t.nav.whyUs}</a></li>
                 <li><a href="#consultation" className="hover:text-[#d1a847] transition-colors">{t.nav.inquiry}</a></li>
                 <li><a href="#faq" className="hover:text-[#d1a847] transition-colors">{t.nav.faq}</a></li>
@@ -1302,7 +1056,7 @@ export default function App() {
                 {/* Prominent Direct Phone Number */}
                 <a
                   href="tel:0666484815"
-                  className="flex items-start gap-2.5 text-white hover:text-[#d1a847] transition-colors group p-2.5 rounded-lg bg-[#081528] border border-[#d1a847]/30 hover:border-[#d1a847]"
+                  className="flex items-start gap-2.5 text-white hover:text-[#d1a847] transition-colors group p-2.5 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 hover:border-[#d1a847]"
                 >
                   <Phone className="w-5 h-5 text-[#d1a847] shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                   <div>
@@ -1316,7 +1070,7 @@ export default function App() {
                   href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="flex items-start gap-2.5 text-emerald-400 hover:text-emerald-300 transition-colors group p-2.5 rounded-lg bg-[#081528] border border-emerald-500/30 hover:border-emerald-500"
+                  className="flex items-start gap-2.5 text-emerald-400 hover:text-emerald-300 transition-colors group p-2.5 rounded-lg bg-[#0b1d3a] border border-emerald-500/30 hover:border-emerald-500"
                 >
                   <WhatsAppIcon className="w-5 h-5 fill-current shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
                   <div>
@@ -1324,29 +1078,14 @@ export default function App() {
                     <div className="text-[11px] text-emerald-400/80">WhatsApp Direct Line</div>
                   </div>
                 </a>
-
-                <div className="flex items-start gap-2.5 text-slate-300 pt-1">
-                  <ShieldCheck className="w-4 h-4 text-[#d1a847] shrink-0 mt-0.5" />
-                  <div>
-                    <div>{t.footer.protection}</div>
-                    <div className="text-[11px] text-slate-400">{t.footer.protectionSub}</div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Copyright Strip - STRICTLY GOLDEN GROUP TRAVELS ONLY */}
-          <div className="pt-8 border-t border-[#d1a847]/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          {/* Bottom Copyright Strip - ONLY BRAND COPYRIGHT (Privacy, Terms, Ticketing removed for now as requested) */}
+          <div className="pt-8 border-t border-[#d1a847]/15 flex items-center justify-center text-xs text-slate-400">
             <div>
               &copy; {new Date().getFullYear()} <strong className="text-slate-200">{isRtl ? 'جولدن جروب ترافيلز' : 'Golden Group Travels'}</strong>. {t.footer.copyright}
-            </div>
-            <div className="flex items-center gap-4 text-[11px]">
-              <span className="hover:text-slate-300 cursor-pointer">{t.footer.privacy}</span>
-              <span>·</span>
-              <span className="hover:text-slate-300 cursor-pointer">{t.footer.terms}</span>
-              <span>·</span>
-              <span className="hover:text-slate-300 cursor-pointer">{t.footer.conditions}</span>
             </div>
           </div>
         </div>
