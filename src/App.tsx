@@ -4,7 +4,7 @@
  * Multi-Language: English, French, Spanish, Arabic
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Phone,
   Compass,
@@ -17,6 +17,8 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Menu,
   X,
   Award,
@@ -331,6 +333,46 @@ export default function App() {
   const [quickDate] = useState('');
   const [quickTravelers] = useState('1');
 
+  // Ref for the 3D tabs scroll track
+  const tabsTrackRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll the active tab into view smoothly
+  useEffect(() => {
+    if (tabsTrackRef.current) {
+      const activeEl = tabsTrackRef.current.querySelector('.tab-3d-active') as HTMLElement | null;
+      if (activeEl) {
+        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [activeSearchTab]);
+
+  // Tab navigation arrow handlers (supports RTL / LTR smoothly)
+  const handleTabArrowLeft = () => {
+    const currentIndex = SEARCH_TABS.findIndex(t => t.id === activeSearchTab);
+    const targetIndex = isRtl
+      ? (currentIndex + 1) % SEARCH_TABS.length
+      : (currentIndex - 1 + SEARCH_TABS.length) % SEARCH_TABS.length;
+    setActiveSearchTab(SEARCH_TABS[targetIndex].id);
+    setSearchResults(null);
+    if (tabsTrackRef.current) {
+      const scrollAmount = isRtl ? 220 : -220;
+      tabsTrackRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const handleTabArrowRight = () => {
+    const currentIndex = SEARCH_TABS.findIndex(t => t.id === activeSearchTab);
+    const targetIndex = isRtl
+      ? (currentIndex - 1 + SEARCH_TABS.length) % SEARCH_TABS.length
+      : (currentIndex + 1) % SEARCH_TABS.length;
+    setActiveSearchTab(SEARCH_TABS[targetIndex].id);
+    setSearchResults(null);
+    if (tabsTrackRef.current) {
+      const scrollAmount = isRtl ? -220 : 220;
+      tabsTrackRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   // Active configuration for selected tab
   const currentTabConfig = SEARCH_TABS.find(t => t.id === activeSearchTab) || SEARCH_TABS[0];
 
@@ -367,7 +409,8 @@ export default function App() {
     }
 
     const waText = `Bonjour Golden Group Travels, je recherche un ${tabName} pour "${dest}" (${datesStr}, ${optionsStr}). Merci de me communiquer les disponibilités et meilleurs tarifs.`;
-    const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}&text=${encodeURIComponent(waText)}`;
+    // Ultra-fast universal wa.me link avoiding laggy intermediate redirects
+    const waUrl = `https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}?text=${encodeURIComponent(waText)}`;
 
     setSearchResults({
       visible: true,
@@ -471,7 +514,8 @@ export default function App() {
 
   const getWhatsAppUrl = () => {
     const message = generateWhatsAppMessage();
-    return `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}&text=${encodeURIComponent(message)}`;
+    // Ultra-fast universal wa.me link that launches native WhatsApp immediately
+    return `https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}?text=${encodeURIComponent(message)}`;
   };
 
   const handleHeroQuickSearch = (e: React.FormEvent) => {
@@ -512,27 +556,20 @@ export default function App() {
       return;
     }
 
-    setFormLoading(true);
-
     const waUrl = getWhatsAppUrl();
 
-    // Secure anchor dispatch preventing window.open popup blockers and tabnabbing
+    // Instant direct dispatch to native WhatsApp without delay
+    setSubmitted(true);
+    setFormLoading(false);
+
     try {
-      const link = document.createElement('a');
-      link.href = waUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const opened = window.open(waUrl, '_blank', 'noopener,noreferrer');
+      if (!opened) {
+        window.location.href = waUrl;
+      }
     } catch {
       window.location.href = waUrl;
     }
-
-    setTimeout(() => {
-      setFormLoading(false);
-      setSubmitted(true);
-    }, 400);
   };
 
   const resetForm = () => {
@@ -798,7 +835,7 @@ export default function App() {
             {/* Mobile Contact Action */}
             <div className="pt-4 border-t border-[#d1a847]/20 flex items-center gap-3">
               <a
-                href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
+                href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 shadow-md transition-colors"
@@ -885,36 +922,64 @@ export default function App() {
 
           {/* Quick Hero Search Terminal (Featuring ALL Services with 3D Pop-Out Tabs & Scroll Animations) */}
           <div id="search-section" className="w-full max-w-5xl mt-2 mb-8 text-left rtl:text-right scroll-mt-28 perspective-1200 preserve-3d hero-reveal-3">
-            {/* 3D Tabs Bar with ALL Services from Golden Group Travels */}
-            <div className="perspective-1000 preserve-3d flex items-end gap-2 overflow-x-auto pt-6 pb-2 px-1 scrollbar-none max-w-full">
-              {SEARCH_TABS.map((tab, idx) => {
-                const TabIcon = tab.icon;
-                const isActive = activeSearchTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveSearchTab(tab.id);
-                      setSearchResults(null);
-                    }}
-                    className={`relative px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-t-xl text-xs sm:text-sm font-bold tracking-wider cursor-pointer flex items-center gap-2.5 whitespace-nowrap shrink-0 tab-pop-delay-${idx} ${
-                      isActive
-                        ? 'tab-3d-active bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] text-[#0b1d3a] font-extrabold border-t border-x border-[#fceda2]/90'
-                        : 'tab-3d-inactive bg-[#061021]/95 text-slate-300 border-t border-x border-[#d1a847]/40 hover:text-white hover:bg-[#0b1d3a]'
-                    }`}
-                  >
-                    <div className={`transition-transform duration-300 ${isActive ? 'scale-115 rotate-[-4deg]' : 'group-hover:scale-110'}`}>
-                      <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#0b1d3a]' : 'text-[#d1a847]'}`} />
-                    </div>
-                    <span className="relative z-10">{tab.label[lang] || tab.label.fr}</span>
-                    {/* 3D Base Edge Extrusion when active */}
-                    {isActive && (
-                      <span className="absolute -bottom-1 inset-x-2 h-1 bg-[#8f6a1e] rounded-b-md blur-[0.3px]" />
-                    )}
-                  </button>
-                );
-              })}
+            {/* 3D Tabs Bar with Navigation Arrows for Smooth Left/Right Carousel Switching */}
+            <div className="relative flex items-center gap-1 sm:gap-2 mb-0">
+              {/* Left Arrow Button */}
+              <button
+                type="button"
+                onClick={handleTabArrowLeft}
+                aria-label={isRtl ? "Next services" : "Previous services"}
+                className="z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#061021]/95 border border-[#d1a847]/40 hover:border-[#d1a847] hover:bg-[#0b1d3a] text-[#d1a847] hover:text-[#fceda2] flex items-center justify-center transition-all shadow-[0_4px_16px_rgba(0,0,0,0.7)] cursor-pointer hover:scale-110 active:scale-95 shrink-0 group/arrow mb-1.5 focus:outline-none"
+                title={isRtl ? "التالي" : "Précédent"}
+              >
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover/arrow:-translate-x-0.5 rtl:rotate-180 rtl:group-hover/arrow:translate-x-0.5" />
+              </button>
+
+              {/* 3D Tabs Scrollable Track */}
+              <div
+                ref={tabsTrackRef}
+                className="perspective-1000 preserve-3d flex items-end gap-2 overflow-x-auto pt-6 pb-2 px-1 scrollbar-none max-w-full scroll-smooth flex-1"
+              >
+                {SEARCH_TABS.map((tab, idx) => {
+                  const TabIcon = tab.icon;
+                  const isActive = activeSearchTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveSearchTab(tab.id);
+                        setSearchResults(null);
+                      }}
+                      className={`relative px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-t-xl text-xs sm:text-sm font-bold tracking-wider cursor-pointer flex items-center gap-2.5 whitespace-nowrap shrink-0 tab-pop-delay-${idx} ${
+                        isActive
+                          ? 'tab-3d-active bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] text-[#0b1d3a] font-extrabold border-t border-x border-[#fceda2]/90'
+                          : 'tab-3d-inactive bg-[#061021]/95 text-slate-300 border-t border-x border-[#d1a847]/40 hover:text-white hover:bg-[#0b1d3a]'
+                      }`}
+                    >
+                      <div className={`transition-transform duration-300 ${isActive ? 'scale-115 rotate-[-4deg]' : 'group-hover:scale-110'}`}>
+                        <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#0b1d3a]' : 'text-[#d1a847]'}`} />
+                      </div>
+                      <span className="relative z-10">{tab.label[lang] || tab.label.fr}</span>
+                      {/* 3D Base Edge Extrusion when active */}
+                      {isActive && (
+                        <span className="absolute -bottom-1 inset-x-2 h-1 bg-[#8f6a1e] rounded-b-md blur-[0.3px]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right Arrow Button */}
+              <button
+                type="button"
+                onClick={handleTabArrowRight}
+                aria-label={isRtl ? "Previous services" : "Next services"}
+                className="z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#061021]/95 border border-[#d1a847]/40 hover:border-[#d1a847] hover:bg-[#0b1d3a] text-[#d1a847] hover:text-[#fceda2] flex items-center justify-center transition-all shadow-[0_4px_16px_rgba(0,0,0,0.7)] cursor-pointer hover:scale-110 active:scale-95 shrink-0 group/arrow mb-1.5 focus:outline-none"
+                title={isRtl ? "السابق" : "Suivant"}
+              >
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover/arrow:translate-x-0.5 rtl:rotate-180 rtl:group-hover/arrow:-translate-x-0.5" />
+              </button>
             </div>
 
             {/* Main Search Bar Form with 3D Tilt on Scroll */}
@@ -1253,7 +1318,7 @@ export default function App() {
           {/* Quick Action Buttons */}
           <div className="mt-2 flex flex-wrap items-center justify-center gap-4 hero-reveal-4">
             <a
-              href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
+              href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
               target="_blank"
               rel="noreferrer noopener"
               className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-[#0b1d3a] btn-gold-luxury shadow-xl cursor-pointer"
@@ -1373,7 +1438,7 @@ export default function App() {
                     </button>
 
                     <a
-                      href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}&text=${encodeURIComponent(`Hello Golden Group Travels, I am inquiring about ${service.name}.`)}`}
+                      href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}?text=${encodeURIComponent(`Hello Golden Group Travels, I am inquiring about ${service.name}.`)}`}
                       target="_blank"
                       rel="noreferrer noopener"
                       className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1.5"
@@ -1404,7 +1469,7 @@ export default function App() {
 
               <div className="pt-6 border-t border-[#d1a847]/20">
                 <a
-                  href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
+                  href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="btn-gold-luxury w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs font-bold uppercase tracking-wider text-[#0b1d3a] shadow-md transition-all hover:scale-[1.02]"
@@ -1794,7 +1859,7 @@ export default function App() {
         className={`fixed bottom-6 z-40 ${isRtl ? 'left-6' : 'right-6'}`}
       >
         <a
-          href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
+          href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
           target="_blank"
           rel="noreferrer noopener"
           className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_6px_25px_rgba(16,185,129,0.5)] transition-all hover:scale-110 active:scale-95 group"
@@ -1820,7 +1885,7 @@ export default function App() {
               {/* Social Media Links */}
               <div className="pt-2 flex items-center gap-3">
                 <a
-                  href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
+                  href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label="Golden Group Travels WhatsApp"
@@ -1906,7 +1971,7 @@ export default function App() {
 
                 {/* WhatsApp Direct Line */}
                 <a
-                  href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
+                  href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="flex items-start gap-2.5 text-emerald-400 hover:text-emerald-300 transition-colors group p-2.5 rounded-lg bg-[#0b1d3a] border border-emerald-500/30 hover:border-emerald-500"
