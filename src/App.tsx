@@ -601,7 +601,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <a
-                href="https://www.facebook.com"
+                href="https://www.facebook.com/profile.php?id=61596136568520"
                 target="_blank"
                 rel="noreferrer noopener"
                 className="text-[#d1a847] hover:text-[#fceda2] transition-colors"
@@ -1906,7 +1906,7 @@ export default function App() {
                   </svg>
                 </a>
                 <a
-                  href="https://www.facebook.com"
+                  href="https://www.facebook.com/profile.php?id=61596136568520"
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label="Golden Group Travels Facebook"
