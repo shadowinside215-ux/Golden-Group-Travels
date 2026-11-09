@@ -187,7 +187,7 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
       arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Organized Tours',
       tabHotel: 'Hotel',
@@ -458,7 +458,7 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
       arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Voyage Organisé',
       tabHotel: 'Hôtel',
@@ -729,7 +729,7 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
       arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Viaje Organizado',
       tabHotel: 'Hotel',
@@ -1000,7 +1000,7 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'مجموعة جولدن لخدمات السفر والسياحة'
     },
     hero: {
-      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ',
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
       arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'رحلات منظمة',
       tabHotel: 'فنادق',

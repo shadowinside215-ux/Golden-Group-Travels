@@ -73,3 +73,297 @@
 .bg-radial-luxury {
   background: radial-gradient(circle at 50% 20%, rgba(19, 43, 83, 0.8) 0%, rgba(11, 29, 58, 0.95) 50%, #081528 100%);
 }
+
+/* Global Smooth Scrolling & Scroll Padding for Fixed Header */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 110px;
+}
+
+/* Luxury Gold & Navy Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #021939;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #d1a847 0%, #9a7220 100%);
+  border-radius: 6px;
+  border: 2px solid #021939;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #fceda2 0%, #d1a847 100%);
+}
+
+/* Smooth Scroll Reveal Animations */
+@keyframes fadeInUpSmooth {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUpSmooth 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Subtle float animation for badges and scroll cues */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float-gentle {
+  animation: floatGentle 3s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   MOTION DESIGN SYSTEM: LUXURY SCROLL & MICRO-INTERACTIONS
+   ========================================================================== */
+
+/* Animated Gold Underline for Navigation Links */
+.nav-link-gold {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px;
+}
+.nav-link-gold::after {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, #fceda2, #d1a847, #c59b38);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 2px;
+}
+.nav-link-gold:hover::after {
+  width: 100%;
+}
+[dir="rtl"] .nav-link-gold::after {
+  left: auto;
+  right: 0;
+}
+
+/* Luxury Gold Button Hover & Shimmer */
+.btn-gold-luxury {
+  background: linear-gradient(135deg, #fceda2 0%, #d1a847 50%, #c59b38 100%);
+  color: #0b1d3a;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  box-shadow: 0 4px 18px rgba(209, 168, 71, 0.35);
+}
+.btn-gold-luxury::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.65s ease;
+}
+.btn-gold-luxury:hover::before {
+  left: 120%;
+}
+.btn-gold-luxury:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(209, 168, 71, 0.6), 0 0 20px rgba(252, 237, 162, 0.4);
+}
+.btn-gold-luxury:active {
+  transform: translateY(0px) scale(0.98);
+}
+
+/* Luxury Outline Button */
+.btn-outline-gold {
+  position: relative;
+  border: 1px solid rgba(209, 168, 71, 0.45);
+  background: rgba(11, 29, 58, 0.7);
+  backdrop-filter: blur(8px);
+  color: #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-outline-gold:hover {
+  border-color: #d1a847;
+  color: #fceda2;
+  background: rgba(11, 29, 58, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(209, 168, 71, 0.25);
+}
+
+/* Service Card Luxury Hover with 3D lift & icon spin */
+.service-card-luxury {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.3s ease;
+}
+.service-card-luxury:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(209, 168, 71, 0.75);
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.9), 0 0 25px rgba(209, 168, 71, 0.25);
+}
+.service-card-luxury:hover .service-icon-box {
+  transform: scale(1.12) rotate(-4deg);
+  border-color: #d1a847;
+  box-shadow: 0 0 20px rgba(209, 168, 71, 0.45);
+}
+
+/* Scroll Reveal Animation Engine (Triggered once via IntersectionObserver) */
+.reveal-init {
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-up {
+  transform: translateY(32px);
+}
+
+.reveal-left {
+  transform: translateX(-35px);
+}
+
+.reveal-right {
+  transform: translateX(35px);
+}
+
+.reveal-scale {
+  transform: scale(0.94);
+}
+
+.reveal-visible {
+  opacity: 1 !important;
+  transform: translate(0, 0) scale(1) !important;
+}
+
+/* Stagger delay classes for child cards */
+.stagger-1 { transition-delay: 80ms; }
+.stagger-2 { transition-delay: 160ms; }
+.stagger-3 { transition-delay: 240ms; }
+.stagger-4 { transition-delay: 320ms; }
+.stagger-5 { transition-delay: 400ms; }
+.stagger-6 { transition-delay: 480ms; }
+
+/* 3D PERSPECTIVE & TAB POP-OUT ENGINE */
+.perspective-1000 { perspective: 1000px; }
+.perspective-1200 { perspective: 1200px; }
+.preserve-3d { transform-style: preserve-3d; }
+
+/* 3D Tab Pop-Out Entrance Keyframes */
+@keyframes tab3DPopOutWave {
+  0% {
+    opacity: 0;
+    transform: perspective(900px) translateZ(-60px) rotateX(20deg) translateY(30px) scale(0.92);
+  }
+  65% {
+    transform: perspective(900px) translateZ(32px) rotateX(-5deg) translateY(-8px) scale(1.07);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(900px) translateZ(0px) rotateX(0deg) translateY(0) scale(1);
+  }
+}
+
+.tab-3d-active {
+  transform: perspective(900px) translateZ(24px) rotateX(5deg) translateY(-5px) scale(1.05);
+  transform-origin: bottom center;
+  box-shadow: 
+    0 18px 38px -6px rgba(0, 0, 0, 0.9),
+    0 -3px 18px rgba(252, 237, 162, 0.4),
+    0 0 25px rgba(209, 168, 71, 0.5),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.8);
+  z-index: 30;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.45s ease;
+}
+
+.tab-3d-inactive {
+  transform: perspective(900px) translateZ(0px) rotateX(0deg) translateY(0px) scale(1);
+  transform-origin: bottom center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease, background-color 0.2s ease;
+}
+
+.tab-3d-inactive:hover {
+  transform: perspective(900px) translateZ(16px) rotateX(3deg) translateY(-4px) scale(1.03);
+  box-shadow: 
+    0 14px 28px -4px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(209, 168, 71, 0.35);
+  z-index: 25;
+}
+
+.tab-pop-delay-0 { animation: tab3DPopOutWave 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.04s both; }
+.tab-pop-delay-1 { animation: tab3DPopOutWave 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.10s both; }
+.tab-pop-delay-2 { animation: tab3DPopOutWave 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.16s both; }
+.tab-pop-delay-3 { animation: tab3DPopOutWave 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.22s both; }
+.tab-pop-delay-4 { animation: tab3DPopOutWave 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.28s both; }
+.tab-pop-delay-5 { animation: tab3DPopOutWave 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.34s both; }
+
+/* 3D Terminal Shell */
+.terminal-3d-shell {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+}
+
+/* Loading Shimmer Beam */
+@keyframes goldShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.animate-shimmer-beam {
+  animation: goldShimmer 1.5s ease-in-out infinite;
+}
+
+/* Hero Stagger Entrances */
+@keyframes heroRevealFade {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.hero-reveal-1 { animation: heroRevealFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+.hero-reveal-2 { animation: heroRevealFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+.hero-reveal-3 { animation: heroRevealFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+.hero-reveal-4 { animation: heroRevealFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both; }
+
+/* Expanding Separator Line */
+@keyframes lineExpand {
+  0% { transform: scaleX(0); opacity: 0; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+.animate-line-expand {
+  animation: lineExpand 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center;
+}
+
+/* Accessibility: Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-init {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+

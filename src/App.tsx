@@ -4,7 +4,7 @@
  * Multi-Language: English, French, Spanish, Arabic
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Phone,
   Compass,
@@ -22,7 +22,13 @@ import {
   Award,
   Headphones,
   Send,
-  Mail
+  Mail,
+  MapPin,
+  Calendar,
+  Search,
+  Users,
+  ArrowDown,
+  ArrowUp
 } from 'lucide-react';
 import { translations, Language } from './translations.ts';
 
@@ -32,6 +38,83 @@ const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
     <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
   </svg>
 );
+
+// All 6 core services configured for the search terminal
+export type SearchTab = 'tours' | 'hotel' | 'flights' | 'circuits' | 'visa' | 'insurance';
+
+export interface SearchTabConfig {
+  id: SearchTab;
+  icon: React.ComponentType<{ className?: string }>;
+  label: Record<Language, string>;
+  destinationLabel: Record<Language, string>;
+  destinationPlaceholder: Record<Language, string>;
+  datesLabel: Record<Language, string>;
+  datesPlaceholder: Record<Language, string>;
+  actionLabel: Record<Language, string>;
+}
+
+export const SEARCH_TABS: SearchTabConfig[] = [
+  {
+    id: 'tours',
+    icon: Palmtree,
+    label: { fr: 'Voyage Organisé', ar: 'رحلات منظمة', en: 'Organized Tours', es: 'Viajes Organizados' },
+    destinationLabel: { fr: 'DESTINATION', ar: 'الوجهة', en: 'DESTINATION', es: 'DESTINO' },
+    destinationPlaceholder: { fr: 'Où voulez-vous aller ? (ex: Istanbul, Dubaï, Omra...)', ar: 'إلى أين تريد الذهاب؟ (مثل: إسطنبول، دبي، مكة...)', en: 'Where do you want to go? (e.g. Istanbul, Dubai...)', es: '¿A dónde quieres ir? (ej: Estambul, Dubái...)' },
+    datesLabel: { fr: 'DE - À', ar: 'من - إلى', en: 'FROM - TO', es: 'DE - A' },
+    datesPlaceholder: { fr: 'Dates du voyage', ar: 'تواريخ السفر', en: 'Travel dates', es: 'Fechas del viaje' },
+    actionLabel: { fr: 'Rechercher', ar: 'بحث', en: 'Search', es: 'Buscar' }
+  },
+  {
+    id: 'hotel',
+    icon: Building2,
+    label: { fr: 'Hôtel', ar: 'فنادق', en: 'Hotels', es: 'Hoteles' },
+    destinationLabel: { fr: 'VILLE / HÔTEL', ar: 'المدينة أو الفندق', en: 'CITY / HOTEL', es: 'CIUDAD / HOTEL' },
+    destinationPlaceholder: { fr: 'Ville ou nom de l\'hôtel (ex: Marrakech, Paris...)', ar: 'المدينة أو اسم الفندق (مثل: مراكش، باريس...)', en: 'City or hotel name (e.g. Paris, Dubai...)', es: 'Ciudad o nombre del hotel' },
+    datesLabel: { fr: 'ARRIVÉE - DÉPART', ar: 'الوصول - المغادرة', en: 'CHECK-IN - OUT', es: 'CHECK-IN - OUT' },
+    datesPlaceholder: { fr: 'Check-in / Check-out', ar: 'الدخول / الخروج', en: 'Check-in / Out', es: 'Entrada / Salida' },
+    actionLabel: { fr: 'Rechercher', ar: 'بحث', en: 'Search', es: 'Buscar' }
+  },
+  {
+    id: 'flights',
+    icon: Plane,
+    label: { fr: 'Billets d\'Avion', ar: 'حجوزات طيران', en: 'Flights', es: 'Vuelos' },
+    destinationLabel: { fr: 'TRAJET VOL', ar: 'مسار الرحلة', en: 'FLIGHT ROUTE', es: 'RUTA DE VUELO' },
+    destinationPlaceholder: { fr: 'De Casablanca vers Paris, Dubaï, Istanbul...', ar: 'من الدار البيضاء إلى باريس، دبي، إسطنبول...', en: 'From Casablanca to Paris, Dubai, Jeddah...', es: 'De Casablanca a París, Dubái...' },
+    datesLabel: { fr: 'ALLER - RETOUR', ar: 'ذهاب - عودة', en: 'DEPART - RETURN', es: 'IDA - VUELTA' },
+    datesPlaceholder: { fr: 'Dates des vols', ar: 'تواريخ الرحلة', en: 'Flight dates', es: 'Fechas de vuelos' },
+    actionLabel: { fr: 'Rechercher un Vol', ar: 'بحث عن طيران', en: 'Search Flights', es: 'Buscar Vuelos' }
+  },
+  {
+    id: 'circuits',
+    icon: Compass,
+    label: { fr: 'Circuits Maroc', ar: 'جولات المغرب', en: 'Morocco Tours', es: 'Circuitos Marruecos' },
+    destinationLabel: { fr: 'CIRCUIT / RÉGION', ar: 'المنطقة أو المسار', en: 'TOUR / REGION', es: 'CIRCUITO / REGIÓN' },
+    destinationPlaceholder: { fr: 'Désert Merzouga, Villes Impériales, Grand Sud...', ar: 'صحراء مرزوكة، المدن الإمبراطورية، الجنوب الكبير...', en: 'Merzouga Desert, Imperial Cities, High Atlas...', es: 'Desierto Merzouga, Ciudades Imperiales...' },
+    datesLabel: { fr: 'DATES DU CIRCUIT', ar: 'فترة الجولة', en: 'TOUR DATES', es: 'FECHAS DEL CIRCUITO' },
+    datesPlaceholder: { fr: 'Période souhaitée', ar: 'الفترة المحددة', en: 'Preferred period', es: 'Período deseado' },
+    actionLabel: { fr: 'Explorer les Circuits', ar: 'استكشاف الجولات', en: 'Explore Tours', es: 'Explorar Circuitos' }
+  },
+  {
+    id: 'visa',
+    icon: FileCheck2,
+    label: { fr: 'Assistance Visa', ar: 'تأشيرات السفر', en: 'Visa Services', es: 'Visados' },
+    destinationLabel: { fr: 'PAYS DE DESTINATION', ar: 'دولة الوجهة', en: 'DESTINATION COUNTRY', es: 'PAÍS DESTINO' },
+    destinationPlaceholder: { fr: 'Espace Schengen, USA, UK, Canada, Dubaï...', ar: 'شنغن، أمريكا، بريطانيا، كندا، دبي...', en: 'Schengen Area, USA, UK, Canada, Dubai...', es: 'Espacio Schengen, EE.UU., Reino Unido...' },
+    datesLabel: { fr: 'DATE DE DÉPART', ar: 'تاريخ السفر المتوقع', en: 'EXPECTED DATE', es: 'FECHA PREVISTA' },
+    datesPlaceholder: { fr: 'Date prévue', ar: 'التاريخ المقترح', en: 'Estimated date', es: 'Fecha estimada' },
+    actionLabel: { fr: 'Vérifier mon Visa', ar: 'التحقق من التأشيرة', en: 'Check Visa', es: 'Verificar Visado' }
+  },
+  {
+    id: 'insurance',
+    icon: ShieldCheck,
+    label: { fr: 'Assurance Voyage', ar: 'تأمين السفر', en: 'Travel Insurance', es: 'Seguros' },
+    destinationLabel: { fr: 'ZONE DE COUVERTURE', ar: 'نطاق التغطية', en: 'COVERAGE ZONE', es: 'ZONA DE COBERTURA' },
+    destinationPlaceholder: { fr: 'Monde entier, Schengen, Amériques, Golfe...', ar: 'جميع أنحاء العالم، شنغن، دول الخليج...', en: 'Worldwide, Schengen Europe, Gulf, Asia...', es: 'Mundial, Schengen, América...' },
+    datesLabel: { fr: 'DURÉE DU SEJOUR', ar: 'مدة الإقامة', en: 'COVERAGE DURATION', es: 'DURACIÓN DE COBERTURA' },
+    datesPlaceholder: { fr: 'Début - Fin de couverture', ar: 'بداية - نهاية التغطية', en: 'Start - End dates', es: 'Inicio - Fin' },
+    actionLabel: { fr: 'Calculer l\'Assurance', ar: 'حساب التأمين', en: 'Get Insurance', es: 'Calcular Seguro' }
+  }
+];
 
 // Icons mapping for services
 const SERVICE_ICONS: Record<string, typeof Plane> = {
@@ -54,27 +137,83 @@ const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
 const DISPLAY_PHONE = '0666-484815';
 
 // Official Brand Logo (Golden Group Travels - Travel Services & Events)
-const GoldenLogo = ({ className = 'h-13 sm:h-15' }: { className?: string }) => (
-  <div className="flex items-center gap-3 group shrink-0">
-    <div className="relative flex items-center justify-center p-1 rounded-xl bg-[#050e1a] border border-[#d1a847]/40 shadow-lg group-hover:border-[#d1a847] transition-all duration-300">
-      <img
-        src="/assets/aistudio/image_1f4d444d.png"
-        alt="Golden Group - Travel Services & Events"
-        className={`${className} w-auto object-contain transition-transform duration-300 group-hover:scale-105`}
-      />
-    </div>
+// Exact logo as on the picture: /assets/aistudio/Golden_Group_Travel_Logo_447d132d.png
+const GoldenLogo = ({ className = 'h-18 sm:h-22 md:h-26' }: { className?: string }) => (
+  <div className="flex items-center gap-3.5 sm:gap-4 group shrink-0">
+    <img
+      src="/assets/aistudio/Golden_Group_Travel_Logo_447d132d.png"
+      alt="Golden Group - Travel Services & Events"
+      className={`${className} w-auto object-contain rounded-xl shadow-lg border border-[#d1a847]/30 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#d1a847]`}
+    />
     <div className="hidden sm:flex flex-col text-left rtl:text-right">
-      <span className="text-xs sm:text-sm font-amiri font-bold text-[#fceda2] leading-tight">
+      <span className="text-sm sm:text-base md:text-lg font-amiri font-bold text-[#fceda2] leading-tight drop-shadow-xs">
         مجموعة جولدن لخدمات السفر والسياحة
       </span>
-      <span className="text-[10px] font-bold text-[#d1a847] tracking-wider uppercase mt-0.5">
+      <span className="text-[11px] sm:text-xs font-bold text-[#d1a847] tracking-widest uppercase mt-0.5">
         Golden Group Travels
+      </span>
+      <span className="text-[9px] sm:text-[10px] text-slate-300 tracking-wider uppercase">
+        Travel Services & Events
       </span>
     </div>
   </div>
 );
 
+// Minimal, elegant initial loading screen with Golden Group Travels brand identity
+const BrandLoader = ({ onComplete }: { onComplete: () => void }) => {
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFading(true);
+      const removeTimer = setTimeout(() => {
+        onComplete();
+      }, 550);
+      return () => clearTimeout(removeTimer);
+    }, 1100);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  return (
+    <div
+      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#030d1c] transition-opacity duration-500 ${
+        fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}
+    >
+      <div className="flex flex-col items-center text-center p-6 space-y-6 animate-in fade-in zoom-in-95 duration-500">
+        <img
+          src="/assets/aistudio/Golden_Group_Travel_Logo_447d132d.png"
+          alt="Golden Group Travels"
+          className="h-28 sm:h-32 w-auto object-contain rounded-2xl shadow-[0_0_35px_rgba(209,168,71,0.35)] border border-[#d1a847]/40"
+        />
+        <div className="space-y-1.5">
+          <h2 className="font-amiri text-2xl sm:text-3xl font-bold text-[#fceda2] tracking-wide">
+            مجموعة جولدن لخدمات السفر والسياحة
+          </h2>
+          <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-[#d1a847]">
+            Golden Group Travels • Travel Services & Events
+          </p>
+        </div>
+        {/* Subtle Gold Shimmer Progress Bar */}
+        <div className="w-48 sm:w-56 h-1 rounded-full bg-[#081528] overflow-hidden border border-[#d1a847]/25 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#fceda2] to-transparent animate-shimmer-beam" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Luxury Animated Section Separator
+const SectionSeparator = ({ className = 'my-5 sm:my-6' }: { className?: string }) => (
+  <div className={`flex items-center justify-center gap-3 ${className} reveal-init reveal-scale`}>
+    <div className="h-px w-16 sm:w-28 bg-gradient-to-r from-transparent via-[#d1a847]/50 to-[#d1a847]" />
+    <div className="w-2 h-2 rotate-45 border border-[#d1a847] bg-[#fceda2]/40 shadow-[0_0_8px_rgba(209,168,71,0.6)]" />
+    <div className="h-px w-16 sm:w-28 bg-gradient-to-l from-transparent via-[#d1a847]/50 to-[#d1a847]" />
+  </div>
+);
+
 export default function App() {
+  const [initialLoading, setInitialLoading] = useState(true);
   const [lang, setLang] = useState<Language>('fr');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
@@ -83,11 +222,174 @@ export default function App() {
   const t = translations[lang];
   const isRtl = t.dir === 'rtl';
 
+  // Smooth Scroll Tracking & 3D Scroll Physics
+  const [scrollY, setScrollY] = useState(0);
+  const [scrollTilt, setScrollTilt] = useState(0);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let tiltTimeout: any;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollY;
+      lastScrollY = currentScrollY;
+      setScrollY(currentScrollY);
+
+      // Dynamic 3D tilt responsive to scroll velocity (smooth ease between -4deg and +4deg)
+      const calculatedTilt = Math.max(-4, Math.min(4, delta * 0.09));
+      setScrollTilt(calculatedTilt);
+
+      clearTimeout(tiltTimeout);
+      tiltTimeout = setTimeout(() => {
+        setScrollTilt(0);
+      }, 150);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(tiltTimeout);
+    };
+  }, []);
+
+  // IntersectionObserver for elegant, non-repeating scroll-triggered animations
+  useEffect(() => {
+    if (initialLoading) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: '0px 0px -40px 0px',
+        threshold: 0.12
+      }
+    );
+
+    const elements = document.querySelectorAll('.reveal-init');
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [initialLoading]);
+
+  // Smooth ease-out scrolling function with sticky header offset
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const offset = 95;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = el.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  // Hero Search Terminal State (Supporting all 6 services from the screenshot section)
+  const [activeSearchTab, setActiveSearchTab] = useState<SearchTab>('tours');
+  const [searchDestination, setSearchDestination] = useState('');
+  const [searchDepartureDate, setSearchDepartureDate] = useState('');
+  const [searchReturnDate, setSearchReturnDate] = useState('');
+  const [adultsCount, setAdultsCount] = useState(2);
+  const [childrenCount, setChildrenCount] = useState(0);
+  const [roomsCount, setRoomsCount] = useState(1);
+  const [flightClass, setFlightClass] = useState<'economy' | 'business' | 'first'>('economy');
+  const [visaType, setVisaType] = useState('Tourisme');
+  const [insurancePlan, setInsurancePlan] = useState('Individuel (Schengen & Monde)');
+  const [advancedDropdownOpen, setAdvancedDropdownOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<{
+    visible: boolean;
+    serviceLabel: string;
+    destination: string;
+    dates: string;
+    options: string;
+    tab: SearchTab;
+    matchesCount: number;
+    whatsappUrl: string;
+  } | null>(null);
+
   // Quick Hero Search Bar State (for compatibility)
-  const [quickService, setQuickService] = useState('flights');
-  const [quickDestination, setQuickDestination] = useState('');
-  const [quickDate, setQuickDate] = useState('');
-  const [quickTravelers, setQuickTravelers] = useState('1');
+  const [quickService] = useState('flights');
+  const [quickDestination] = useState('');
+  const [quickDate] = useState('');
+  const [quickTravelers] = useState('1');
+
+  // Active configuration for selected tab
+  const currentTabConfig = SEARCH_TABS.find(t => t.id === activeSearchTab) || SEARCH_TABS[0];
+
+  // Handle Hero Search execution for all 6 services
+  const handleHeroSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const tabName = currentTabConfig.label[lang];
+    const dest = searchDestination.trim() || (
+      activeSearchTab === 'tours' ? 'Toutes les destinations de rêve' :
+      activeSearchTab === 'hotel' ? 'Hôtels 5 étoiles sélectionnés' :
+      activeSearchTab === 'flights' ? 'Casablanca vers le Monde' :
+      activeSearchTab === 'circuits' ? 'Les plus beaux circuits du Maroc' :
+      activeSearchTab === 'visa' ? 'Visa international garanti' : 'Assurance voyage complète'
+    );
+
+    const datesStr = searchDepartureDate
+      ? (searchReturnDate ? `${searchDepartureDate} - ${searchReturnDate}` : `À partir du ${searchDepartureDate}`)
+      : 'Dates flexibles';
+
+    let optionsStr = '';
+    if (activeSearchTab === 'tours' || activeSearchTab === 'circuits') {
+      const total = adultsCount + childrenCount;
+      optionsStr = `${total} ${total > 1 ? 'Voyageurs' : 'Voyageur'}`;
+    } else if (activeSearchTab === 'hotel') {
+      const total = adultsCount + childrenCount;
+      optionsStr = `${total} ${total > 1 ? 'Personnes' : 'Personne'}, ${roomsCount} ${roomsCount > 1 ? 'Chambres' : 'Chambre'}`;
+    } else if (activeSearchTab === 'flights') {
+      const className = flightClass === 'first' ? '1ère Classe' : flightClass === 'business' ? 'Classe Affaires' : 'Classe Économique';
+      optionsStr = `${className}, ${adultsCount + childrenCount} Passagers`;
+    } else if (activeSearchTab === 'visa') {
+      optionsStr = `Type: Visa ${visaType}, ${adultsCount} Demande(s)`;
+    } else if (activeSearchTab === 'insurance') {
+      optionsStr = `Formule: ${insurancePlan}`;
+    }
+
+    const waText = `Bonjour Golden Group Travels, je recherche un ${tabName} pour "${dest}" (${datesStr}, ${optionsStr}). Merci de me communiquer les disponibilités et meilleurs tarifs.`;
+    const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}&text=${encodeURIComponent(waText)}`;
+
+    setSearchResults({
+      visible: true,
+      serviceLabel: tabName,
+      destination: dest,
+      dates: datesStr,
+      options: optionsStr,
+      tab: activeSearchTab,
+      matchesCount: 4,
+      whatsappUrl: waUrl
+    });
+
+    // Populate consultation form with search criteria
+    setDestination(dest);
+    if (searchDepartureDate) setTravelDate(searchDepartureDate);
+    setTravelersCount(String(adultsCount + childrenCount));
+
+    // Smooth scroll into results
+    setTimeout(() => {
+      document.getElementById('search-results')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 120);
+  };
 
   // Consultation Form State
   const [formService, setFormService] = useState(t.services.items[0].name);
@@ -252,6 +554,9 @@ export default function App() {
         isRtl ? 'text-right' : 'text-left'
       }`}
     >
+      {/* Premium Minimal Brand Loading Screen */}
+      {initialLoading && <BrandLoader onComplete={() => setInitialLoading(false)} />}
+
       {/* Top Strip (Deep Navy Blue & Gold Accent) */}
       <div className="bg-[#050e1a] text-slate-200 text-[12px] border-b border-[#d1a847]/30 relative z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 flex items-center justify-between gap-4">
@@ -311,27 +616,44 @@ export default function App() {
       </div>
 
       {/* Main Navigation Bar (Luxury Deep Navy Blue & Gold, Sticky) */}
-      <header className="sticky top-0 z-40 bg-[#0b1d3a]/95 backdrop-blur-md text-slate-100 shadow-md border-b border-[#d1a847]/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-20 sm:min-h-22 py-2 flex items-center justify-between gap-6">
+      <header className="sticky top-0 z-40 bg-[#021939]/98 backdrop-blur-md text-slate-100 shadow-md border-b border-[#d1a847]/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-24 sm:min-h-28 py-3 flex items-center justify-between gap-6">
           {/* Logo */}
           <a href="#" className="focus:outline-none">
-            <GoldenLogo />
+            <GoldenLogo className="h-20 sm:h-24 md:h-28" />
           </a>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-8 text-[13px] font-bold tracking-wider text-slate-200 uppercase">
-            <a href="#" className="hover:text-[#d1a847] transition-colors">
+            <a
+              href="#accueil"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToTop();
+              }}
+              className="nav-link-gold hover:text-[#d1a847] transition-colors cursor-pointer"
+            >
               {t.nav.accueil}
             </a>
             <a
-              href="#services"
-              className="hover:text-[#d1a847] transition-colors"
+              href="#search-section"
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveSearchTab('tours');
+                scrollToSection('search-section');
+              }}
+              className="nav-link-gold hover:text-[#d1a847] transition-colors cursor-pointer"
             >
               {t.nav.voyageOrganise}
             </a>
             <a
-              href="#services"
-              className="hover:text-[#d1a847] transition-colors"
+              href="#search-section"
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveSearchTab('circuits');
+                scrollToSection('search-section');
+              }}
+              className="nav-link-gold hover:text-[#d1a847] transition-colors cursor-pointer"
             >
               {t.nav.circuitsMaroc}
             </a>
@@ -339,25 +661,41 @@ export default function App() {
             {/* Services Dropdown */}
             <div className="relative group">
               <button
-                className="flex items-center gap-1 hover:text-[#d1a847] transition-colors py-2 uppercase cursor-pointer"
+                type="button"
+                onClick={() => scrollToSection('services')}
+                className="nav-link-gold flex items-center gap-1 hover:text-[#d1a847] transition-colors py-2 uppercase cursor-pointer"
               >
                 <span>{t.nav.services}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-[#d1a847]" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#d1a847] transition-transform duration-300 group-hover:rotate-180" />
               </button>
-              <div className="absolute top-full left-0 w-60 bg-[#0b1d3a] border border-[#d1a847]/40 rounded-lg shadow-2xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 normal-case font-normal">
-                {t.services.items.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => handleServiceSelectForInquiry(s.name)}
-                    className="w-full text-left rtl:text-right px-4 py-2.5 text-xs text-slate-200 hover:bg-[#13284c] hover:text-[#fceda2] transition-colors cursor-pointer flex items-center justify-between"
-                  >
-                    <span>{s.name}</span>
-                  </button>
-                ))}
+              <div className="absolute top-full left-0 w-64 bg-[#0b1d3a] border border-[#d1a847]/40 rounded-lg shadow-2xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 normal-case font-normal">
+                {SEARCH_TABS.map((tab) => {
+                  const TabIcon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveSearchTab(tab.id);
+                        scrollToSection('search-section');
+                      }}
+                      className="w-full text-left rtl:text-right px-4 py-2.5 text-xs text-slate-200 hover:bg-[#13284c] hover:text-[#fceda2] transition-colors cursor-pointer flex items-center gap-2.5 group/item"
+                    >
+                      <TabIcon className="w-4 h-4 text-[#d1a847] transition-transform duration-200 group-hover/item:scale-110" />
+                      <span>{tab.label[lang] || tab.label.fr}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <a href="#contact" className="hover:text-[#d1a847] transition-colors">
+            <a
+              href="#contact"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('contact');
+              }}
+              className="nav-link-gold hover:text-[#d1a847] transition-colors cursor-pointer"
+            >
               {t.nav.contact}
             </a>
           </nav>
@@ -403,41 +741,58 @@ export default function App() {
             </div>
 
             <nav className="flex flex-col space-y-3 text-sm font-semibold uppercase">
-              <a
-                href="#"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors"
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  scrollToTop();
+                }}
+                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.accueil}
-              </a>
-              <a
-                href="#services"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors"
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setActiveSearchTab('tours');
+                  scrollToSection('search-section');
+                }}
+                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.voyageOrganise}
-              </a>
-              <a
-                href="#services"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors"
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setActiveSearchTab('circuits');
+                  scrollToSection('search-section');
+                }}
+                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.circuitsMaroc}
-              </a>
-              <a
-                href="#services"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors"
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  scrollToSection('services');
+                }}
+                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.services}
-              </a>
-              <a
-                href="#contact"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors"
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  scrollToSection('contact');
+                }}
+                className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.contact}
-              </a>
+              </button>
             </nav>
 
             {/* Mobile Contact Action */}
@@ -511,30 +866,408 @@ export default function App() {
           <div className="absolute inset-0 bg-radial from-transparent via-[#081528]/50 to-[#050e1a]/95" />
         </div>
 
-        {/* Central Calligraphy Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center my-auto py-16 sm:py-24">
+        {/* Central Calligraphy & Luxury Search Bar Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center my-auto py-12 sm:py-20 w-full">
+          {/* Sacred Golden Talbiyah Calligraphy: لَبَّيْكَ اللَّهُمَّ لَبَّيْك */}
+          <div className="flex items-center justify-center mb-4 sm:mb-6 select-none hero-reveal-1" dir="rtl">
+            <span className="font-amiri font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl gold-gradient-text tracking-wide drop-shadow-[0_2px_18px_rgba(209,168,71,0.65)] leading-relaxed">
+              {t.hero.talbiyah}
+            </span>
+          </div>
+
           {/* Main Grand Calligraphy: Majmuat Golden Likhadamat As-Safar Wa As-Siyaha */}
           <h1
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-calligraphy text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.98)] drop-shadow-[0_0_25px_rgba(209,168,71,0.25)] leading-[1.35] text-center max-w-5xl tracking-normal px-4 select-none"
+            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-calligraphy text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.98)] drop-shadow-[0_0_25px_rgba(209,168,71,0.25)] leading-[1.35] text-center max-w-5xl tracking-normal px-4 select-none mb-6 sm:mb-8 hero-reveal-2"
             dir="rtl"
           >
             {t.hero.arabicTitle}
           </h1>
 
+          {/* Quick Hero Search Terminal (Featuring ALL Services with 3D Pop-Out Tabs & Scroll Animations) */}
+          <div id="search-section" className="w-full max-w-5xl mt-2 mb-8 text-left rtl:text-right scroll-mt-28 perspective-1200 preserve-3d hero-reveal-3">
+            {/* 3D Tabs Bar with ALL Services from Golden Group Travels */}
+            <div className="perspective-1000 preserve-3d flex items-end gap-2 overflow-x-auto pt-6 pb-2 px-1 scrollbar-none max-w-full">
+              {SEARCH_TABS.map((tab, idx) => {
+                const TabIcon = tab.icon;
+                const isActive = activeSearchTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveSearchTab(tab.id);
+                      setSearchResults(null);
+                    }}
+                    className={`relative px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-t-xl text-xs sm:text-sm font-bold tracking-wider cursor-pointer flex items-center gap-2.5 whitespace-nowrap shrink-0 tab-pop-delay-${idx} ${
+                      isActive
+                        ? 'tab-3d-active bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] text-[#0b1d3a] font-extrabold border-t border-x border-[#fceda2]/90'
+                        : 'tab-3d-inactive bg-[#061021]/95 text-slate-300 border-t border-x border-[#d1a847]/40 hover:text-white hover:bg-[#0b1d3a]'
+                    }`}
+                  >
+                    <div className={`transition-transform duration-300 ${isActive ? 'scale-115 rotate-[-4deg]' : 'group-hover:scale-110'}`}>
+                      <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#0b1d3a]' : 'text-[#d1a847]'}`} />
+                    </div>
+                    <span className="relative z-10">{tab.label[lang] || tab.label.fr}</span>
+                    {/* 3D Base Edge Extrusion when active */}
+                    {isActive && (
+                      <span className="absolute -bottom-1 inset-x-2 h-1 bg-[#8f6a1e] rounded-b-md blur-[0.3px]" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Main Search Bar Form with 3D Tilt on Scroll */}
+            <form
+              onSubmit={handleHeroSearch}
+              style={{
+                transform: `perspective(1200px) rotateX(${scrollTilt}deg)`,
+                transformOrigin: '50% 0%'
+              }}
+              className="terminal-3d-shell relative bg-[#061021]/95 backdrop-blur-xl border border-[#d1a847]/40 shadow-[0_20px_55px_-10px_rgba(0,0,0,0.85)] rounded-2xl rounded-tl-none p-3.5 sm:p-5 z-20 transition-transform duration-150 ease-out"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                {/* 1. Destination / Route / Country Field */}
+                <div className="md:col-span-4 flex items-center gap-3 p-2.5 rounded-xl bg-[#0b1d3a]/60 border border-[#d1a847]/20 hover:border-[#d1a847]/50 transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-[#d1a847]/15 border border-[#d1a847]/40 flex items-center justify-center shrink-0">
+                    <MapPin className="w-4 h-4 text-[#d1a847]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <label className="block text-[10px] font-extrabold uppercase tracking-widest text-[#d1a847] leading-tight">
+                      {currentTabConfig.destinationLabel[lang] || currentTabConfig.destinationLabel.fr}
+                    </label>
+                    <input
+                      type="text"
+                      value={searchDestination}
+                      onChange={(e) => setSearchDestination(e.target.value)}
+                      placeholder={currentTabConfig.destinationPlaceholder[lang] || currentTabConfig.destinationPlaceholder.fr}
+                      className="w-full bg-transparent text-xs sm:text-sm font-medium text-white placeholder-slate-400 focus:outline-none truncate mt-0.5"
+                    />
+                  </div>
+                </div>
+
+                {/* 2. Dates Field (De - À) */}
+                <div className="md:col-span-4 flex items-center gap-3 p-2.5 rounded-xl bg-[#0b1d3a]/60 border border-[#d1a847]/20 hover:border-[#d1a847]/50 transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-[#d1a847]/15 border border-[#d1a847]/40 flex items-center justify-center shrink-0">
+                    <Calendar className="w-4 h-4 text-[#d1a847]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <label className="block text-[10px] font-extrabold uppercase tracking-widest text-[#d1a847] leading-tight">
+                      {currentTabConfig.datesLabel[lang] || currentTabConfig.datesLabel.fr}
+                    </label>
+                    <div className="flex items-center gap-1.5 mt-0.5 text-xs text-white">
+                      <input
+                        type="date"
+                        value={searchDepartureDate}
+                        onChange={(e) => setSearchDepartureDate(e.target.value)}
+                        className="bg-transparent text-[11px] sm:text-xs text-white focus:outline-none cursor-pointer"
+                        title={currentTabConfig.datesLabel[lang] || "Date de départ"}
+                      />
+                      <span className="text-slate-400">-</span>
+                      <input
+                        type="date"
+                        value={searchReturnDate}
+                        onChange={(e) => setSearchReturnDate(e.target.value)}
+                        className="bg-transparent text-[11px] sm:text-xs text-white focus:outline-none cursor-pointer"
+                        title="Date de retour"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Avancé Field (Service-Tailored Dropdown) */}
+                <div className="md:col-span-2 relative">
+                  <button
+                    type="button"
+                    onClick={() => setAdvancedDropdownOpen(!advancedDropdownOpen)}
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#0b1d3a]/60 border border-[#d1a847]/20 hover:border-[#d1a847]/50 transition-colors text-left rtl:text-right cursor-pointer"
+                  >
+                    <div className="truncate">
+                      <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#d1a847] leading-tight">
+                        {t.hero.advancedTitle}
+                      </div>
+                      <div className="text-xs sm:text-sm font-semibold text-white truncate mt-0.5 flex items-center gap-1">
+                        {activeSearchTab === 'flights' ? (
+                          <span>{flightClass === 'business' ? 'Affaires' : flightClass === 'first' ? '1ère' : 'Éco'}, {adultsCount + childrenCount}</span>
+                        ) : activeSearchTab === 'visa' ? (
+                          <span>{visaType}, {adultsCount} Pers.</span>
+                        ) : activeSearchTab === 'insurance' ? (
+                          <span>{insurancePlan.split(' ')[0]}, {adultsCount}</span>
+                        ) : activeSearchTab === 'hotel' ? (
+                          <span>{adultsCount + childrenCount} Pers., {roomsCount} Ch.</span>
+                        ) : (
+                          <span>{adultsCount + childrenCount} {adultsCount + childrenCount > 1 ? 'Pers.' : 'Pers.'}</span>
+                        )}
+                        <ChevronDown className={`w-3.5 h-3.5 text-[#d1a847] transition-transform shrink-0 ${advancedDropdownOpen ? 'rotate-180' : ''}`} />
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Tailored Avancé Popover */}
+                  {advancedDropdownOpen && (
+                    <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-72 bg-[#081528] border border-[#d1a847]/40 rounded-xl shadow-2xl p-4 z-50 text-slate-100 space-y-3.5 backdrop-blur-md">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-700">
+                        <span className="text-xs font-bold text-[#fceda2]">
+                          {activeSearchTab === 'flights' ? 'Options de Vol' :
+                           activeSearchTab === 'visa' ? 'Options de Visa' :
+                           activeSearchTab === 'insurance' ? 'Formule d\'Assurance' :
+                           'Voyageurs & Chambres'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setAdvancedDropdownOpen(false)}
+                          className="text-slate-400 hover:text-white text-xs cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {/* Flight Specific: Class Selection */}
+                      {activeSearchTab === 'flights' && (
+                        <div className="space-y-1.5 pb-2 border-b border-slate-800">
+                          <label className="text-[11px] font-semibold text-slate-300">Classe de voyage :</label>
+                          <div className="grid grid-cols-3 gap-1">
+                            {[
+                              { id: 'economy', label: 'Économique' },
+                              { id: 'business', label: 'Affaires' },
+                              { id: 'first', label: '1ère' }
+                            ].map((cls) => (
+                              <button
+                                key={cls.id}
+                                type="button"
+                                onClick={() => setFlightClass(cls.id as any)}
+                                className={`px-2 py-1.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                                  flightClass === cls.id
+                                    ? 'bg-[#d1a847] text-[#0b1d3a] font-bold'
+                                    : 'bg-[#0b1d3a] text-slate-300 hover:bg-[#13284c]'
+                                }`}
+                              >
+                                {cls.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Visa Specific: Type of Visa */}
+                      {activeSearchTab === 'visa' && (
+                        <div className="space-y-1.5 pb-2 border-b border-slate-800">
+                          <label className="text-[11px] font-semibold text-slate-300">Type de visa demandé :</label>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {['Tourisme', 'Affaires', 'Études', 'Visite'].map((type) => (
+                              <button
+                                key={type}
+                                type="button"
+                                onClick={() => setVisaType(type)}
+                                className={`px-2 py-1.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                                  visaType === type
+                                    ? 'bg-[#d1a847] text-[#0b1d3a] font-bold'
+                                    : 'bg-[#0b1d3a] text-slate-300 hover:bg-[#13284c]'
+                                }`}
+                              >
+                                {type}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Insurance Specific: Formula Selection */}
+                      {activeSearchTab === 'insurance' && (
+                        <div className="space-y-1.5 pb-2 border-b border-slate-800">
+                          <label className="text-[11px] font-semibold text-slate-300">Formule de couverture :</label>
+                          <div className="space-y-1">
+                            {[
+                              'Individuel (Schengen & Monde)',
+                              'Famille Multirisque',
+                              'Annulation & Rapatriement'
+                            ].map((plan) => (
+                              <button
+                                key={plan}
+                                type="button"
+                                onClick={() => setInsurancePlan(plan)}
+                                className={`w-full text-left px-2.5 py-1.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                                  insurancePlan === plan
+                                    ? 'bg-[#d1a847] text-[#0b1d3a] font-bold'
+                                    : 'bg-[#0b1d3a] text-slate-300 hover:bg-[#13284c]'
+                                }`}
+                              >
+                                {plan}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Adults / Persons Counter */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-xs font-semibold">
+                            {activeSearchTab === 'visa' ? 'Demandeurs' : activeSearchTab === 'insurance' ? 'Assurés' : 'Adultes'}
+                          </div>
+                          <div className="text-[10px] text-slate-400">18+ ans</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setAdultsCount(Math.max(1, adultsCount - 1))}
+                            className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
+                          >
+                            -
+                          </button>
+                          <span className="w-5 text-center text-xs font-bold">{adultsCount}</span>
+                          <button
+                            type="button"
+                            onClick={() => setAdultsCount(adultsCount + 1)}
+                            className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Children (for tours, hotel, flights, circuits) */}
+                      {activeSearchTab !== 'visa' && activeSearchTab !== 'insurance' && (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-xs font-semibold">Enfants</div>
+                            <div className="text-[10px] text-slate-400">0-17 ans</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setChildrenCount(Math.max(0, childrenCount - 1))}
+                              className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="w-5 text-center text-xs font-bold">{childrenCount}</span>
+                            <button
+                              type="button"
+                              onClick={() => setChildrenCount(childrenCount + 1)}
+                              className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Rooms (for hotel) */}
+                      {activeSearchTab === 'hotel' && (
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                          <div>
+                            <div className="text-xs font-semibold">Chambres</div>
+                            <div className="text-[10px] text-slate-400">Hôtel / Suites</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setRoomsCount(Math.max(1, roomsCount - 1))}
+                              className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
+                            >
+                              -
+                            </button>
+                            <span className="w-5 text-center text-xs font-bold">{roomsCount}</span>
+                            <button
+                              type="button"
+                              onClick={() => setRoomsCount(roomsCount + 1)}
+                              className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. Action Button: Dynamic per service */}
+                <div className="md:col-span-2">
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase text-[#0b1d3a] btn-gold-luxury flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Search className="w-4 h-4 text-[#0b1d3a] shrink-0" />
+                    <span className="truncate">{currentTabConfig.actionLabel[lang] || currentTabConfig.actionLabel.fr}</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* Search Results Drawer / Confirmation */}
+            {searchResults?.visible && (
+              <div id="search-results" className="mt-4 p-4 rounded-2xl bg-[#081528] border border-[#d1a847]/50 shadow-2xl animate-fade-in-up">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#d1a847]/20">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="font-bold text-sm text-[#fceda2]">
+                      {searchResults.serviceLabel} Disponibles :
+                    </span>
+                    <span className="text-xs text-white bg-[#0b1d3a] px-2.5 py-1 rounded-md border border-[#d1a847]/30">
+                      {searchResults.destination}
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-300">
+                    {searchResults.dates} • {searchResults.options}
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-xs text-slate-300">
+                    {lang === 'ar'
+                      ? 'لدينا عروض وخصومات ممتازة مطابقة لطلبك. تواصل معنا فوراً للحصول على أفضل سعر متاح.'
+                      : 'Nos conseillers ont préparé des options premium exclusives pour votre demande. Contactez-nous immédiatement pour bloquer votre tarif.'}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={searchResults.whatsappUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md transition-all cursor-pointer"
+                    >
+                      <WhatsAppIcon className="w-3.5 h-3.5 fill-current" />
+                      <span>WhatsApp Devis Immédiat</span>
+                    </a>
+                    <a
+                      href="tel:0666484815"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-[#0b1d3a] btn-gold-luxury shadow-md transition-all cursor-pointer"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-[#0b1d3a]" />
+                      <span>0666-484815</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setSearchResults(null)}
+                      className="px-2.5 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Quick Action Buttons */}
-          <div className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-4 hero-reveal-4">
             <a
               href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-[#0b1d3a] bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] hover:shadow-[0_0_25px_rgba(209,168,71,0.6)] transition-all hover:scale-105 shadow-xl cursor-pointer"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-[#0b1d3a] btn-gold-luxury shadow-xl cursor-pointer"
             >
               <WhatsAppIcon className="w-4 h-4 fill-current" />
               <span>{t.consultation.whatsappCta}</span>
             </a>
             <a
               href="#services"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-200 border border-[#d1a847]/40 bg-[#0b1d3a]/80 hover:bg-[#0b1d3a] hover:border-[#d1a847] hover:text-[#fceda2] transition-all backdrop-blur-md cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('services');
+              }}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-200 btn-outline-gold cursor-pointer"
             >
               <span>{t.nav.services}</span>
               <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
@@ -584,31 +1317,38 @@ export default function App() {
         </div>
       </section>
 
+      {/* Luxury Section Transition Separator */}
+      <SectionSeparator />
+
       {/* Services Section: Clean Premium Cards WITHOUT Descriptions, Highlights, or Destination Text */}
-      <section id="services" className="py-20 md:py-28 bg-[#0b1d3a] relative border-t border-b border-[#d1a847]/25">
+      <section id="services" className="py-20 md:py-28 bg-[#0b1d3a] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-16 reveal-init reveal-up">
             <h2 className="font-serif-luxury text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
               {t.services.title}
             </h2>
             <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto" />
           </div>
 
-          {/* Clean Service Cards Grid: 5 Core Services styled with Navy Blue background & Gold accents */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Clean Service Cards Grid: 5 Core Services styled with 3D Pop & Luxury Scroll Reveal */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 perspective-1200 preserve-3d">
             {t.services.items.map((service, index) => {
               const IconComponent = SERVICE_ICONS[service.id] || Compass;
+              const staggerClass = `stagger-${Math.min(index + 1, 6)}`;
 
               return (
                 <div
                   key={service.id}
-                  className="bg-[#081528] border border-[#d1a847]/30 hover:border-[#d1a847] rounded-xl p-8 relative flex flex-col justify-between gold-card-hover group min-h-[220px]"
+                  style={{
+                    transform: `perspective(1000px) rotateX(${scrollTilt * 0.5}deg)`
+                  }}
+                  className={`service-card-luxury reveal-init reveal-up ${staggerClass} bg-[#081528] border border-[#d1a847]/30 hover:border-[#d1a847] rounded-xl p-8 relative flex flex-col justify-between group min-h-[220px]`}
                 >
                   <div>
                     {/* Top Bar with Number & Luxury Icon */}
                     <div className="flex items-center justify-between mb-6">
-                      <div className="w-14 h-14 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/40 flex items-center justify-center group-hover:border-[#d1a847] group-hover:shadow-[0_0_15px_rgba(209,168,71,0.3)] transition-all duration-300">
+                      <div className="service-icon-box w-14 h-14 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/40 flex items-center justify-center group-hover:border-[#d1a847] group-hover:shadow-[0_0_15px_rgba(209,168,71,0.3)] transition-all duration-300">
                         <IconComponent className="w-7 h-7 text-[#d1a847] transition-transform duration-300 group-hover:scale-110" />
                       </div>
                       <span className="font-serif-luxury text-2xl font-bold text-[#d1a847]/40 group-hover:text-[#d1a847] transition-colors">
@@ -626,10 +1366,10 @@ export default function App() {
                   <div className="pt-6 border-t border-[#d1a847]/15 flex items-center justify-between gap-3">
                     <button
                       onClick={() => handleServiceSelectForInquiry(service.name)}
-                      className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#d1a847] hover:text-[#fceda2] transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#d1a847] hover:text-[#fceda2] transition-colors cursor-pointer group/btn"
                     >
                       <span>{t.services.inquireNow}</span>
-                      <ArrowRight className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
+                      <ArrowRight className={`w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-1 ${isRtl ? 'rotate-180 group-hover/btn:-translate-x-1' : ''}`} />
                     </button>
 
                     <a
@@ -647,10 +1387,10 @@ export default function App() {
             })}
 
             {/* 6th Card: Direct Personalized Assistance */}
-            <div className="bg-gradient-to-br from-[#0f264c] via-[#0b1d3a] to-[#081528] border border-[#d1a847]/50 rounded-xl p-8 flex flex-col justify-between min-h-[220px]">
+            <div className="service-card-luxury reveal-init reveal-up stagger-6 bg-gradient-to-br from-[#0f264c] via-[#0b1d3a] to-[#081528] border border-[#d1a847]/50 rounded-xl p-8 flex flex-col justify-between min-h-[220px]">
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <div className="w-14 h-14 rounded-xl bg-[#d1a847]/20 border border-[#d1a847] flex items-center justify-center">
+                  <div className="service-icon-box w-14 h-14 rounded-xl bg-[#d1a847]/20 border border-[#d1a847] flex items-center justify-center">
                     <Headphones className="w-7 h-7 text-[#fceda2]" />
                   </div>
                   <span className="font-serif-luxury text-2xl font-bold text-[#d1a847]/40">
@@ -667,9 +1407,9 @@ export default function App() {
                   href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_INTERNATIONAL}`}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-emerald-700 hover:bg-emerald-600 shadow-md transition-all hover:scale-[1.02]"
+                  className="btn-gold-luxury w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs font-bold uppercase tracking-wider text-[#0b1d3a] shadow-md transition-all hover:scale-[1.02]"
                 >
-                  <WhatsAppIcon className="w-4 h-4 fill-current" />
+                  <WhatsAppIcon className="w-4 h-4 fill-[#0b1d3a]" />
                   <span>WhatsApp Booking</span>
                 </a>
               </div>
@@ -678,10 +1418,13 @@ export default function App() {
         </div>
       </section>
 
+      {/* Luxury Section Transition Separator */}
+      <SectionSeparator />
+
       {/* Why Choose Us Section */}
       <section id="why-us" className="py-20 md:py-28 bg-[#081528] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-16 reveal-init reveal-up">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#d1a847]/30 bg-[#0b1d3a] text-xs font-semibold uppercase tracking-widest text-[#fceda2] mb-3">
               <Award className="w-3.5 h-3.5 text-[#d1a847]" />
               <span>{t.whyUs.eyebrow}</span>
@@ -696,16 +1439,17 @@ export default function App() {
             {t.whyUs.pillars.map((pillar, idx) => {
               const PillarIcons = [Compass, FileCheck2, Headphones, ShieldCheck];
               const IconComp = PillarIcons[idx % PillarIcons.length];
+              const staggerClass = `stagger-${idx + 1}`;
 
               return (
                 <div
                   key={idx}
-                  className="bg-[#0b1d3a] border border-[#d1a847]/25 rounded-xl p-6 relative group hover:border-[#d1a847] transition-all"
+                  className={`service-card-luxury reveal-init reveal-up ${staggerClass} bg-[#0b1d3a] border border-[#d1a847]/25 rounded-xl p-6 relative group hover:border-[#d1a847] transition-all`}
                 >
-                  <div className="w-12 h-12 rounded-lg bg-[#081528] border border-[#d1a847]/40 flex items-center justify-center mb-5 text-[#d1a847]">
+                  <div className="service-icon-box w-12 h-12 rounded-lg bg-[#081528] border border-[#d1a847]/40 flex items-center justify-center mb-5 text-[#d1a847]">
                     <IconComp className="w-6 h-6" />
                   </div>
-                  <h3 className="font-serif-luxury text-xl font-bold text-white mb-2">
+                  <h3 className="font-serif-luxury text-xl font-bold text-white mb-2 group-hover:text-[#fceda2] transition-colors">
                     {pillar.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
@@ -718,10 +1462,13 @@ export default function App() {
         </div>
       </section>
 
+      {/* Luxury Section Transition Separator */}
+      <SectionSeparator />
+
       {/* Interactive Consultation / Booking Form Section (DISPATCHES DIRECTLY TO WHATSAPP 0666-484815) */}
-      <section id="consultation" className="py-20 md:py-28 bg-[#0b1d3a] relative border-t border-b border-[#d1a847]/25">
+      <section id="consultation" className="py-20 md:py-28 bg-[#0b1d3a] relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="text-center max-w-2xl mx-auto mb-12 reveal-init reveal-up">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/40 bg-emerald-950/40 text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-3">
               <WhatsAppIcon className="w-3.5 h-3.5 fill-current" />
               <span>WhatsApp Direct Booking</span>
@@ -735,7 +1482,7 @@ export default function App() {
             </p>
           </div>
 
-          <div className="bg-[#081528] border border-[#d1a847]/40 rounded-2xl p-6 sm:p-10 shadow-[0_15px_50px_rgba(2,6,12,0.8)]">
+          <div className="reveal-init reveal-scale bg-[#081528] border border-[#d1a847]/40 rounded-2xl p-6 sm:p-10 shadow-[0_15px_50px_rgba(2,6,12,0.8)]">
             {submitted ? (
               <div className="text-center py-8 space-y-6 animate-in fade-in duration-300">
                 <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center mx-auto text-emerald-400">
@@ -994,10 +1741,13 @@ export default function App() {
         </div>
       </section>
 
+      {/* Luxury Section Transition Separator */}
+      <SectionSeparator />
+
       {/* Frequently Asked Questions Section */}
       <section id="faq" className="py-20 md:py-24 bg-[#081528] relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-14">
+          <div className="text-center max-w-2xl mx-auto mb-14 reveal-init reveal-up">
             <h2 className="font-serif-luxury text-3xl sm:text-4xl font-bold text-white mb-3">
               {t.faq.title}
             </h2>
@@ -1007,16 +1757,17 @@ export default function App() {
           <div className="space-y-4">
             {t.faq.items.map((item, index) => {
               const isOpen = activeFaq === index;
+              const staggerClass = `stagger-${(index % 5) + 1}`;
               return (
                 <div
                   key={index}
-                  className="bg-[#0b1d3a] border border-[#d1a847]/25 rounded-xl overflow-hidden transition-colors"
+                  className={`reveal-init reveal-up ${staggerClass} bg-[#0b1d3a] border border-[#d1a847]/25 hover:border-[#d1a847]/50 rounded-xl overflow-hidden transition-all duration-300`}
                 >
                   <button
                     onClick={() => setActiveFaq(isOpen ? null : index)}
-                    className="w-full text-left rtl:text-right p-5 flex items-center justify-between gap-4 focus:outline-none cursor-pointer"
+                    className="w-full text-left rtl:text-right p-5 flex items-center justify-between gap-4 focus:outline-none cursor-pointer group"
                   >
-                    <span className="font-medium text-white text-sm sm:text-base">
+                    <span className="font-medium text-white text-sm sm:text-base group-hover:text-[#fceda2] transition-colors">
                       {item.q}
                     </span>
                     <ChevronDown
@@ -1026,7 +1777,7 @@ export default function App() {
                     />
                   </button>
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-[#d1a847]/10">
+                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-[#d1a847]/10 animate-in fade-in duration-200">
                       {item.a}
                     </div>
                   )}
@@ -1061,7 +1812,7 @@ export default function App() {
             {/* Brand Column */}
             <div className="space-y-4">
               <a href="#" className="inline-block focus:outline-none">
-                <GoldenLogo className="h-14" />
+                <GoldenLogo className="h-18 sm:h-22 md:h-24" />
               </a>
               <p className="text-xs text-slate-400 leading-relaxed">
                 {t.footer.desc}
