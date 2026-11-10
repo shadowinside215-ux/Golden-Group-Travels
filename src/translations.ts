@@ -33,6 +33,7 @@ export interface TranslationData {
   };
   hero: {
     talbiyah: string;
+    talbiyahTranslation: string;
     arabicTitle: string;
     tabTours: string;
     tabHotel: string;
@@ -187,8 +188,9 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
-      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
+      talbiyah: 'Here I am, O Allah, here I am.',
+      talbiyahTranslation: '',
+      arabicTitle: 'Golden Group Travel & Tourism Services',
       tabTours: 'Organized Tours',
       tabHotel: 'Hotel',
       destinationTitle: 'Destination',
@@ -458,8 +460,9 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
-      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
+      talbiyah: 'Me voici, ô Allah, me voici.',
+      talbiyahTranslation: '',
+      arabicTitle: 'Golden Group Services de Voyages & Tourisme',
       tabTours: 'Voyage Organisé',
       tabHotel: 'Hôtel',
       destinationTitle: 'Destination',
@@ -729,8 +732,9 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
-      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
+      talbiyah: 'Aquí estoy, oh Allah, aquí estoy.',
+      talbiyahTranslation: '',
+      arabicTitle: 'Golden Group Servicios de Viajes y Turismo',
       tabTours: 'Viaje Organizado',
       tabHotel: 'Hotel',
       destinationTitle: 'Destino',
@@ -1001,6 +1005,7 @@ export const translations: Record<Language, TranslationData> = {
     },
     hero: {
       talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
+      talbiyahTranslation: '',
       arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'رحلات منظمة',
       tabHotel: 'فنادق',

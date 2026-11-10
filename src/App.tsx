@@ -139,30 +139,48 @@ const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
 const DISPLAY_PHONE = '0666-484815';
 
 // Official Brand Logo (Golden Group Travels - Travel Services & Events)
-// Exact logo as on the picture: /assets/aistudio/Golden_Group_Travel_Logo_447d132d.png
-const GoldenLogo = ({ className = 'h-18 sm:h-22 md:h-26' }: { className?: string }) => (
-  <div className="flex items-center gap-3.5 sm:gap-4 group shrink-0">
-    <img
-      src="/assets/aistudio/Golden_Group_Travel_Logo_447d132d.png"
-      alt="Golden Group - Travel Services & Events"
-      className={`${className} w-auto object-contain rounded-xl shadow-lg border border-[#d1a847]/30 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#d1a847]`}
-    />
-    <div className="hidden sm:flex flex-col text-left rtl:text-right">
-      <span className="text-sm sm:text-base md:text-lg font-amiri font-bold text-[#fceda2] leading-tight drop-shadow-xs">
-        مجموعة جولدن لخدمات السفر والسياحة
-      </span>
-      <span className="text-[11px] sm:text-xs font-bold text-[#d1a847] tracking-widest uppercase mt-0.5">
-        Golden Group Travels
-      </span>
-      <span className="text-[9px] sm:text-[10px] text-slate-300 tracking-wider uppercase">
-        Travel Services & Events
-      </span>
+// Exact logo as uploaded: /assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png
+const GoldenLogo = ({ className = 'h-18 sm:h-22 md:h-26', lang = 'fr' }: { className?: string; lang?: Language }) => {
+  const brandTitle = lang === 'ar'
+    ? 'مجموعة جولدن لخدمات السفر والسياحة'
+    : lang === 'en'
+    ? 'Golden Group Travel & Tourism'
+    : lang === 'es'
+    ? 'Golden Group Viajes y Turismo'
+    : 'Golden Group Voyages & Tourisme';
+
+  const brandTagline = lang === 'ar'
+    ? 'خدمات السفر والفعاليات'
+    : lang === 'es'
+    ? 'Servicios de Viajes y Eventos'
+    : lang === 'fr'
+    ? 'Services de Voyages & Événements'
+    : 'Travel Services & Events';
+
+  return (
+    <div className="flex items-center gap-3.5 sm:gap-4 group shrink-0">
+      <img
+        src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+        alt="Golden Group - Travel Services & Events"
+        className={`${className} w-auto object-contain rounded-xl shadow-lg border border-[#d1a847]/30 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#d1a847]`}
+      />
+      <div className="hidden sm:flex flex-col text-left rtl:text-right">
+        <span className={`text-sm sm:text-base md:text-lg ${lang === 'ar' ? 'font-amiri' : 'font-serif-luxury'} font-bold text-[#fceda2] leading-tight drop-shadow-xs`}>
+          {brandTitle}
+        </span>
+        <span className="text-[11px] sm:text-xs font-bold text-[#d1a847] tracking-widest uppercase mt-0.5">
+          Golden Group Travels
+        </span>
+        <span className="text-[9px] sm:text-[10px] text-slate-300 tracking-wider uppercase">
+          {brandTagline}
+        </span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Minimal, elegant initial loading screen with Golden Group Travels brand identity
-const BrandLoader = ({ onComplete }: { onComplete: () => void }) => {
+const BrandLoader = ({ onComplete, lang = 'fr' }: { onComplete: () => void; lang?: Language }) => {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
@@ -176,6 +194,14 @@ const BrandLoader = ({ onComplete }: { onComplete: () => void }) => {
     return () => clearTimeout(timer);
   }, [onComplete]);
 
+  const brandTitle = lang === 'ar'
+    ? 'مجموعة جولدن لخدمات السفر والسياحة'
+    : lang === 'en'
+    ? 'Golden Group Travel & Tourism Services'
+    : lang === 'es'
+    ? 'Golden Group Servicios de Viajes y Turismo'
+    : 'Golden Group Services de Voyages & Tourisme';
+
   return (
     <div
       className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#030d1c] transition-opacity duration-500 ${
@@ -184,13 +210,13 @@ const BrandLoader = ({ onComplete }: { onComplete: () => void }) => {
     >
       <div className="flex flex-col items-center text-center p-6 space-y-6 animate-in fade-in zoom-in-95 duration-500">
         <img
-          src="/assets/aistudio/Golden_Group_Travel_Logo_447d132d.png"
+          src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
           alt="Golden Group Travels"
           className="h-28 sm:h-32 w-auto object-contain rounded-2xl shadow-[0_0_35px_rgba(209,168,71,0.35)] border border-[#d1a847]/40"
         />
         <div className="space-y-1.5">
-          <h2 className="font-amiri text-2xl sm:text-3xl font-bold text-[#fceda2] tracking-wide">
-            مجموعة جولدن لخدمات السفر والسياحة
+          <h2 className={`${lang === 'ar' ? 'font-amiri' : 'font-serif-luxury'} text-2xl sm:text-3xl font-bold text-[#fceda2] tracking-wide`}>
+            {brandTitle}
           </h2>
           <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-[#d1a847]">
             Golden Group Travels • Travel Services & Events
@@ -548,28 +574,45 @@ export default function App() {
     }
   };
 
+  const isSubmittingRef = useRef(false);
+
   const handleConsultationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Guard against multiple rapid submits
+    if (isSubmittingRef.current) return;
+
     // Anti-bot honeypot check: if bot filled this hidden field, safely ignore
     if (honeypot) {
       setSubmitted(true);
       return;
     }
 
+    isSubmittingRef.current = true;
+    setFormLoading(true);
+
     const waUrl = getWhatsAppUrl();
 
-    // Instant direct dispatch to native WhatsApp without delay
+    // Mark as submitted and complete loading state
     setSubmitted(true);
     setFormLoading(false);
 
+    // Open WhatsApp URL exactly once via programmatic click without triggering secondary navigation
     try {
-      const opened = window.open(waUrl, '_blank', 'noopener,noreferrer');
-      if (!opened) {
-        window.location.href = waUrl;
-      }
+      const link = document.createElement('a');
+      link.href = waUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch {
       window.location.href = waUrl;
     }
+
+    // Reset submission lock after a cooldown period
+    setTimeout(() => {
+      isSubmittingRef.current = false;
+    }, 2000);
   };
 
   const resetForm = () => {
@@ -592,7 +635,7 @@ export default function App() {
       }`}
     >
       {/* Premium Minimal Brand Loading Screen */}
-      {initialLoading && <BrandLoader onComplete={() => setInitialLoading(false)} />}
+      {initialLoading && <BrandLoader onComplete={() => setInitialLoading(false)} lang={lang} />}
 
       {/* Top Strip (Deep Navy Blue & Gold Accent) */}
       <div className="bg-[#050e1a] text-slate-200 text-[12px] border-b border-[#d1a847]/30 relative z-50">
@@ -657,7 +700,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-24 sm:min-h-28 py-3 flex items-center justify-between gap-6">
           {/* Logo */}
           <a href="#" className="focus:outline-none">
-            <GoldenLogo className="h-20 sm:h-24 md:h-28" />
+            <GoldenLogo className="h-20 sm:h-24 md:h-28" lang={lang} />
           </a>
 
           {/* Desktop Navigation Links */}
@@ -905,17 +948,19 @@ export default function App() {
 
         {/* Central Calligraphy & Luxury Search Bar Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center my-auto py-12 sm:py-20 w-full">
-          {/* Sacred Golden Talbiyah Calligraphy: لَبَّيْكَ اللَّهُمَّ لَبَّيْك */}
-          <div className="flex items-center justify-center mb-4 sm:mb-6 select-none hero-reveal-1" dir="rtl">
-            <span className="font-amiri font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl gold-gradient-text tracking-wide drop-shadow-[0_2px_18px_rgba(209,168,71,0.65)] leading-relaxed">
+          {/* Sacred Talbiyah (replaces Arabic version with translation when selected) */}
+          <div className="flex items-center justify-center mb-4 sm:mb-6 select-none hero-reveal-1 text-center" dir={isRtl ? 'rtl' : 'ltr'}>
+            <span
+              className={`${isRtl ? 'font-amiri font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl' : 'font-serif-luxury font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl italic'} gold-gradient-text tracking-wide drop-shadow-[0_2px_18px_rgba(209,168,71,0.65)] leading-relaxed`}
+            >
               {t.hero.talbiyah}
             </span>
           </div>
 
-          {/* Main Grand Calligraphy: Majmuat Golden Likhadamat As-Safar Wa As-Siyaha */}
+          {/* Main Grand Title (replaces Arabic version with translation when selected) */}
           <h1
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-calligraphy text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.98)] drop-shadow-[0_0_25px_rgba(209,168,71,0.25)] leading-[1.35] text-center max-w-5xl tracking-normal px-4 select-none mb-6 sm:mb-8 hero-reveal-2"
-            dir="rtl"
+            className={`text-3xl sm:text-5xl md:text-6xl lg:text-7xl ${isRtl ? 'font-calligraphy' : 'font-serif-luxury font-bold'} text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.98)] drop-shadow-[0_0_25px_rgba(209,168,71,0.25)] leading-[1.35] text-center max-w-5xl tracking-normal px-4 select-none mb-6 sm:mb-8 hero-reveal-2`}
+            dir={isRtl ? 'rtl' : 'ltr'}
           >
             {t.hero.arabicTitle}
           </h1>
@@ -1877,7 +1922,7 @@ export default function App() {
             {/* Brand Column */}
             <div className="space-y-4">
               <a href="#" className="inline-block focus:outline-none">
-                <GoldenLogo className="h-18 sm:h-22 md:h-24" />
+                <GoldenLogo className="h-18 sm:h-22 md:h-24" lang={lang} />
               </a>
               <p className="text-xs text-slate-400 leading-relaxed">
                 {t.footer.desc}
