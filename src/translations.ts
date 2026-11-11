@@ -188,9 +188,9 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'Here I am, O Allah, here I am.',
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
       talbiyahTranslation: '',
-      arabicTitle: 'Golden Group Travel & Tourism Services',
+      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Organized Tours',
       tabHotel: 'Hotel',
       destinationTitle: 'Destination',
@@ -460,9 +460,9 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'Me voici, ô Allah, me voici.',
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
       talbiyahTranslation: '',
-      arabicTitle: 'Golden Group Services de Voyages & Tourisme',
+      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Voyage Organisé',
       tabHotel: 'Hôtel',
       destinationTitle: 'Destination',
@@ -732,9 +732,9 @@ export const translations: Record<Language, TranslationData> = {
       tagline: 'Travel Services & Events'
     },
     hero: {
-      talbiyah: 'Aquí estoy, oh Allah, aquí estoy.',
+      talbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
       talbiyahTranslation: '',
-      arabicTitle: 'Golden Group Servicios de Viajes y Turismo',
+      arabicTitle: 'مجموعة جولدن لخدمات السفر والسياحة',
       tabTours: 'Viaje Organizado',
       tabHotel: 'Hotel',
       destinationTitle: 'Destino',
