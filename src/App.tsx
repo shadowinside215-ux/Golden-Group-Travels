@@ -927,15 +927,6 @@ export default function App() {
 
         {/* Central Calligraphy & Luxury Search Bar Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center my-auto py-12 sm:py-20 w-full">
-          {/* Sacred Golden Talbiyah Calligraphy: لَبَّيْكَ اللَّهُمَّ لَبَّيْك */}
-          <div className="flex items-center justify-center mb-4 sm:mb-6 select-none hero-reveal-1 text-center" dir="rtl">
-            <span
-              className="font-amiri font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl gold-gradient-text tracking-wide drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,1)] leading-relaxed filter"
-            >
-              {t.hero.talbiyah}
-            </span>
-          </div>
-
           {/* Main Grand Calligraphy: مجموعة جولدن لخدمات السفر والسياحة */}
           <h1
             className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-calligraphy text-white drop-shadow-[0_4px_24px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] leading-[1.35] text-center max-w-5xl tracking-normal px-4 select-none mb-6 sm:mb-8 hero-reveal-2 filter"
