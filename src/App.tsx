@@ -140,21 +140,21 @@ const DISPLAY_PHONE = '0666-484815';
 
 // Official Brand Logo (Golden Group Travels - Travel Services & Events)
 // Exact logo as uploaded: /assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png
-const GoldenLogo = ({ className = 'h-18 sm:h-22 md:h-26' }: { className?: string; lang?: Language }) => (
-  <div className="flex items-center gap-3.5 sm:gap-4 group shrink-0">
+const GoldenLogo = ({ className = 'h-14 sm:h-22 md:h-26' }: { className?: string; lang?: Language }) => (
+  <div className="flex items-center gap-2.5 sm:gap-4 group min-w-0">
     <img
       src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
       alt="Golden Group - Travel Services & Events"
-      className={`${className} w-auto object-contain rounded-xl shadow-lg border border-[#d1a847]/30 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#d1a847]`}
+      className={`${className} w-auto shrink-0 object-contain rounded-xl shadow-lg border border-[#d1a847]/30 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#d1a847]`}
     />
-    <div className="hidden sm:flex flex-col text-left rtl:text-right">
-      <span className="text-sm sm:text-base md:text-lg font-amiri font-bold text-[#fceda2] leading-tight drop-shadow-xs">
+    <div className="flex flex-col text-left rtl:text-right min-w-0">
+      <span className="text-[12px] sm:text-base md:text-lg font-amiri font-bold text-[#fceda2] leading-tight drop-shadow-xs">
         مجموعة جولدن لخدمات السفر والسياحة
       </span>
-      <span className="text-[11px] sm:text-xs font-bold text-[#d1a847] tracking-widest uppercase mt-0.5">
+      <span className="text-[10px] sm:text-xs font-bold text-[#d1a847] tracking-wider sm:tracking-widest uppercase mt-0.5">
         Golden Group Travels
       </span>
-      <span className="text-[9px] sm:text-[10px] text-slate-300 tracking-wider uppercase">
+      <span className="text-[8px] sm:text-[10px] text-slate-300 tracking-wider uppercase">
         Travel Services & Events
       </span>
     </div>
@@ -671,10 +671,10 @@ export default function App() {
 
       {/* Main Navigation Bar (Luxury Deep Navy Blue & Gold, Sticky) */}
       <header className="sticky top-0 z-40 bg-[#021939]/98 backdrop-blur-md text-slate-100 shadow-md border-b border-[#d1a847]/30">
-        <div className="w-full px-3 sm:px-5 lg:px-8 xl:px-10 min-h-24 sm:min-h-28 py-2.5 flex items-center justify-between gap-4 lg:gap-8">
+        <div className="w-full px-3 sm:px-5 lg:px-8 xl:px-10 min-h-20 sm:min-h-28 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4 lg:gap-8">
           {/* Logo on Maximum Left Side */}
-          <a href="#" className="focus:outline-none shrink-0">
-            <GoldenLogo className="h-18 sm:h-22 md:h-26" lang={lang} />
+          <a href="#" className="focus:outline-none min-w-0">
+            <GoldenLogo className="h-14 sm:h-22 md:h-26" lang={lang} />
           </a>
 
           {/* Desktop Navigation Links */}
@@ -786,7 +786,7 @@ export default function App() {
           </div>
 
           {/* Mobile Hamburger Toggle (Right Action) */}
-          <div className="lg:hidden flex items-center">
+          <div className="lg:hidden flex items-center shrink-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-slate-200 hover:text-[#d1a847] hover:bg-[#13284c] transition-colors cursor-pointer"
