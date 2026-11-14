@@ -17,8 +17,6 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
-  ChevronLeft,
-  ChevronRight,
   Menu,
   X,
   Award,
@@ -26,13 +24,13 @@ import {
   Send,
   Mail,
   MapPin,
-  Calendar,
-  Search,
   Users,
   ArrowDown,
-  ArrowUp
+  ArrowUp,
+  QrCode
 } from 'lucide-react';
 import { translations, Language } from './translations.ts';
+import { LinksHubPage, QrStudioPage } from './LinksAndQr.tsx';
 
 // Clean WhatsApp SVG icon
 const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
@@ -141,27 +139,16 @@ const DISPLAY_PHONE = '0666-484815';
 // Official Brand Logo (Golden Group Travels - Travel Services & Events)
 // Exact logo as uploaded: /assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png
 const GoldenLogo = ({ className = 'h-14 sm:h-22 md:h-26' }: { className?: string; lang?: Language }) => (
-  <div className="flex items-center gap-2.5 sm:gap-4 group min-w-0">
+  <div className="flex items-center group min-w-0">
     <img
       src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
       alt="Golden Group - Travel Services & Events"
       className={`${className} w-auto shrink-0 object-contain rounded-xl shadow-lg border border-[#d1a847]/30 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#d1a847]`}
     />
-    <div className="flex flex-col text-left rtl:text-right min-w-0">
-      <span className="text-[12px] sm:text-base md:text-lg font-amiri font-bold text-[#fceda2] leading-tight drop-shadow-xs">
-        مجموعة جولدن لخدمات السفر والسياحة
-      </span>
-      <span className="text-[10px] sm:text-xs font-bold text-[#d1a847] tracking-wider sm:tracking-widest uppercase mt-0.5">
-        Golden Group Travels
-      </span>
-      <span className="text-[8px] sm:text-[10px] text-slate-300 tracking-wider uppercase">
-        Travel Services & Events
-      </span>
-    </div>
   </div>
 );
 
-// Minimal, elegant initial loading screen with Golden Group Travels brand identity
+// Minimal, elegant initial loading screen with Golden Group Travels brand logo
 const BrandLoader = ({ onComplete }: { onComplete: () => void; lang?: Language }) => {
   const [fading, setFading] = useState(false);
 
@@ -188,14 +175,6 @@ const BrandLoader = ({ onComplete }: { onComplete: () => void; lang?: Language }
           alt="Golden Group Travels"
           className="h-28 sm:h-32 w-auto object-contain rounded-2xl shadow-[0_0_35px_rgba(209,168,71,0.35)] border border-[#d1a847]/40"
         />
-        <div className="space-y-1.5">
-          <h2 className="font-amiri text-2xl sm:text-3xl font-bold text-[#fceda2] tracking-wide">
-            مجموعة جولدن لخدمات السفر والسياحة
-          </h2>
-          <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-[#d1a847]">
-            Golden Group Travels • Travel Services & Events
-          </p>
-        </div>
         {/* Subtle Gold Shimmer Progress Bar */}
         <div className="w-48 sm:w-56 h-1 rounded-full bg-[#081528] overflow-hidden border border-[#d1a847]/25 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#fceda2] to-transparent animate-shimmer-beam" />
@@ -214,8 +193,17 @@ const SectionSeparator = ({ className = 'my-5 sm:my-6' }: { className?: string }
   </div>
 );
 
+const normalizeRoutePath = (pathname: string) => {
+  const trimmed = pathname.replace(/\/+$/, '');
+  return trimmed || '/';
+};
+
 export default function App() {
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [currentPath, setCurrentPath] = useState<string>(() =>
+    typeof window !== 'undefined' ? normalizeRoutePath(window.location.pathname) : '/'
+  );
+  const isSubPage = ['/links', '/card', '/carte', '/qr'].includes(currentPath);
+  const [initialLoading, setInitialLoading] = useState(() => !isSubPage);
   const [lang, setLang] = useState<Language>('fr');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
@@ -223,6 +211,23 @@ export default function App() {
 
   const t = translations[lang];
   const isRtl = t.dir === 'rtl';
+
+  const navigateTo = (path: string) => {
+    const normalized = normalizeRoutePath(path);
+    if (typeof window !== 'undefined' && normalizeRoutePath(window.location.pathname) !== normalized) {
+      window.history.pushState({}, '', normalized);
+    }
+    setCurrentPath(normalized);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
+  useEffect(() => {
+    const onPopState = () => {
+      setCurrentPath(normalizeRoutePath(window.location.pathname));
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   // Smooth Scroll Tracking & 3D Scroll Physics
   const [scrollY, setScrollY] = useState(0);
@@ -257,7 +262,7 @@ export default function App() {
 
   // IntersectionObserver for elegant, non-repeating scroll-triggered animations
   useEffect(() => {
-    if (initialLoading) return;
+    if (initialLoading || ['/links', '/card', '/carte', '/qr'].includes(currentPath)) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -279,7 +284,7 @@ export default function App() {
     elements.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, [initialLoading]);
+  }, [initialLoading, currentPath]);
 
   // Smooth ease-out scrolling function with sticky header offset
   const scrollToSection = (id: string) => {
@@ -302,136 +307,6 @@ export default function App() {
       top: 0,
       behavior: 'smooth'
     });
-  };
-
-  // Hero Search Terminal State (Supporting all 6 services from the screenshot section)
-  const [activeSearchTab, setActiveSearchTab] = useState<SearchTab>('tours');
-  const [searchDestination, setSearchDestination] = useState('');
-  const [searchDepartureDate, setSearchDepartureDate] = useState('');
-  const [searchReturnDate, setSearchReturnDate] = useState('');
-  const [adultsCount, setAdultsCount] = useState(2);
-  const [childrenCount, setChildrenCount] = useState(0);
-  const [roomsCount, setRoomsCount] = useState(1);
-  const [flightClass, setFlightClass] = useState<'economy' | 'business' | 'first'>('economy');
-  const [visaType, setVisaType] = useState('Tourisme');
-  const [insurancePlan, setInsurancePlan] = useState('Individuel (Schengen & Monde)');
-  const [advancedDropdownOpen, setAdvancedDropdownOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState<{
-    visible: boolean;
-    serviceLabel: string;
-    destination: string;
-    dates: string;
-    options: string;
-    tab: SearchTab;
-    matchesCount: number;
-    whatsappUrl: string;
-  } | null>(null);
-
-  // Quick Hero Search Bar State (for compatibility)
-  const [quickService] = useState('flights');
-  const [quickDestination] = useState('');
-  const [quickDate] = useState('');
-  const [quickTravelers] = useState('1');
-
-  // Ref for the 3D tabs scroll track
-  const tabsTrackRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll the active tab into view smoothly
-  useEffect(() => {
-    if (tabsTrackRef.current) {
-      const activeEl = tabsTrackRef.current.querySelector('.tab-3d-active') as HTMLElement | null;
-      if (activeEl) {
-        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      }
-    }
-  }, [activeSearchTab]);
-
-  // Tab navigation arrow handlers (supports RTL / LTR smoothly)
-  const handleTabArrowLeft = () => {
-    const currentIndex = SEARCH_TABS.findIndex(t => t.id === activeSearchTab);
-    const targetIndex = isRtl
-      ? (currentIndex + 1) % SEARCH_TABS.length
-      : (currentIndex - 1 + SEARCH_TABS.length) % SEARCH_TABS.length;
-    setActiveSearchTab(SEARCH_TABS[targetIndex].id);
-    setSearchResults(null);
-    if (tabsTrackRef.current) {
-      const scrollAmount = isRtl ? 220 : -220;
-      tabsTrackRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  const handleTabArrowRight = () => {
-    const currentIndex = SEARCH_TABS.findIndex(t => t.id === activeSearchTab);
-    const targetIndex = isRtl
-      ? (currentIndex - 1 + SEARCH_TABS.length) % SEARCH_TABS.length
-      : (currentIndex + 1) % SEARCH_TABS.length;
-    setActiveSearchTab(SEARCH_TABS[targetIndex].id);
-    setSearchResults(null);
-    if (tabsTrackRef.current) {
-      const scrollAmount = isRtl ? -220 : 220;
-      tabsTrackRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  // Active configuration for selected tab
-  const currentTabConfig = SEARCH_TABS.find(t => t.id === activeSearchTab) || SEARCH_TABS[0];
-
-  // Handle Hero Search execution for all 6 services
-  const handleHeroSearch = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const tabName = currentTabConfig.label[lang];
-    const dest = searchDestination.trim() || (
-      activeSearchTab === 'tours' ? 'Toutes les destinations de rêve' :
-      activeSearchTab === 'hotel' ? 'Hôtels 5 étoiles sélectionnés' :
-      activeSearchTab === 'flights' ? 'Casablanca vers le Monde' :
-      activeSearchTab === 'circuits' ? 'Les plus beaux circuits du Maroc' :
-      activeSearchTab === 'visa' ? 'Visa international garanti' : 'Assurance voyage complète'
-    );
-
-    const datesStr = searchDepartureDate
-      ? (searchReturnDate ? `${searchDepartureDate} - ${searchReturnDate}` : `À partir du ${searchDepartureDate}`)
-      : 'Dates flexibles';
-
-    let optionsStr = '';
-    if (activeSearchTab === 'tours' || activeSearchTab === 'circuits') {
-      const total = adultsCount + childrenCount;
-      optionsStr = `${total} ${total > 1 ? 'Voyageurs' : 'Voyageur'}`;
-    } else if (activeSearchTab === 'hotel') {
-      const total = adultsCount + childrenCount;
-      optionsStr = `${total} ${total > 1 ? 'Personnes' : 'Personne'}, ${roomsCount} ${roomsCount > 1 ? 'Chambres' : 'Chambre'}`;
-    } else if (activeSearchTab === 'flights') {
-      const className = flightClass === 'first' ? '1ère Classe' : flightClass === 'business' ? 'Classe Affaires' : 'Classe Économique';
-      optionsStr = `${className}, ${adultsCount + childrenCount} Passagers`;
-    } else if (activeSearchTab === 'visa') {
-      optionsStr = `Type: Visa ${visaType}, ${adultsCount} Demande(s)`;
-    } else if (activeSearchTab === 'insurance') {
-      optionsStr = `Formule: ${insurancePlan}`;
-    }
-
-    const waText = `Bonjour Golden Group Travels, je recherche un ${tabName} pour "${dest}" (${datesStr}, ${optionsStr}). Merci de me communiquer les disponibilités et meilleurs tarifs.`;
-    // Ultra-fast universal wa.me link avoiding laggy intermediate redirects
-    const waUrl = `https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}?text=${encodeURIComponent(waText)}`;
-
-    setSearchResults({
-      visible: true,
-      serviceLabel: tabName,
-      destination: dest,
-      dates: datesStr,
-      options: optionsStr,
-      tab: activeSearchTab,
-      matchesCount: 4,
-      whatsappUrl: waUrl
-    });
-
-    // Populate consultation form with search criteria
-    setDestination(dest);
-    if (searchDepartureDate) setTravelDate(searchDepartureDate);
-    setTravelersCount(String(adultsCount + childrenCount));
-
-    // Smooth scroll into results
-    setTimeout(() => {
-      document.getElementById('search-results')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 120);
   };
 
   // Consultation Form State
@@ -462,7 +337,6 @@ export default function App() {
 
   // Check if current selected service is Flight Bookings
   const isFlightBooking = formService === t.services.items[0].name || formService.toLowerCase().includes('flight') || formService.toLowerCase().includes('vol') || formService.toLowerCase().includes('vuelo') || formService.includes('طيران');
-  const isQuickFlightBooking = quickService === 'flights';
 
   // Construct structured WhatsApp message with client booking data (sanitized)
   const generateWhatsAppMessage = () => {
@@ -516,28 +390,6 @@ export default function App() {
     const message = generateWhatsAppMessage();
     // Ultra-fast universal wa.me link that launches native WhatsApp immediately
     return `https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}?text=${encodeURIComponent(message)}`;
-  };
-
-  const handleHeroQuickSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const serviceObj = t.services.items.find(s => s.id === quickService);
-    if (serviceObj) {
-      setFormService(serviceObj.name);
-    }
-    if (quickDestination && quickService === 'flights') {
-      setDestination(sanitizeText(quickDestination, 80));
-    }
-    if (quickDate) {
-      setTravelDate(quickDate);
-    }
-    if (quickTravelers) {
-      setTravelersCount(quickTravelers);
-    }
-
-    const consultationSection = document.getElementById('consultation');
-    if (consultationSection) {
-      consultationSection.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   const handleServiceSelectForInquiry = (serviceName: string) => {
@@ -599,6 +451,14 @@ export default function App() {
     setSpecialRequests('');
     setHoneypot('');
   };
+
+  if (['/links', '/card', '/carte'].includes(currentPath)) {
+    return <LinksHubPage lang={lang} setLang={setLang} onNavigate={navigateTo} />;
+  }
+
+  if (currentPath === '/qr') {
+    return <QrStudioPage lang={lang} setLang={setLang} onNavigate={navigateTo} />;
+  }
 
   return (
     <div
@@ -690,33 +550,30 @@ export default function App() {
               {t.nav.accueil}
             </a>
             <a
-              href="#search-section"
+              href="#services"
               onClick={(e) => {
                 e.preventDefault();
-                setActiveSearchTab('tours');
-                scrollToSection('search-section');
+                scrollToSection('services');
               }}
               className="nav-link-gold hover:text-[#d1a847] transition-colors cursor-pointer"
             >
               {t.nav.hajOmra}
             </a>
             <a
-              href="#search-section"
+              href="#services"
               onClick={(e) => {
                 e.preventDefault();
-                setActiveSearchTab('tours');
-                scrollToSection('search-section');
+                scrollToSection('services');
               }}
               className="nav-link-gold hover:text-[#d1a847] transition-colors cursor-pointer"
             >
               {t.nav.voyageOrganise}
             </a>
             <a
-              href="#search-section"
+              href="#services"
               onClick={(e) => {
                 e.preventDefault();
-                setActiveSearchTab('circuits');
-                scrollToSection('search-section');
+                scrollToSection('services');
               }}
               className="nav-link-gold hover:text-[#d1a847] transition-colors cursor-pointer"
             >
@@ -740,8 +597,7 @@ export default function App() {
                     <button
                       key={tab.id}
                       onClick={() => {
-                        setActiveSearchTab(tab.id);
-                        scrollToSection('search-section');
+                        handleServiceSelectForInquiry(tab.label[lang] || tab.label.fr);
                       }}
                       className="w-full text-left rtl:text-right px-4 py-2.5 text-xs text-slate-200 hover:bg-[#13284c] hover:text-[#fceda2] transition-colors cursor-pointer flex items-center gap-2.5 group/item"
                     >
@@ -840,8 +696,7 @@ export default function App() {
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  setActiveSearchTab('tours');
-                  scrollToSection('search-section');
+                  scrollToSection('services');
                 }}
                 className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors text-left rtl:text-right cursor-pointer"
               >
@@ -851,8 +706,7 @@ export default function App() {
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  setActiveSearchTab('tours');
-                  scrollToSection('search-section');
+                  scrollToSection('services');
                 }}
                 className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors text-left rtl:text-right cursor-pointer"
               >
@@ -862,8 +716,7 @@ export default function App() {
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  setActiveSearchTab('circuits');
-                  scrollToSection('search-section');
+                  scrollToSection('services');
                 }}
                 className="py-1 text-slate-200 hover:text-[#d1a847] transition-colors text-left rtl:text-right cursor-pointer"
               >
@@ -914,8 +767,8 @@ export default function App() {
         )}
       </header>
 
-      {/* Hero Section: Sacred Sanctuary Atmosphere & Arabic Calligraphy in Dark Blue & Gold */}
-      <section className="relative overflow-hidden min-h-[500px] md:min-h-[560px] flex flex-col justify-center items-center py-16 sm:py-20">
+      {/* Hero Section: Full, Clear Kaaba Golden Door Hero Image */}
+      <section className="relative overflow-hidden min-h-[500px] md:min-h-[580px] flex flex-col justify-end items-center pb-10 sm:pb-14 pt-20">
         {/* Background Atmosphere: Hands at the Kaaba's Golden Door Hero Image (Clear, full coverage, no dark screen) */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
           <img
@@ -925,413 +778,9 @@ export default function App() {
           />
         </div>
 
-        {/* Central Calligraphy & Luxury Search Bar Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center my-auto py-12 sm:py-20 w-full">
-          {/* Main Grand Calligraphy: مجموعة جولدن لخدمات السفر والسياحة */}
-          <h1
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-calligraphy text-white drop-shadow-[0_4px_24px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] leading-[1.35] text-center max-w-5xl tracking-normal px-4 select-none mb-6 sm:mb-8 hero-reveal-2 filter"
-            dir="rtl"
-          >
-            {t.hero.arabicTitle}
-          </h1>
-
-          {/* Quick Hero Search Terminal (Featuring ALL Services with 3D Pop-Out Tabs & Scroll Animations) */}
-          <div id="search-section" className="w-full max-w-5xl mt-2 mb-8 text-left rtl:text-right scroll-mt-28 perspective-1200 preserve-3d hero-reveal-3">
-            {/* 3D Tabs Bar with Navigation Arrows for Smooth Left/Right Carousel Switching */}
-            <div className="relative flex items-center gap-1 sm:gap-2 mb-0">
-              {/* Left Arrow Button */}
-              <button
-                type="button"
-                onClick={handleTabArrowLeft}
-                aria-label={isRtl ? "Next services" : "Previous services"}
-                className="z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#061021]/95 border border-[#d1a847]/40 hover:border-[#d1a847] hover:bg-[#0b1d3a] text-[#d1a847] hover:text-[#fceda2] flex items-center justify-center transition-all shadow-[0_4px_16px_rgba(0,0,0,0.7)] cursor-pointer hover:scale-110 active:scale-95 shrink-0 group/arrow mb-1.5 focus:outline-none"
-                title={isRtl ? "التالي" : "Précédent"}
-              >
-                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover/arrow:-translate-x-0.5 rtl:rotate-180 rtl:group-hover/arrow:translate-x-0.5" />
-              </button>
-
-              {/* 3D Tabs Scrollable Track */}
-              <div
-                ref={tabsTrackRef}
-                className="perspective-1000 preserve-3d flex items-end gap-2 overflow-x-auto pt-6 pb-2 px-1 scrollbar-none max-w-full scroll-smooth flex-1"
-              >
-                {SEARCH_TABS.map((tab, idx) => {
-                  const TabIcon = tab.icon;
-                  const isActive = activeSearchTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveSearchTab(tab.id);
-                        setSearchResults(null);
-                      }}
-                      className={`relative px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-t-xl text-xs sm:text-sm font-bold tracking-wider cursor-pointer flex items-center gap-2.5 whitespace-nowrap shrink-0 tab-pop-delay-${idx} ${
-                        isActive
-                          ? 'tab-3d-active bg-gradient-to-r from-[#fceda2] via-[#d1a847] to-[#c59b38] text-[#0b1d3a] font-extrabold border-t border-x border-[#fceda2]/90'
-                          : 'tab-3d-inactive bg-[#061021]/95 text-slate-300 border-t border-x border-[#d1a847]/40 hover:text-white hover:bg-[#0b1d3a]'
-                      }`}
-                    >
-                      <div className={`transition-transform duration-300 ${isActive ? 'scale-115 rotate-[-4deg]' : 'group-hover:scale-110'}`}>
-                        <TabIcon className={`w-4 h-4 ${isActive ? 'text-[#0b1d3a]' : 'text-[#d1a847]'}`} />
-                      </div>
-                      <span className="relative z-10">{tab.label[lang] || tab.label.fr}</span>
-                      {/* 3D Base Edge Extrusion when active */}
-                      {isActive && (
-                        <span className="absolute -bottom-1 inset-x-2 h-1 bg-[#8f6a1e] rounded-b-md blur-[0.3px]" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Right Arrow Button */}
-              <button
-                type="button"
-                onClick={handleTabArrowRight}
-                aria-label={isRtl ? "Previous services" : "Next services"}
-                className="z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#061021]/95 border border-[#d1a847]/40 hover:border-[#d1a847] hover:bg-[#0b1d3a] text-[#d1a847] hover:text-[#fceda2] flex items-center justify-center transition-all shadow-[0_4px_16px_rgba(0,0,0,0.7)] cursor-pointer hover:scale-110 active:scale-95 shrink-0 group/arrow mb-1.5 focus:outline-none"
-                title={isRtl ? "السابق" : "Suivant"}
-              >
-                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover/arrow:translate-x-0.5 rtl:rotate-180 rtl:group-hover/arrow:-translate-x-0.5" />
-              </button>
-            </div>
-
-            {/* Main Search Bar Form with 3D Tilt on Scroll */}
-            <form
-              onSubmit={handleHeroSearch}
-              style={{
-                transform: `perspective(1200px) rotateX(${scrollTilt}deg)`,
-                transformOrigin: '50% 0%'
-              }}
-              className="terminal-3d-shell relative bg-[#061021]/95 backdrop-blur-xl border border-[#d1a847]/40 shadow-[0_20px_55px_-10px_rgba(0,0,0,0.85)] rounded-2xl rounded-tl-none p-3.5 sm:p-5 z-20 transition-transform duration-150 ease-out"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-                {/* 1. Destination / Route / Country Field */}
-                <div className="md:col-span-4 flex items-center gap-3 p-2.5 rounded-xl bg-[#0b1d3a]/60 border border-[#d1a847]/20 hover:border-[#d1a847]/50 transition-colors">
-                  <div className="w-9 h-9 rounded-full bg-[#d1a847]/15 border border-[#d1a847]/40 flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4 text-[#d1a847]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <label className="block text-[10px] font-extrabold uppercase tracking-widest text-[#d1a847] leading-tight">
-                      {currentTabConfig.destinationLabel[lang] || currentTabConfig.destinationLabel.fr}
-                    </label>
-                    <input
-                      type="text"
-                      value={searchDestination}
-                      onChange={(e) => setSearchDestination(e.target.value)}
-                      placeholder={currentTabConfig.destinationPlaceholder[lang] || currentTabConfig.destinationPlaceholder.fr}
-                      className="w-full bg-transparent text-xs sm:text-sm font-medium text-white placeholder-slate-400 focus:outline-none truncate mt-0.5"
-                    />
-                  </div>
-                </div>
-
-                {/* 2. Dates Field (De - À) */}
-                <div className="md:col-span-4 flex items-center gap-3 p-2.5 rounded-xl bg-[#0b1d3a]/60 border border-[#d1a847]/20 hover:border-[#d1a847]/50 transition-colors">
-                  <div className="w-9 h-9 rounded-full bg-[#d1a847]/15 border border-[#d1a847]/40 flex items-center justify-center shrink-0">
-                    <Calendar className="w-4 h-4 text-[#d1a847]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <label className="block text-[10px] font-extrabold uppercase tracking-widest text-[#d1a847] leading-tight">
-                      {currentTabConfig.datesLabel[lang] || currentTabConfig.datesLabel.fr}
-                    </label>
-                    <div className="flex items-center gap-1.5 mt-0.5 text-xs text-white">
-                      <input
-                        type="date"
-                        value={searchDepartureDate}
-                        onChange={(e) => setSearchDepartureDate(e.target.value)}
-                        className="bg-transparent text-[11px] sm:text-xs text-white focus:outline-none cursor-pointer"
-                        title={currentTabConfig.datesLabel[lang] || "Date de départ"}
-                      />
-                      <span className="text-slate-400">-</span>
-                      <input
-                        type="date"
-                        value={searchReturnDate}
-                        onChange={(e) => setSearchReturnDate(e.target.value)}
-                        className="bg-transparent text-[11px] sm:text-xs text-white focus:outline-none cursor-pointer"
-                        title="Date de retour"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. Avancé Field (Service-Tailored Dropdown) */}
-                <div className="md:col-span-2 relative">
-                  <button
-                    type="button"
-                    onClick={() => setAdvancedDropdownOpen(!advancedDropdownOpen)}
-                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#0b1d3a]/60 border border-[#d1a847]/20 hover:border-[#d1a847]/50 transition-colors text-left rtl:text-right cursor-pointer"
-                  >
-                    <div className="truncate">
-                      <div className="text-[10px] font-extrabold uppercase tracking-widest text-[#d1a847] leading-tight">
-                        {t.hero.advancedTitle}
-                      </div>
-                      <div className="text-xs sm:text-sm font-semibold text-white truncate mt-0.5 flex items-center gap-1">
-                        {activeSearchTab === 'flights' ? (
-                          <span>{flightClass === 'business' ? 'Affaires' : flightClass === 'first' ? '1ère' : 'Éco'}, {adultsCount + childrenCount}</span>
-                        ) : activeSearchTab === 'visa' ? (
-                          <span>{visaType}, {adultsCount} Pers.</span>
-                        ) : activeSearchTab === 'insurance' ? (
-                          <span>{insurancePlan.split(' ')[0]}, {adultsCount}</span>
-                        ) : activeSearchTab === 'hotel' ? (
-                          <span>{adultsCount + childrenCount} Pers., {roomsCount} Ch.</span>
-                        ) : (
-                          <span>{adultsCount + childrenCount} {adultsCount + childrenCount > 1 ? 'Pers.' : 'Pers.'}</span>
-                        )}
-                        <ChevronDown className={`w-3.5 h-3.5 text-[#d1a847] transition-transform shrink-0 ${advancedDropdownOpen ? 'rotate-180' : ''}`} />
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Tailored Avancé Popover */}
-                  {advancedDropdownOpen && (
-                    <div className="absolute top-full mt-2 left-0 rtl:left-auto rtl:right-0 w-72 bg-[#081528] border border-[#d1a847]/40 rounded-xl shadow-2xl p-4 z-50 text-slate-100 space-y-3.5 backdrop-blur-md">
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-700">
-                        <span className="text-xs font-bold text-[#fceda2]">
-                          {activeSearchTab === 'flights' ? 'Options de Vol' :
-                           activeSearchTab === 'visa' ? 'Options de Visa' :
-                           activeSearchTab === 'insurance' ? 'Formule d\'Assurance' :
-                           'Voyageurs & Chambres'}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setAdvancedDropdownOpen(false)}
-                          className="text-slate-400 hover:text-white text-xs cursor-pointer"
-                        >
-                          ✕
-                        </button>
-                      </div>
-
-                      {/* Flight Specific: Class Selection */}
-                      {activeSearchTab === 'flights' && (
-                        <div className="space-y-1.5 pb-2 border-b border-slate-800">
-                          <label className="text-[11px] font-semibold text-slate-300">Classe de voyage :</label>
-                          <div className="grid grid-cols-3 gap-1">
-                            {[
-                              { id: 'economy', label: 'Économique' },
-                              { id: 'business', label: 'Affaires' },
-                              { id: 'first', label: '1ère' }
-                            ].map((cls) => (
-                              <button
-                                key={cls.id}
-                                type="button"
-                                onClick={() => setFlightClass(cls.id as any)}
-                                className={`px-2 py-1.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
-                                  flightClass === cls.id
-                                    ? 'bg-[#d1a847] text-[#0b1d3a] font-bold'
-                                    : 'bg-[#0b1d3a] text-slate-300 hover:bg-[#13284c]'
-                                }`}
-                              >
-                                {cls.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Visa Specific: Type of Visa */}
-                      {activeSearchTab === 'visa' && (
-                        <div className="space-y-1.5 pb-2 border-b border-slate-800">
-                          <label className="text-[11px] font-semibold text-slate-300">Type de visa demandé :</label>
-                          <div className="grid grid-cols-2 gap-1.5">
-                            {['Tourisme', 'Affaires', 'Études', 'Visite'].map((type) => (
-                              <button
-                                key={type}
-                                type="button"
-                                onClick={() => setVisaType(type)}
-                                className={`px-2 py-1.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
-                                  visaType === type
-                                    ? 'bg-[#d1a847] text-[#0b1d3a] font-bold'
-                                    : 'bg-[#0b1d3a] text-slate-300 hover:bg-[#13284c]'
-                                }`}
-                              >
-                                {type}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Insurance Specific: Formula Selection */}
-                      {activeSearchTab === 'insurance' && (
-                        <div className="space-y-1.5 pb-2 border-b border-slate-800">
-                          <label className="text-[11px] font-semibold text-slate-300">Formule de couverture :</label>
-                          <div className="space-y-1">
-                            {[
-                              'Individuel (Schengen & Monde)',
-                              'Famille Multirisque',
-                              'Annulation & Rapatriement'
-                            ].map((plan) => (
-                              <button
-                                key={plan}
-                                type="button"
-                                onClick={() => setInsurancePlan(plan)}
-                                className={`w-full text-left px-2.5 py-1.5 rounded text-[11px] font-medium transition-colors cursor-pointer ${
-                                  insurancePlan === plan
-                                    ? 'bg-[#d1a847] text-[#0b1d3a] font-bold'
-                                    : 'bg-[#0b1d3a] text-slate-300 hover:bg-[#13284c]'
-                                }`}
-                              >
-                                {plan}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Adults / Persons Counter */}
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-xs font-semibold">
-                            {activeSearchTab === 'visa' ? 'Demandeurs' : activeSearchTab === 'insurance' ? 'Assurés' : 'Adultes'}
-                          </div>
-                          <div className="text-[10px] text-slate-400">18+ ans</div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setAdultsCount(Math.max(1, adultsCount - 1))}
-                            className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
-                          >
-                            -
-                          </button>
-                          <span className="w-5 text-center text-xs font-bold">{adultsCount}</span>
-                          <button
-                            type="button"
-                            onClick={() => setAdultsCount(adultsCount + 1)}
-                            className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Children (for tours, hotel, flights, circuits) */}
-                      {activeSearchTab !== 'visa' && activeSearchTab !== 'insurance' && (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-xs font-semibold">Enfants</div>
-                            <div className="text-[10px] text-slate-400">0-17 ans</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setChildrenCount(Math.max(0, childrenCount - 1))}
-                              className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
-                            >
-                              -
-                            </button>
-                            <span className="w-5 text-center text-xs font-bold">{childrenCount}</span>
-                            <button
-                              type="button"
-                              onClick={() => setChildrenCount(childrenCount + 1)}
-                              className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Rooms (for hotel) */}
-                      {activeSearchTab === 'hotel' && (
-                        <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-                          <div>
-                            <div className="text-xs font-semibold">Chambres</div>
-                            <div className="text-[10px] text-slate-400">Hôtel / Suites</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setRoomsCount(Math.max(1, roomsCount - 1))}
-                              className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
-                            >
-                              -
-                            </button>
-                            <span className="w-5 text-center text-xs font-bold">{roomsCount}</span>
-                            <button
-                              type="button"
-                              onClick={() => setRoomsCount(roomsCount + 1)}
-                              className="w-7 h-7 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/30 text-white font-bold hover:bg-[#13284c] flex items-center justify-center cursor-pointer"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* 4. Action Button: Dynamic per service */}
-                <div className="md:col-span-2">
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm tracking-wider uppercase text-[#0b1d3a] btn-gold-luxury flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Search className="w-4 h-4 text-[#0b1d3a] shrink-0" />
-                    <span className="truncate">{currentTabConfig.actionLabel[lang] || currentTabConfig.actionLabel.fr}</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-
-            {/* Search Results Drawer / Confirmation */}
-            {searchResults?.visible && (
-              <div id="search-results" className="mt-4 p-4 rounded-2xl bg-[#081528] border border-[#d1a847]/50 shadow-2xl animate-fade-in-up">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#d1a847]/20">
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    <span className="font-bold text-sm text-[#fceda2]">
-                      {searchResults.serviceLabel} Disponibles :
-                    </span>
-                    <span className="text-xs text-white bg-[#0b1d3a] px-2.5 py-1 rounded-md border border-[#d1a847]/30">
-                      {searchResults.destination}
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-300">
-                    {searchResults.dates} • {searchResults.options}
-                  </div>
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs text-slate-300">
-                    {lang === 'ar'
-                      ? 'لدينا عروض وخصومات ممتازة مطابقة لطلبك. تواصل معنا فوراً للحصول على أفضل سعر متاح.'
-                      : 'Nos conseillers ont préparé des options premium exclusives pour votre demande. Contactez-nous immédiatement pour bloquer votre tarif.'}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <a
-                      href={searchResults.whatsappUrl}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md transition-all cursor-pointer"
-                    >
-                      <WhatsAppIcon className="w-3.5 h-3.5 fill-current" />
-                      <span>WhatsApp Devis Immédiat</span>
-                    </a>
-                    <a
-                      href="tel:0666484815"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-[#0b1d3a] btn-gold-luxury shadow-md transition-all cursor-pointer"
-                    >
-                      <Phone className="w-3.5 h-3.5 text-[#0b1d3a]" />
-                      <span>0666-484815</span>
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => setSearchResults(null)}
-                      className="px-2.5 py-2 text-xs text-slate-400 hover:text-white cursor-pointer"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Quick Action Buttons */}
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-4 hero-reveal-4">
+        {/* Quick Action Buttons */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-end text-center w-full">
+          <div className="flex flex-wrap items-center justify-center gap-4 hero-reveal-4">
             <a
               href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
               target="_blank"
@@ -1963,6 +1412,31 @@ export default function App() {
                 <li><a href="#why-us" className="hover:text-[#d1a847] transition-colors">{t.nav.whyUs}</a></li>
                 <li><a href="#consultation" className="hover:text-[#d1a847] transition-colors">{t.nav.inquiry}</a></li>
                 <li><a href="#faq" className="hover:text-[#d1a847] transition-colors">{t.nav.faq}</a></li>
+                <li>
+                  <a
+                    href="/links"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateTo('/links');
+                    }}
+                    className="hover:text-[#d1a847] transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <span>{lang === 'ar' ? 'صفحة الروابط السريعة' : lang === 'en' ? 'Quick Links Card' : lang === 'es' ? 'Tarjeta de Enlaces' : 'Carte & Liens Directs'}</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/qr"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateTo('/qr');
+                    }}
+                    className="text-[#fceda2] hover:text-[#d1a847] transition-colors inline-flex items-center gap-1.5 font-semibold"
+                  >
+                    <QrCode className="w-3.5 h-3.5 text-[#d1a847]" />
+                    <span>{lang === 'ar' ? 'تحميل رمز QR (PDF)' : lang === 'en' ? 'Download QR Code (PDF)' : lang === 'es' ? 'Descargar QR (PDF)' : 'QR Code (Télécharger PDF)'}</span>
+                  </a>
+                </li>
               </ul>
             </div>
 
