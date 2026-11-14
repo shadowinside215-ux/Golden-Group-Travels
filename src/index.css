@@ -2,421 +2,149 @@
 
 @layer base {
   :root {
-    --font-heading: 'Cormorant Garamond', Georgia, serif;
-    --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --beige-canvas: #f5ede0;
+    --ivory-surface: #fcf9f2;
+    --sand-tint: #ede1ce;
+    --navy-blue: #0b1d3a;
+    --navy-deep: #071429;
+    --navy-muted: #2c405e;
+    --burnished-gold: #c59b38;
+    --champagne-gold: #d1a847;
+    --light-gold: #fceda2;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 
   body {
-    font-family: var(--font-sans);
-    background-color: #081528;
-    color: #e2e8f0;
+    background-color: #f5ede0;
+    color: #0b1d3a;
+    overflow-x: clip;
   }
 
-  [dir="rtl"] {
-    font-family: 'Cairo', 'Montserrat', sans-serif;
+  .font-serif-display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
   }
 
-  h1, h2, h3, .font-serif-luxury {
-    font-family: var(--font-heading);
+  .font-serif-crest {
+    font-family: 'Cinzel', 'Cormorant Garamond', Georgia, serif;
   }
 
-  [dir="rtl"] h1, 
-  [dir="rtl"] h2, 
-  [dir="rtl"] h3, 
-  [dir="rtl"] .font-serif-luxury {
-    font-family: 'Cairo', Georgia, serif;
-    font-weight: 700;
+  .font-arabic-calligraphy {
+    font-family: 'Aref Ruqaa', 'Amiri', serif;
+  }
+
+  [dir='rtl'] body,
+  [dir='rtl'] {
+    font-family: 'Cairo', 'Plus Jakarta Sans', sans-serif;
   }
 }
 
-.font-calligraphy {
-  font-family: 'Aref Ruqaa', 'Amiri', 'Cairo', serif;
-}
-
-.font-amiri {
-  font-family: 'Amiri', 'Cairo', serif;
-}
-
-/* Custom metallic gold gradient utilities and subtle lighting */
-.gold-gradient-text {
-  background: linear-gradient(135deg, #fceda2 0%, #d1a847 45%, #c59b38 80%, #9a7220 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.gold-gradient-bg {
-  background: linear-gradient(135deg, #e5be5a 0%, #d1a847 50%, #b88628 100%);
-}
-
-.gold-border-glow {
-  box-shadow: 0 0 15px rgba(209, 168, 71, 0.22);
-}
-
-.gold-card-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.gold-card-hover:hover {
-  transform: translateY(-4px);
-  border-color: rgba(209, 168, 71, 0.6);
-  box-shadow: 0 12px 30px -8px rgba(11, 29, 58, 0.8), 0 0 20px rgba(209, 168, 71, 0.15);
-}
-
-/* Subtle luxury geometric grid background pattern using pure CSS */
-.bg-grid-gold {
-  background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(209, 168, 71, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(209, 168, 71, 0.05) 1px, transparent 1px);
-}
-
-.bg-radial-luxury {
-  background: radial-gradient(circle at 50% 20%, rgba(19, 43, 83, 0.8) 0%, rgba(11, 29, 58, 0.95) 50%, #081528 100%);
-}
-
-/* Global Smooth Scrolling & Scroll Padding for Fixed Header */
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 110px;
-}
-
-/* Luxury Gold & Navy Custom Scrollbar */
+/* Custom Beige, Navy Blue & Gold Scrollbar */
 ::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #021939;
+  background: #ede1ce;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #d1a847 0%, #9a7220 100%);
-  border-radius: 6px;
-  border: 2px solid #021939;
+  background: linear-gradient(180deg, #0b1d3a, #c59b38);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #fceda2 0%, #d1a847 100%);
+  background: #0b1d3a;
 }
 
-/* Smooth Scroll Reveal Animations */
-@keyframes fadeInUpSmooth {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Subtle warm beige paper pattern for editorial sections */
+.bg-cream-paper {
+  background-color: #f5ede0;
+  background-image:
+    radial-gradient(at 15% 15%, rgba(209, 168, 71, 0.14) 0px, transparent 52%),
+    radial-gradient(at 85% 85%, rgba(11, 29, 58, 0.055) 0px, transparent 55%);
 }
 
-.animate-fade-in-up {
-  animation: fadeInUpSmooth 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Luxury gold hairline text gradient */
+.gold-editorial-text {
+  background: linear-gradient(135deg, #8e681c 0%, #b48722 45%, #d1a847 72%, #9a7220 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Subtle float animation for badges and scroll cues */
-@keyframes floatGentle {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-.animate-float-gentle {
-  animation: floatGentle 3s ease-in-out infinite;
-}
-
-/* ==========================================================================
-   MOTION DESIGN SYSTEM: LUXURY SCROLL & MICRO-INTERACTIONS
-   ========================================================================== */
-
-/* Animated Gold Underline for Navigation Links */
-.nav-link-gold {
+/* Nav link animated Navy & Gold underline */
+.nav-editorial-link {
   position: relative;
   display: inline-block;
-  padding-bottom: 4px;
 }
-.nav-link-gold::after {
+
+.nav-editorial-link::after {
   content: '';
   position: absolute;
-  bottom: 0px;
   left: 0;
+  bottom: -4px;
   width: 0%;
-  height: 2px;
-  background: linear-gradient(90deg, #fceda2, #d1a847, #c59b38);
-  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  border-radius: 2px;
+  height: 1.5px;
+  background: linear-gradient(90deg, #0b1d3a, #d1a847);
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.nav-link-gold:hover::after {
+
+.nav-editorial-link:hover::after {
   width: 100%;
 }
-[dir="rtl"] .nav-link-gold::after {
-  left: auto;
-  right: 0;
+
+/* 3D Spatial Utilities */
+.perspective-1200 {
+  perspective: 1200px;
 }
 
-/* Luxury Gold Button Hover & Shimmer */
-.btn-gold-luxury {
-  background: linear-gradient(135deg, #fceda2 0%, #d1a847 50%, #c59b38 100%);
-  color: #0b1d3a;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-  box-shadow: 0 4px 18px rgba(209, 168, 71, 0.35);
-}
-.btn-gold-luxury::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: left 0.65s ease;
-}
-.btn-gold-luxury:hover::before {
-  left: 120%;
-}
-.btn-gold-luxury:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 30px rgba(209, 168, 71, 0.6), 0 0 20px rgba(252, 237, 162, 0.4);
-}
-.btn-gold-luxury:active {
-  transform: translateY(0px) scale(0.98);
+.preserve-3d {
+  transform-style: preserve-3d;
 }
 
-/* Luxury Outline Button with 3D Lift (No backdrop-blur for smooth GPU compositing) */
-.btn-outline-gold {
-  position: relative;
-  border: 1px solid rgba(209, 168, 71, 0.55);
-  background: rgba(8, 21, 40, 0.88);
-  color: #f1f5f9;
-  box-shadow: 0 8px 24px rgba(2, 8, 18, 0.65);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease, background-color 0.3s ease;
-}
-.btn-outline-gold:hover {
-  border-color: #fceda2;
-  color: #fceda2;
-  background: rgba(11, 29, 58, 0.96);
-  transform: perspective(700px) translateY(-3px) translateZ(14px);
-  box-shadow: 0 14px 32px rgba(2, 8, 18, 0.8), 0 0 22px rgba(209, 168, 71, 0.3);
-}
-
-/* Service Card Luxury Hover with 3D spatial elevation & extruded shadow */
-.service-card-luxury {
-  transition: box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, background-color 0.35s ease;
-}
-.service-card-luxury:hover {
-  border-color: rgba(252, 237, 162, 0.72);
-  box-shadow:
-    0 24px 55px -12px rgba(0, 0, 0, 0.92),
-    0 0 32px rgba(209, 168, 71, 0.24),
-    inset 0 1px 0 rgba(252, 237, 162, 0.25);
-}
-.service-card-luxury:hover .service-icon-box {
-  transform: translateZ(38px) scale(1.1) rotate(-5deg);
-  border-color: #fceda2;
-  box-shadow: 0 10px 26px rgba(209, 168, 71, 0.42);
-}
-
-/* 3D Spatial Depth Child Layers inside Tilt3DCard */
 .depth-z-1 {
-  transform: translateZ(16px);
-  transform-style: preserve-3d;
-}
-.depth-z-2 {
-  transform: translateZ(30px);
-  transform-style: preserve-3d;
-}
-.depth-z-3 {
-  transform: translateZ(44px);
-  transform-style: preserve-3d;
+  transform: translateZ(14px);
 }
 
-/* Scroll Reveal 3D Animation Engine (Triggered once via IntersectionObserver) */
+.depth-z-2 {
+  transform: translateZ(26px);
+}
+
+/* Subtle scroll reveal transitions */
 .reveal-init {
   opacity: 0;
-  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+  transform: translateY(22px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.reveal-up {
-  transform: perspective(1200px) translateY(38px) translateZ(-55px) rotateX(12deg) scale(0.97);
+.reveal-init.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.reveal-left {
-  transform: perspective(1200px) translateX(-42px) translateZ(-35px) rotateY(10deg);
-}
+.stagger-1 { transition-delay: 80ms; }
+.stagger-2 { transition-delay: 160ms; }
+.stagger-3 { transition-delay: 240ms; }
+.stagger-4 { transition-delay: 320ms; }
 
-.reveal-right {
-  transform: perspective(1200px) translateX(42px) translateZ(-35px) rotateY(-10deg);
-}
-
-.reveal-scale {
-  transform: perspective(1200px) translateZ(-50px) scale(0.93) rotateX(6deg);
-}
-
-.reveal-visible {
-  opacity: 1 !important;
-  transform: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg) scale(1) !important;
-}
-
-/* Stagger delay classes for child cards */
-.stagger-1 { transition-delay: 70ms; }
-.stagger-2 { transition-delay: 140ms; }
-.stagger-3 { transition-delay: 210ms; }
-.stagger-4 { transition-delay: 280ms; }
-.stagger-5 { transition-delay: 350ms; }
-.stagger-6 { transition-delay: 420ms; }
-
-/* 3D PERSPECTIVE & SPATIAL UTILITIES */
-.perspective-1000 { perspective: 1000px; }
-.perspective-1200 { perspective: 1200px; }
-.preserve-3d { transform-style: preserve-3d; }
-
-/* 3D Armillary Loader Crest & Orbital Rings */
-@keyframes loaderOrbit3D {
-  0% { transform: rotateX(68deg) rotateY(14deg) rotateZ(0deg); }
-  100% { transform: rotateX(68deg) rotateY(14deg) rotateZ(360deg); }
-}
-@keyframes loaderOrbit3DReverse {
-  0% { transform: rotateX(55deg) rotateY(-28deg) rotateZ(360deg); }
-  100% { transform: rotateX(55deg) rotateY(-28deg) rotateZ(0deg); }
-}
-@keyframes loaderCrestFloat3D {
-  0%, 100% { transform: perspective(900px) translateY(0px) rotateY(-6deg) rotateX(4deg); }
-  50% { transform: perspective(900px) translateY(-8px) rotateY(6deg) rotateX(-3deg); }
-}
-.animate-loader-orbit {
-  animation: loaderOrbit3D 3.6s linear infinite;
-}
-.animate-loader-orbit-reverse {
-  animation: loaderOrbit3DReverse 4.8s linear infinite;
-}
-.animate-loader-crest-3d {
-  animation: loaderCrestFloat3D 2.8s ease-in-out infinite;
-}
-
-/* 3D Faceted Diamond Divider Spin */
-@keyframes diamondSpin3D {
-  0% { transform: rotateZ(45deg) rotateY(0deg); }
-  100% { transform: rotateZ(45deg) rotateY(360deg); }
-}
-.animate-diamond-3d {
-  animation: diamondSpin3D 7s linear infinite;
-}
-
-/* 3D Hero Action Button Extrusion */
-.btn-3d-hero {
-  transform: perspective(800px) translateZ(0px);
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
-}
-.btn-3d-hero:hover {
-  transform: perspective(800px) translateY(-4px) translateZ(20px) rotateX(6deg);
-}
-
-/* 3D FAQ Panel Unfold */
-@keyframes faq3DUnfold {
-  0% {
-    opacity: 0;
-    transform: perspective(900px) rotateX(-16deg) translateY(-8px);
-    transform-origin: top center;
-  }
-  100% {
-    opacity: 1;
-    transform: perspective(900px) rotateX(0deg) translateY(0);
-    transform-origin: top center;
-  }
-}
-.animate-faq-3d {
-  animation: faq3DUnfold 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* 3D Form Submission Flip Reveal */
-@keyframes card3DFlipIn {
-  0% {
-    opacity: 0;
-    transform: perspective(1200px) rotateY(-18deg) translateZ(-40px) scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: perspective(1200px) rotateY(0deg) translateZ(0) scale(1);
-  }
-}
-.animate-3d-flip-in {
-  animation: card3DFlipIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* 3D Extruded Pill Tab */
-.pill-3d-active {
-  transform: perspective(700px) translateZ(12px) translateY(-2px);
-  box-shadow:
-    0 10px 22px -6px rgba(209, 168, 71, 0.5),
-    0 4px 0 #9a7220;
-}
-.pill-3d-idle {
-  transform: perspective(700px) translateZ(0px);
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease, color 0.25s ease;
-}
-.pill-3d-idle:hover {
-  transform: perspective(700px) translateZ(8px) translateY(-2px);
-}
-
-/* Loading Shimmer Beam */
-@keyframes goldShimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-.animate-shimmer-beam {
-  animation: goldShimmer 1.5s ease-in-out infinite;
-}
-
-/* Hero Stagger Entrances in 3D */
-@keyframes heroRevealFade {
-  0% {
-    opacity: 0;
-    transform: perspective(900px) translateY(26px) translateZ(-30px) rotateX(12deg) scale(0.96);
-  }
-  100% {
-    opacity: 1;
-    transform: perspective(900px) translateY(0) translateZ(0) rotateX(0deg) scale(1);
-  }
-}
-.hero-reveal-1 { animation: heroRevealFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
-.hero-reveal-2 { animation: heroRevealFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
-.hero-reveal-3 { animation: heroRevealFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
-.hero-reveal-4 { animation: heroRevealFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both; }
-
-/* Expanding Separator Line */
-@keyframes lineExpand {
-  0% { transform: scaleX(0); opacity: 0; }
-  100% { transform: scaleX(1); opacity: 1; }
-}
-.animate-line-expand {
-  animation: lineExpand 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transform-origin: center;
-}
-
-/* Accessibility: Prefers Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  html {
+    scroll-behavior: auto;
   }
+
   .reveal-init {
     opacity: 1 !important;
     transform: none !important;
+    transition: none !important;
   }
-  .depth-z-1, .depth-z-2, .depth-z-3 {
+
+  .depth-z-1,
+  .depth-z-2 {
     transform: none !important;
   }
 }
-
-
-
