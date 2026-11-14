@@ -64,6 +64,7 @@ export interface TranslationPack {
     subtitle: string;
     provisionTag: string;
     configurePrefix: string;
+    replay3dLabel: string;
     services: Record<ServiceId, LocalizedService>;
   };
   plannerSection: {
@@ -223,13 +224,14 @@ export const translations: Record<Language, TranslationPack> = {
       eyebrow: 'Golden Group · Services Principaux',
       title: 'Nos Services',
       subtitle:
-        'Nos cinq pôles d’expertise essentiels pour orchestrer vos voyages d’affaires, séjours en famille et déplacements internationaux.',
+        'Chaque service dispose de sa propre page dédiée avec visuels animés, étapes détaillées et réservation connectée à Google Maps.',
       provisionTag: 'Service Officiel',
       configurePrefix: 'Sélectionner',
+      replay3dLabel: 'Rejouer la Scène 3D',
       services: {
         'flight-bookings': {
           id: 'flight-bookings',
-          label: 'Flight Bookings',
+          label: 'Vols & Billetterie',
           headline: 'Réservation de Billets d’Avion',
           description:
             'Émission de billets toutes compagnies, tarifs optimisés en Première, Affaires ou Économique et assistance en cas de modification.',
@@ -241,7 +243,7 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'hotel-reservations': {
           id: 'hotel-reservations',
-          label: 'Hotel Reservations',
+          label: 'Réservations hôtelières',
           headline: 'Réservation d’Hôtels Sélectionnés',
           description:
             'Accès direct à n’importe quel hôtel dans le monde — trouvez votre établissement sur Google Maps et confiez-nous la confirmation.',
@@ -253,7 +255,7 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'visa-assistance': {
           id: 'visa-assistance',
-          label: 'Visa Assistance',
+          label: 'Accompagnement Visa',
           headline: 'Assistance & Préparation de Visa',
           description:
             'Accompagnement complet dans la constitution de vos dossiers de visa Schengen, Omra, Turquie, Émirats, Royaume-Uni et États-Unis.',
@@ -263,9 +265,21 @@ export const translations: Record<Language, TranslationPack> = {
             'Réservations hôtels & vols conformes au dossier'
           ]
         },
+        'hajj-umrah': {
+          id: 'hajj-umrah',
+          label: 'Hajj & Umrah',
+          headline: 'Voyages Sacrés · La Mecque & Médine',
+          description:
+            'Forfaits El Omra et Hajj organisés avec sérénité : hôtels face à Masjid al-Haram, visas dédiés, vols directs et encadrement spirituel.',
+          includedDetails: [
+            'Hôtels 4 & 5 étoiles à proximité immédiate du Haram',
+            'Gestion complète du visa Omra & transferts VIP',
+            'Accompagnement spirituel et logistique continu'
+          ]
+        },
         'travel-insurance': {
           id: 'travel-insurance',
-          label: 'Travel Insurance',
+          label: 'Assurance Voyage',
           headline: 'Assurance Voyage Internationale',
           description:
             'Couverture médicale, rapatriement, bagages et annulation conforme aux exigences des ambassades et voyages internationaux.',
@@ -277,7 +291,7 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'holiday-packages': {
           id: 'holiday-packages',
-          label: 'Holiday Packages',
+          label: 'Séjours & Circuits',
           headline: 'Forfaits Vacances & Voyages Organisés',
           description:
             'Séjours clés en main incluant vol aller-retour, hôtel choisi, transferts privés et programme sur mesure selon vos dates.',
@@ -445,9 +459,11 @@ export const translations: Record<Language, TranslationPack> = {
     servicesSection: {
       eyebrow: 'جولدن جروب · خدماتنا الأساسية',
       title: 'خدماتنا',
-      subtitle: 'خدماتنا الخمس الرئيسية لتنظيم رحلاتكم السياحية والمهنية بأعلى درجات الاحترافية.',
+      subtitle:
+        'لكل خدمة صفحتها المخصصة بالكامل مع صور متحركة وتفاصيل شاملة وتخطيط متصل بخرائط جوجل.',
       provisionTag: 'خدمة رئيسية',
       configurePrefix: 'اختيار',
+      replay3dLabel: 'إعادة العرض ثلاثي الأبعاد',
       services: {
         'flight-bookings': {
           id: 'flight-bookings',
@@ -483,6 +499,18 @@ export const translations: Record<Language, TranslationPack> = {
             'مراجعة دقيقة للوثائق وتجهيز الملف القنصلي',
             'حجز المواعيد وتعبئة الاستمارات الرسمية',
             'إرفاق حجوزات الطيران والفنادق المطابقة'
+          ]
+        },
+        'hajj-umrah': {
+          id: 'hajj-umrah',
+          label: 'الحج والعمرة',
+          headline: 'Hajj & Umrah · رحلات مكة والمدينة المنورة',
+          description:
+            'برامج عمرة وحج متكاملة بإقامة فاخرة في رحاب المسجد الحرام، مع إصدار التأشيرات وتنقلات خاصة وإشراف مستمر.',
+          includedDetails: [
+            'فنادق وأجنحة مطلة مباشرة على المسجد الحرام',
+            'إجراءات تأشيرة العمرة والتنقلات المريحة VIP',
+            'مرافقة وإرشاد متكامل طوال الرحلة المباركة'
           ]
         },
         'travel-insurance': {
@@ -671,9 +699,10 @@ export const translations: Record<Language, TranslationPack> = {
       eyebrow: 'Golden Group · Core Offerings',
       title: 'Our Services',
       subtitle:
-        'Our five dedicated core services crafted to manage every detail of your international and domestic travel plans.',
+        'Each signature service has its own dedicated full page with animated photography, step-by-step guidance, and Google Maps planning.',
       provisionTag: 'Main Service',
       configurePrefix: 'Select',
+      replay3dLabel: 'Replay 3D Scene',
       services: {
         'flight-bookings': {
           id: 'flight-bookings',
@@ -709,6 +738,18 @@ export const translations: Record<Language, TranslationPack> = {
             'Thorough document review and checklist compliance',
             'Consulate appointment & application form handling',
             'Embassy-ready flight and hotel reservation support'
+          ]
+        },
+        'hajj-umrah': {
+          id: 'hajj-umrah',
+          label: 'Hajj & Umrah',
+          headline: 'Sacred Makkah & Madinah Pilgrimages',
+          description:
+            'Reverent, seamless Hajj & El Omra journeys with Haram-view hotels, coordinated Saudi visas, direct flights, and dedicated spiritual hospitality.',
+          includedDetails: [
+            'Direct-access 4 & 5-star suites facing Masjid al-Haram',
+            'Complete Umra visa issuance & private airport transfers',
+            'Dedicated multilingual ground guidance throughout'
           ]
         },
         'travel-insurance': {
@@ -897,13 +938,14 @@ export const translations: Record<Language, TranslationPack> = {
       eyebrow: 'Golden Group · Servicios Principales',
       title: 'Nuestros Servicios',
       subtitle:
-        'Nuestros cinco servicios esenciales para organizar con excelencia cada vuelo, hotel, visado, seguro y viaje.',
+        'Cada servicio cuenta con su propia página completa dedicada, fotografía animada, pasos detallados y planificación en Google Maps.',
       provisionTag: 'Servicio Principal',
       configurePrefix: 'Seleccionar',
+      replay3dLabel: 'Repetir Escena 3D',
       services: {
         'flight-bookings': {
           id: 'flight-bookings',
-          label: 'Flight Bookings',
+          label: 'Vuelos y Billetes',
           headline: 'Reserva de Vuelos Internacionales',
           description:
             'Emisión de billetes en Primera, Business o Turista con rutas optimizadas y asistencia ante cualquier cambio.',
@@ -915,7 +957,7 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'hotel-reservations': {
           id: 'hotel-reservations',
-          label: 'Hotel Reservations',
+          label: 'Reservas Hoteleras',
           headline: 'Reserva de Hoteles a Tu Elección',
           description:
             'Elige cualquier hotel en cualquier ciudad del mundo, búscalo directamente en Google Maps y gestionamos tu reserva.',
@@ -927,7 +969,7 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'visa-assistance': {
           id: 'visa-assistance',
-          label: 'Visa Assistance',
+          label: 'Asistencia de Visado',
           headline: 'Asistencia Integral de Visados',
           description:
             'Acompañamiento completo para visados Schengen, El Omra, Turquía, EAU, Reino Unido y EE. UU.',
@@ -937,9 +979,21 @@ export const translations: Record<Language, TranslationPack> = {
             'Reservas de vuelo y hotel válidas para tu expediente'
           ]
         },
+        'hajj-umrah': {
+          id: 'hajj-umrah',
+          label: 'Hajj & Umrah',
+          headline: 'Peregrinaciones a La Meca y Medina',
+          description:
+            'Programas de El Omra y Hajj con total serenidad: hoteles frente a Masjid al-Haram, visado saudí, vuelos y asistencia continua.',
+          includedDetails: [
+            'Hoteles y suites de 4 y 5 estrellas frente al Haram',
+            'Gestión integral de visado Umrah y traslados VIP',
+            'Acompañamiento multilingüe y espiritual en destino'
+          ]
+        },
         'travel-insurance': {
           id: 'travel-insurance',
-          label: 'Travel Insurance',
+          label: 'Seguro de Viaje',
           headline: 'Seguro de Viaje Internacional',
           description:
             'Pólizas médicas, repatriación, equipaje y cancelación conformes a los requisitos de embajadas y visado Schengen.',
@@ -951,7 +1005,7 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'holiday-packages': {
           id: 'holiday-packages',
-          label: 'Holiday Packages',
+          label: 'Estancias y Circuitos',
           headline: 'Paquetes Vacacionales a Medida',
           description:
             'Escapadas completas con vuelo, el hotel que tú elijas, traslados privados e itinerarios personalizados.',

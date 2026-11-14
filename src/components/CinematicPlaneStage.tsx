@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import gsap from 'gsap';
-import { Plane, Building2, Palmtree, Compass, ArrowDown } from 'lucide-react';
+import { Compass, ArrowDown } from 'lucide-react';
 import { createCommercialAirplane } from '../three/createAirplane';
 import { createTearingPaperStage } from '../three/createTearingPaper';
 import { createDestinationDiorama } from '../three/createDestinationDiorama';
@@ -13,7 +13,12 @@ import {
   WORLD_CITY_SLIDES
 } from '../assets/destinations';
 import { translations } from '../i18n';
-import { KaabaIcon } from './KaabaIcon';
+import {
+  FlightServiceIcon,
+  HajjUmrahServiceIcon,
+  HolidayPackagesServiceIcon,
+  HotelServiceIcon
+} from './ServiceIcons';
 
 function detectSoftwareGl(): boolean {
   try {
@@ -32,20 +37,22 @@ function detectSoftwareGl(): boolean {
 
 interface CinematicPlaneStageProps {
   lang: Language;
+  readyToAnimate?: boolean;
   onSelectHeroCategory: (categoryId: HeroCategoryId) => void;
   onSelectOmra: () => void;
   onExploreBelow: () => void;
 }
 
 const HERO_CATEGORY_ICONS: Record<HeroCategoryId, React.ComponentType<{ className?: string }>> = {
-  flights: Plane,
-  hotels: Building2,
-  holidays: Palmtree,
+  flights: FlightServiceIcon,
+  hotels: HotelServiceIcon,
+  holidays: HolidayPackagesServiceIcon,
   tours: Compass
 };
 
 export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
   lang,
+  readyToAnimate = true,
   onSelectHeroCategory,
   onSelectOmra,
   onExploreBelow
@@ -58,15 +65,25 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
   const [activeCityIdx, setActiveCityIdx] = useState(0);
   const [webglReady, setWebglReady] = useState(true);
 
+  const readyToAnimateRef = useRef(readyToAnimate);
+  readyToAnimateRef.current = readyToAnimate;
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+
   const autoSlideStateRef = useRef({
     currIdx: 0,
     nextIdx: 0,
     mix: 0,
     active: 0
   });
-  const stageMetricsRef = useRef({ paperW: 18, paperH: 10 });
+  const stageMetricsRef = useRef({ paperW: 18, paperH: 10, viewportFit: 1 });
 
   const t = translations[lang];
+
+  useEffect(() => {
+    if (readyToAnimate && tlRef.current && tlRef.current.paused() && tlRef.current.progress() < 1) {
+      tlRef.current.play();
+    }
+  }, [readyToAnimate]);
 
   // Auto-cycle randomly across global cities on the homepage once the 3D airplane finishes
   useEffect(() => {
@@ -194,7 +211,8 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
       const visW = visH * aspect;
       const paperW = visW * 1.18;
       const paperH = visH * 1.18;
-      stageMetricsRef.current = { paperW, paperH };
+      const viewportFit = Math.min(1, Math.max(0.56, aspect / 1.15));
+      stageMetricsRef.current = { paperW, paperH, viewportFit };
       return { paperW, paperH };
     };
 
@@ -212,29 +230,29 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
     }
 
     const animState = {
-      master: reduced ? 1.0 : 0.0,
-      camZ: reduced ? 9.8 : 12.6,
-      camY: reduced ? 0.04 : 0.25,
+      climbProgress: reduced ? 1.0 : 0.0,
+      clearProgress: reduced ? 1.0 : 0.0,
+      camZ: reduced ? 9.8 : 12.2,
+      camY: reduced ? 0.04 : 0.0,
       planeX: 0,
-      planeY: reduced ? 5.1 : 0.72,
-      planeZ: reduced ? 13.8 : 0.75,
-      planeRotX: reduced ? -0.05 : -0.38,
+      planeZ: reduced ? 14.0 : 0.85,
+      // -1.24 pitches nose (+Z) UP & FORWARD toward viewer so white belly & engines face viewer while rising from bottom
+      planeRotX: reduced ? -0.46 : -1.24,
       planeRotY: 0,
-      planeRotZ: 0.02,
-      planeScale: 0.84,
-      contrailAlpha: 0.25,
+      planeRotZ: 0.0,
+      planeScale: reduced ? 1.38 : 0.88,
+      contrailAlpha: reduced ? 0.0 : 0.55,
       cutActive: reduced ? 1.0 : 0.0,
-      apexRatio: reduced ? 0.72 : 0.52,
       baseOpenRatio: reduced ? 0.92 : 0.0,
-      vSlope: 0.92,
+      vSlope: 0.82,
       revealProgress: reduced ? 1.0 : 0.0
     };
 
     let lastReportedProgress = -1;
 
     const tl = gsap.timeline({
-      paused: reduced,
-      defaults: { ease: 'power2.inOut' },
+      paused: reduced || !readyToAnimateRef.current,
+      defaults: { ease: 'power1.inOut' },
       onUpdate: () => {
         const p = tl.progress();
         if (Math.abs(p - lastReportedProgress) > 0.02 || p === 0 || p === 1) {
@@ -247,94 +265,59 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
         setPlaneFinished(true);
       }
     });
+    tlRef.current = tl;
 
-    // Phase 1: Introduction
+    // Promptly engage paper blade as nose enters from bottom
     tl.to(
       animState,
       {
-        master: 0.18,
-        camZ: 11.4,
-        camY: 0.14,
-        planeY: 0.55,
-        planeZ: 0.88,
-        planeRotX: -0.34,
-        planeRotZ: -0.04,
-        contrailAlpha: 0.48,
-        duration: 1.4,
+        cutActive: 1.0,
+        duration: 0.65,
         ease: 'power2.out'
       },
       0
     );
 
-    // Phase 2: The Paper Cutting Animation
+    // Unified Motion: Airplane enters from the bottom (downside) and climbs steadily upward
+    // while slicing open the white/cream paper at the exact same vertical pace.
     tl.to(
       animState,
       {
-        master: 0.56,
-        camZ: 10.9,
-        camY: 0.04,
-        planeX: 0.0,
-        planeY: 0.28,
-        planeZ: 2.35,
-        planeRotX: -0.22,
-        planeRotZ: 0.08,
-        planeScale: 0.95,
-        contrailAlpha: 0.72,
-        cutActive: 1.0,
-        apexRatio: 0.16,
-        baseOpenRatio: 0.075,
-        vSlope: 1.08,
-        revealProgress: 0.45,
-        duration: 3.1,
-        ease: 'power2.inOut'
-      },
-      1.25
-    );
-
-    // Phase 3: Progressive Destination Reveal
-    tl.to(
-      animState,
-      {
-        master: 0.82,
-        camZ: 10.3,
-        camY: 0.0,
-        planeX: 0.18,
-        planeY: 0.95,
-        planeZ: 5.4,
-        planeRotX: -0.14,
-        planeRotZ: -0.12,
-        planeScale: 1.02,
+        climbProgress: 1.0,
+        camZ: 10.6,
+        camY: 0.02,
+        planeZ: 7.4,
+        planeRotX: -0.68,
+        planeRotZ: -0.04,
+        planeScale: 1.24,
         contrailAlpha: 0.65,
-        apexRatio: 0.64,
-        baseOpenRatio: 0.44,
-        vSlope: 0.68,
-        revealProgress: 0.82,
-        duration: 2.4,
-        ease: 'power2.inOut'
+        revealProgress: 0.86,
+        duration: 5.6,
+        ease: 'power1.inOut'
       },
-      4.05
+      0
     );
 
-    // Phase 4: Final Full-Screen Horizon Reveal
+    // Final Smooth Sweep: Airplane clears the upper frame toward viewer & remaining paper rolls peel off-screen
     tl.to(
       animState,
       {
-        master: 1.0,
+        clearProgress: 1.0,
         camZ: 9.8,
         camY: 0.04,
-        planeX: 0.45,
-        planeY: 5.1,
-        planeZ: 13.8,
-        planeRotX: -0.05,
-        planeRotZ: -0.26,
+        planeX: 0.18,
+        planeZ: 14.0,
+        planeRotX: -0.46,
+        planeRotZ: -0.14,
+        planeScale: 1.4,
         contrailAlpha: 0.0,
         baseOpenRatio: 0.92,
-        vSlope: 0.35,
+        vSlope: 0.42,
         revealProgress: 1.0,
-        duration: 1.9,
+        duration: 1.85,
         ease: 'power2.in'
       },
-      6.2
+      5.25
     );
 
     if (reduced) {
@@ -425,7 +408,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
         pointer.x = THREE.MathUtils.damp(pointer.x, pointer.tx, 4.2, dt);
         pointer.y = THREE.MathUtils.damp(pointer.y, pointer.ty, 4.2, dt);
 
-        const { paperW, paperH } = stageMetricsRef.current;
+        const { paperW, paperH, viewportFit } = stageMetricsRef.current;
 
         const panScale = 0.25 + animState.revealProgress * 0.45;
         camera.position.x = pointer.x * panScale;
@@ -433,12 +416,18 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
         camera.position.z = animState.camZ;
         camera.lookAt(pointer.x * 0.12, -pointer.y * 0.08, -2.2);
 
-        const hoverBob = reduced ? 0 : Math.sin(elapsed * 2.1) * 0.035;
-        const hoverRoll = reduced ? 0 : Math.sin(elapsed * 1.45) * 0.028;
+        const hoverBob = reduced ? 0 : Math.sin(elapsed * 2.1) * 0.025;
+        const hoverRoll = reduced ? 0 : Math.sin(elapsed * 1.45) * 0.024;
+
+        // Exact synchronized bottom-to-top ascent:
+        // Plane enters from downside (-0.54 * paperH) and rises smoothly to +0.58 * paperH (+0.3 * paperH exit)
+        const riseY = THREE.MathUtils.lerp(-paperH * 0.54, paperH * 0.56, animState.climbProgress);
+        const exitLiftY = animState.clearProgress * paperH * 0.32;
+        const currentPlaneY = riseY + exitLiftY;
 
         airplane.group.position.set(
           animState.planeX + pointer.x * 0.14,
-          animState.planeY + hoverBob - pointer.y * 0.08,
+          currentPlaneY + hoverBob - pointer.y * 0.08,
           animState.planeZ
         );
         airplane.group.rotation.set(
@@ -446,7 +435,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
           animState.planeRotY + pointer.x * 0.05,
           animState.planeRotZ + hoverRoll
         );
-        airplane.group.scale.setScalar(animState.planeScale);
+        airplane.group.scale.setScalar(animState.planeScale * viewportFit);
         airplane.group.visible = animState.planeZ < 12.6;
 
         airplane.spinners.forEach((sp, idx) => {
@@ -457,8 +446,16 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
           mat.opacity = animState.contrailAlpha;
         });
 
+        // Project plane position onto the z=0 paper sheet so the tear apex tracks the rising plane 1:1
+        const perspToPaper =
+          camera.position.z / Math.max(1.2, camera.position.z - animState.planeZ);
+        const targetApexY = (currentPlaneY + 0.18) * perspToPaper;
+        const apexY = THREE.MathUtils.lerp(
+          -paperH * 0.56,
+          targetApexY,
+          Math.min(1, animState.climbProgress * 4.5)
+        );
         const baseOpen = animState.baseOpenRatio * paperW;
-        const apexY = animState.apexRatio * paperH;
         const showPaper = animState.baseOpenRatio < 0.88;
         paperRig.group.visible = showPaper;
         if (showPaper) {
@@ -530,7 +527,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
       ref={sectionRef}
       id="hero-stage"
       aria-label="Interactive 3D travel opening showcase"
-      className="relative w-full h-screen min-h-[680px] max-h-[1080px] overflow-hidden bg-[#f5ede0]"
+      className="relative w-full h-[100dvh] min-h-[640px] max-h-[1080px] overflow-hidden bg-[#f5ede0]"
     >
       {/* Isolated WebGL Mount Container */}
       <div ref={mountRef} className="absolute inset-0 z-0" aria-hidden="true" />
@@ -548,7 +545,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
       {/* Adaptive Royal Navy Top Scrim ONLY once paper clears upper sky */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-72 z-[5] transition-opacity duration-700"
+        className="pointer-events-none absolute inset-x-0 top-0 h-80 z-[5] transition-opacity duration-700"
         style={{
           opacity: isLandscapeDominant ? 1 : 0,
           background:
@@ -568,29 +565,30 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
       />
 
       {/* Semantic Editorial Overlay (Zero Picture Controls) */}
-      <div className="relative z-10 h-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pt-5 sm:pt-8 pb-10 flex flex-col justify-between pointer-events-none">
+      <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 pt-4 sm:pt-7 pb-6 sm:pb-10 flex flex-col justify-between pointer-events-none">
         <div className="w-full">
-          <div className="flex items-start justify-between gap-4">
-            {/* Official Golden Group Logo ONLY */}
+          <div className="flex items-center justify-center lg:items-start lg:justify-between gap-4">
+            {/* Enlarged Official Golden Group Logo (Strict 1:1 Ratio across Mobile, Tablet & Desktop) */}
             <a
-              href="#horizons"
+              href="#services"
               onClick={(e) => {
                 e.preventDefault();
                 onExploreBelow();
               }}
-              className="pointer-events-auto inline-block focus:outline-none group"
+              className="pointer-events-auto inline-block w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 aspect-square shrink-0 rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/75 shadow-[0_14px_34px_rgba(11,29,58,0.34)] focus:outline-none group transition-transform duration-300 hover:scale-105"
               aria-label="Golden Group Travels"
             >
               <img
                 src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
                 alt="Golden Group - Travel Services & Events"
-                className="h-14 sm:h-20 md:h-24 w-auto object-contain rounded-xl shadow-[0_10px_28px_rgba(11,29,58,0.28)] border border-[#d1a847]/65 transition-transform duration-300 group-hover:scale-105"
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-contain"
               />
             </a>
 
             {/* Side Micro-Tags */}
             <div
-              className={`hidden md:block text-[10px] tracking-[0.22em] uppercase leading-relaxed text-right rtl:text-left transition-colors duration-700 ${
+              className={`hidden lg:block text-[10px] tracking-[0.22em] uppercase leading-relaxed text-right rtl:text-left transition-colors duration-700 ${
                 isLandscapeDominant ? 'text-[#f5ede0]/85' : 'text-[#0b1d3a]/75'
               }`}
             >
@@ -600,9 +598,9 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             </div>
           </div>
 
-          {/* Centered Hero Headline */}
-          <header className="text-center max-w-4xl mx-auto -mt-2 sm:-mt-12 md:-mt-16 pointer-events-auto">
-            <h1 className="font-serif-crest font-semibold tracking-[0.04em] leading-[1.06] text-[clamp(1.85rem,4.4vw,3.7rem)] transition-colors duration-700 [text-wrap:balance]">
+          {/* Centered Hero Headline with safe horizontal corridor on lg+ */}
+          <header className="text-center max-w-4xl mx-auto mt-2.5 sm:mt-3 lg:-mt-28 xl:-mt-32 lg:px-44 pointer-events-auto">
+            <h1 className="font-serif-crest font-semibold tracking-[0.04em] leading-[1.06] text-[clamp(1.55rem,4.3vw,3.65rem)] transition-colors duration-700 [text-wrap:balance]">
               <span
                 className={`block transition-colors duration-700 ${
                   isLandscapeDominant
@@ -624,7 +622,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             </h1>
 
             <p
-              className={`mt-2 sm:mt-2.5 font-serif-display italic text-base sm:text-xl md:text-2xl tracking-wide transition-colors duration-700 ${
+              className={`mt-1.5 sm:mt-2.5 font-serif-display italic text-sm sm:text-xl md:text-2xl tracking-wide transition-colors duration-700 ${
                 isLandscapeDominant
                   ? 'text-[#f5ede0]/95 drop-shadow-[0_1px_8px_rgba(7,20,41,0.78)]'
                   : 'text-[#1c3459]'
@@ -634,18 +632,20 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             </p>
 
             <div
-              className={`w-16 h-px mx-auto mt-3 transition-colors duration-700 ${
+              className={`w-16 h-px mx-auto mt-2.5 sm:mt-3 transition-colors duration-700 ${
                 isLandscapeDominant ? 'bg-[#fceda2]/80' : 'bg-[#c59b38]/85'
               }`}
             />
           </header>
 
-          {/* Original Four Travel Categories — Flights | Hotels | (Airplane) | Holidays | Tours */}
+          {/* Symmetric 5-Icon Row: Flights | Hotels | [✦ EL OMRA CENTER ✦] | Holidays | Tours */}
           <nav
             aria-label="Travel Categories"
-            className="mt-5 sm:mt-6 max-w-3xl mx-auto flex items-center justify-between gap-2 sm:gap-8 pointer-events-auto"
+            dir="ltr"
+            className="mt-4 sm:mt-6 w-full max-w-4xl mx-auto px-1 flex items-center justify-center gap-1.5 sm:gap-5 md:gap-7 pointer-events-auto"
           >
-            <div className="flex items-center gap-4 sm:gap-8">
+            {/* Left Pair: Flights & Hotels */}
+            <div className="flex items-center gap-1.5 sm:gap-5 md:gap-7">
               {HERO_CATEGORY_ORDER.slice(0, 2).map((catId, idx) => {
                 const Icon = HERO_CATEGORY_ICONS[catId];
                 const catLabel = t.hero.categories[catId];
@@ -654,19 +654,19 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
                     <button
                       type="button"
                       onClick={() => onSelectHeroCategory(catId)}
-                      className="group flex flex-col items-center gap-1.5 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847]"
+                      className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[44px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847]"
                     >
                       <span
-                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${
                           isLandscapeDominant
                             ? 'bg-[#0b1d3a]/90 border-[#fceda2]/65 text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
                             : 'bg-[#ede1ce]/95 border-[#c59b38]/65 text-[#0b1d3a] group-hover:bg-[#0b1d3a] group-hover:text-[#fceda2]'
                         }`}
                       >
-                        <Icon className="w-5 h-5" />
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </span>
                       <span
-                        className={`text-[11px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap transition-colors duration-700 ${
+                        className={`text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.06em] sm:tracking-[0.14em] whitespace-nowrap transition-colors duration-700 ${
                           isLandscapeDominant
                             ? 'text-[#fcf9f2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)] group-hover:text-[#fceda2]'
                             : 'text-[#0b1d3a] group-hover:text-[#9a7220]'
@@ -678,7 +678,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
                     {idx === 0 && (
                       <span
                         aria-hidden="true"
-                        className={`hidden sm:block h-9 w-px transition-colors duration-700 ${
+                        className={`hidden md:block h-9 w-px transition-colors duration-700 ${
                           isLandscapeDominant ? 'bg-[#f5ede0]/30' : 'bg-[#0b1d3a]/20'
                         }`}
                       />
@@ -688,9 +688,48 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
               })}
             </div>
 
-            <div className="w-10 sm:w-28 shrink-0" aria-hidden="true" />
+            <span
+              aria-hidden="true"
+              className={`hidden sm:block h-10 w-px transition-colors duration-700 ${
+                isLandscapeDominant ? 'bg-[#d1a847]/60' : 'bg-[#c59b38]/55'
+              }`}
+            />
 
-            <div className="flex items-center gap-4 sm:gap-8">
+            {/* Exact Center: El Omra · Makkah Icon directly in the middle between the 4 other icons */}
+            <button
+              type="button"
+              onClick={onSelectOmra}
+              className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[44px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847] shrink-0"
+            >
+              <span
+                className={`w-11 h-11 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 shadow-[0_8px_24px_rgba(11,29,58,0.28)] ${
+                  isLandscapeDominant
+                    ? 'bg-[#0b1d3a]/95 border-[#fceda2] text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
+                    : 'bg-[#0b1d3a] border-[#d1a847] text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
+                }`}
+              >
+                <HajjUmrahServiceIcon className="w-5 h-5 sm:w-7 sm:h-7" />
+              </span>
+              <span
+                className={`text-[9px] sm:text-[11px] font-bold uppercase tracking-[0.06em] sm:tracking-[0.14em] whitespace-nowrap transition-colors duration-700 ${
+                  isLandscapeDominant
+                    ? 'text-[#fceda2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.95)]'
+                    : 'text-[#0b1d3a] group-hover:text-[#9a7220]'
+                }`}
+              >
+                {t.hero.omraBottomLabel}
+              </span>
+            </button>
+
+            <span
+              aria-hidden="true"
+              className={`hidden sm:block h-10 w-px transition-colors duration-700 ${
+                isLandscapeDominant ? 'bg-[#d1a847]/60' : 'bg-[#c59b38]/55'
+              }`}
+            />
+
+            {/* Right Pair: Holidays & Tours */}
+            <div className="flex items-center gap-1.5 sm:gap-5 md:gap-7">
               {HERO_CATEGORY_ORDER.slice(2, 4).map((catId, idx) => {
                 const Icon = HERO_CATEGORY_ICONS[catId];
                 const catLabel = t.hero.categories[catId];
@@ -699,19 +738,19 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
                     <button
                       type="button"
                       onClick={() => onSelectHeroCategory(catId)}
-                      className="group flex flex-col items-center gap-1.5 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847]"
+                      className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[44px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847]"
                     >
                       <span
-                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${
                           isLandscapeDominant
                             ? 'bg-[#0b1d3a]/90 border-[#fceda2]/65 text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
                             : 'bg-[#ede1ce]/95 border-[#c59b38]/65 text-[#0b1d3a] group-hover:bg-[#0b1d3a] group-hover:text-[#fceda2]'
                         }`}
                       >
-                        <Icon className="w-5 h-5" />
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </span>
                       <span
-                        className={`text-[11px] font-semibold uppercase tracking-[0.14em] whitespace-nowrap transition-colors duration-700 ${
+                        className={`text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.06em] sm:tracking-[0.14em] whitespace-nowrap transition-colors duration-700 ${
                           isLandscapeDominant
                             ? 'text-[#fcf9f2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)] group-hover:text-[#fceda2]'
                             : 'text-[#0b1d3a] group-hover:text-[#9a7220]'
@@ -723,7 +762,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
                     {idx === 0 && (
                       <span
                         aria-hidden="true"
-                        className={`hidden sm:block h-9 w-px transition-colors duration-700 ${
+                        className={`hidden md:block h-9 w-px transition-colors duration-700 ${
                           isLandscapeDominant ? 'bg-[#f5ede0]/30' : 'bg-[#0b1d3a]/20'
                         }`}
                       />
@@ -750,20 +789,8 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
           </div>
         </div>
 
-        {/* Bottom Center (Down Side in the Middle): El Omra Makkah Icon + Auto World City Caption + Explore */}
+        {/* Bottom Center: Auto World City Caption + Explore */}
         <div className="flex flex-col items-center gap-3 pb-2 pointer-events-auto">
-          <button
-            type="button"
-            onClick={onSelectOmra}
-            className="group inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#0b1d3a]/90 hover:bg-[#132d56] border border-[#d1a847] text-[#fceda2] shadow-[0_10px_28px_rgba(11,29,58,0.32)] transition-all duration-300 hover:scale-105 cursor-pointer"
-          >
-            <span className="w-7 h-7 rounded-full bg-[#d1a847] text-[#0b1d3a] flex items-center justify-center">
-              <KaabaIcon className="w-4 h-4" />
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-[0.16em]">
-              {t.hero.omraBottomLabel}
-            </span>
-          </button>
 
           <div
             className="text-center transition-all duration-700"

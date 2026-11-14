@@ -5,12 +5,19 @@ import parisTwilightImg from './images/city_paris_twilight_1794664979599.jpg';
 import istanbulBosphorusImg from './images/city_istanbul_bosphorus_1794664980250.jpg';
 import dubaiSkylineImg from './images/city_dubai_skyline_1794664981040.jpg';
 
+import serviceFlightsSkyImg from './images/service_flights_sky_1794672242936.jpg';
+import serviceHotelPalaceImg from './images/service_hotel_palace_1794672239479.jpg';
+import serviceVisaPassportImg from './images/service_visa_passport_1794672238658.jpg';
+import serviceInsuranceVoyageImg from './images/service_insurance_voyage_1794672241409.jpg';
+import serviceHolidayRetreatImg from './images/service_holiday_retreat_1794672239936.jpg';
+
 export type DestinationId = 'swiss-alps' | 'makkah' | 'mediterranean';
 export type HeroCategoryId = 'flights' | 'hotels' | 'holidays' | 'tours';
 export type ServiceId =
   | 'flight-bookings'
   | 'hotel-reservations'
   | 'visa-assistance'
+  | 'hajj-umrah'
   | 'travel-insurance'
   | 'holiday-packages';
 export type Language = 'fr' | 'ar' | 'en' | 'es';
@@ -158,14 +165,61 @@ export const HERO_CATEGORY_ORDER: HeroCategoryId[] = [
   'tours'
 ];
 
-// Official 5 Main Services (exact match to Golden Group Our Services card)
+// Official Golden Group Services matching user's exact icon set + Travel Insurance
 export const SERVICE_ORDER: ServiceId[] = [
   'flight-bookings',
   'hotel-reservations',
   'visa-assistance',
+  'hajj-umrah',
   'travel-insurance',
   'holiday-packages'
 ];
+
+export interface ServiceThemeMeta {
+  image: string;
+  galleryImages: string[];
+  fallbackGradient: string;
+  defaultCoordinates: { lat: number; lng: number };
+}
+
+export const SERVICE_THEME_MEDIA: Record<ServiceId, ServiceThemeMeta> = {
+  'flight-bookings': {
+    image: serviceFlightsSkyImg,
+    galleryImages: [serviceFlightsSkyImg, dubaiSkylineImg, parisTwilightImg],
+    fallbackGradient: 'linear-gradient(135deg, #0b1d3a 0%, #3d5a80 48%, #d1a847 100%)',
+    defaultCoordinates: { lat: 33.3675, lng: -7.5899 }
+  },
+  'hotel-reservations': {
+    image: serviceHotelPalaceImg,
+    galleryImages: [serviceHotelPalaceImg, parisTwilightImg, dubaiSkylineImg],
+    fallbackGradient: 'linear-gradient(135deg, #0b1d3a 0%, #284b63 50%, #c59b38 100%)',
+    defaultCoordinates: { lat: 31.6295, lng: -7.9811 }
+  },
+  'visa-assistance': {
+    image: serviceVisaPassportImg,
+    galleryImages: [serviceVisaPassportImg, parisTwilightImg, istanbulBosphorusImg],
+    fallbackGradient: 'linear-gradient(135deg, #0b1d3a 0%, #1d3557 52%, #b08d3c 100%)',
+    defaultCoordinates: { lat: 34.0331, lng: -6.7985 }
+  },
+  'hajj-umrah': {
+    image: makkahHaramImg,
+    galleryImages: [makkahHaramImg, serviceHotelPalaceImg, serviceFlightsSkyImg],
+    fallbackGradient: 'linear-gradient(135deg, #071429 0%, #2a3245 50%, #d1a847 100%)',
+    defaultCoordinates: { lat: 21.4225, lng: 39.8262 }
+  },
+  'travel-insurance': {
+    image: serviceInsuranceVoyageImg,
+    galleryImages: [serviceInsuranceVoyageImg, swissAlpsImg, parisTwilightImg],
+    fallbackGradient: 'linear-gradient(135deg, #0b1d3a 0%, #243b55 52%, #d1a847 100%)',
+    defaultCoordinates: { lat: 34.0331, lng: -6.7985 }
+  },
+  'holiday-packages': {
+    image: serviceHolidayRetreatImg,
+    galleryImages: [serviceHolidayRetreatImg, swissAlpsImg, mediterraneanCoastImg],
+    fallbackGradient: 'linear-gradient(135deg, #0b1d3a 0%, #166d8c 54%, #d1a847 100%)',
+    defaultCoordinates: { lat: 40.634, lng: 14.6027 }
+  }
+};
 
 export {
   swissAlpsImg,
@@ -173,5 +227,10 @@ export {
   mediterraneanCoastImg,
   parisTwilightImg,
   istanbulBosphorusImg,
-  dubaiSkylineImg
+  dubaiSkylineImg,
+  serviceFlightsSkyImg,
+  serviceHotelPalaceImg,
+  serviceVisaPassportImg,
+  serviceInsuranceVoyageImg,
+  serviceHolidayRetreatImg
 };

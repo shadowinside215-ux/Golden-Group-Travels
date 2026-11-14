@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ArrowRight,
   Check,
-  Compass,
   MapPin,
   Phone,
   Mail,
@@ -11,20 +10,20 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import { BrandLoadingScreen } from './components/BrandLoadingScreen';
 import { CinematicPlaneStage } from './components/CinematicPlaneStage';
-import { Tilt3DCard } from './components/Tilt3DCard';
-import { KaabaIcon } from './components/KaabaIcon';
+import { AnimatedServiceMedia } from './components/AnimatedServiceMedia';
+import { SERVICE_ICONS } from './components/ServiceIcons';
+import { ServiceDetailPage } from './components/ServiceDetailPage';
+import { TravelPlannerMapSection } from './components/TravelPlannerMapSection';
 import {
-  SERVICE_ICONS,
-  TravelPlannerMapSection
-} from './components/TravelPlannerMapSection';
-import {
-  DESTINATIONS,
   HeroCategoryId,
   Language,
   SERVICE_ORDER,
+  SERVICE_THEME_MEDIA,
   ServiceId
 } from './assets/destinations';
+import { SERVICE_PAGE_CHROME } from './assets/servicePagesData';
 import { LANGUAGES, translations } from './i18n';
 
 const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
@@ -43,12 +42,26 @@ const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   </svg>
 );
 
+function parseHashPage(): 'home' | ServiceId {
+  if (typeof window === 'undefined') return 'home';
+  const raw = window.location.hash.replace(/^#/, '');
+  if (raw.startsWith('service/')) {
+    const id = raw.slice('service/'.length) as ServiceId;
+    if (SERVICE_ORDER.includes(id)) return id;
+  }
+  return 'home';
+}
+
 export default function App() {
   const [lang, setLang] = useState<Language>('fr');
   const [floatingLangOpen, setFloatingLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [activeService, setActiveService] = useState<ServiceId>('hotel-reservations');
+  const [activePage, setActivePage] = useState<'home' | ServiceId>(() => parseHashPage());
+  const [activeService, setActiveService] = useState<ServiceId>(() => {
+    const p = parseHashPage();
+    return p === 'home' ? 'hotel-reservations' : p;
+  });
   const [destinationLocation, setDestinationLocation] = useState('');
   const [hotelName, setHotelName] = useState('');
   const [mapFocusCoords, setMapFocusCoords] = useState<{ lat: number; lng: number }>({
@@ -56,18 +69,39 @@ export default function App() {
     lng: 39.8262
   });
 
-  // Revealed when clicking the Makkah / El Omra icon or clicking the second horizon picture
-  const [showMakkahCalligraphy, setShowMakkahCalligraphy] = useState(false);
-  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+  const [showSplash, setShowSplash] = useState(true);
+  const [heroAnimationReady, setHeroAnimationReady] = useState(false);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
 
+  const handleSplashStartReveal = useCallback(() => {
+    setHeroAnimationReady(true);
+  }, []);
+
+  const handleSplashFinished = useCallback(() => {
+    setShowSplash(false);
+  }, []);
+
   const t = translations[lang];
+  const chrome = SERVICE_PAGE_CHROME[lang];
   const isRtl = t.dir === 'rtl';
 
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = t.dir;
   }, [lang, t.dir]);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const next = parseHashPage();
+      setActivePage(next);
+      if (next !== 'home') {
+        setActiveService(next);
+        setMapFocusCoords(SERVICE_THEME_MEDIA[next].defaultCoordinates);
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   useEffect(() => {
     const onQuotaExceeded = () => setQuotaExceeded(true);
@@ -85,57 +119,65 @@ export default function App() {
           }
         });
       },
-      { rootMargin: '0px 0px -48px 0px', threshold: 0.1 }
+      { rootMargin: '0px 0px -48px 0px', threshold: 0.08 }
     );
 
     const els = document.querySelectorAll('.reveal-init');
     els.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, [activePage]);
 
   const scrollToId = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 40);
+  };
+
+  const openPage = (page: 'home' | ServiceId, sectionIdAfter?: string) => {
+    setActivePage(page);
+    setMobileMenuOpen(false);
+
+    if (page === 'home') {
+      if (window.location.hash.startsWith('#service/')) {
+        window.history.replaceState(null, '', '#');
+      }
+      if (sectionIdAfter) {
+        scrollToId(sectionIdAfter);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else {
+      setActiveService(page);
+      setMapFocusCoords(SERVICE_THEME_MEDIA[page].defaultCoordinates);
+      if (page === 'hajj-umrah' && !destinationLocation.trim()) {
+        setDestinationLocation(t.horizonsSection.destinations.makkah.title);
+      }
+      window.location.hash = `service/${page}`;
+      if (sectionIdAfter) {
+        scrollToId(sectionIdAfter);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
 
   const handleHeroCategoryClick = (categoryId: HeroCategoryId) => {
     if (categoryId === 'flights') {
-      setActiveService('flight-bookings');
-      scrollToId('planner');
+      openPage('flight-bookings');
     } else if (categoryId === 'hotels') {
-      setActiveService('hotel-reservations');
-      scrollToId('planner');
-    } else if (categoryId === 'holidays') {
-      setActiveService('holiday-packages');
-      scrollToId('planner');
+      openPage('hotel-reservations');
     } else {
-      scrollToId('horizons');
+      openPage('holiday-packages');
     }
   };
 
   const handleHeroOmraClick = () => {
-    setShowMakkahCalligraphy(true);
-    scrollToId('makkah-horizon');
+    openPage('hajj-umrah');
   };
-
-  const handleChooseHorizonDestination = (
-    destId: 'swiss-alps' | 'makkah' | 'mediterranean',
-    coords: { lat: number; lng: number }
-  ) => {
-    const destTitle = t.horizonsSection.destinations[destId].title;
-    setDestinationLocation(destTitle);
-    setMapFocusCoords(coords);
-    if (destId === 'makkah') {
-      setActiveService('hotel-reservations');
-    }
-    scrollToId('planner');
-  };
-
-  const currentService = t.servicesSection.services[activeService];
-  const ActiveServiceIcon = SERVICE_ICONS[activeService];
 
   return (
     <div
@@ -145,6 +187,13 @@ export default function App() {
         isRtl ? 'text-right' : 'text-left'
       }`}
     >
+      {showSplash && (
+        <BrandLoadingScreen
+          onStartReveal={handleSplashStartReveal}
+          onFinished={handleSplashFinished}
+        />
+      )}
+
       {quotaExceeded && (
         <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2.5 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm">
           <span>
@@ -162,19 +211,22 @@ export default function App() {
         </div>
       )}
 
-      {/* Primary Full-Viewport 3D GSAP Paper-Cutting Plane Cinema Stage */}
-      <CinematicPlaneStage
-        lang={lang}
-        onSelectHeroCategory={handleHeroCategoryClick}
-        onSelectOmra={handleHeroOmraClick}
-        onExploreBelow={() => scrollToId('horizons')}
-      />
+      {/* Primary Full-Viewport 3D GSAP Paper-Cutting Plane Cinema Stage on Home */}
+      {activePage === 'home' && (
+        <CinematicPlaneStage
+          lang={lang}
+          readyToAnimate={heroAnimationReady}
+          onSelectHeroCategory={handleHeroCategoryClick}
+          onSelectOmra={handleHeroOmraClick}
+          onExploreBelow={() => scrollToId('services')}
+        />
+      )}
 
       {/* Sticky Top Strip + Navigation Bar (Official Logo ONLY + 4 Languages + Verified Info) */}
       <header className="sticky top-0 z-30 bg-[#fbf7ee]/96 border-y border-[#d1a847]/40 shadow-[0_8px_28px_rgba(11,29,58,0.07)]">
         {/* Compact Navy & Gold Contact Strip */}
         <div className="bg-[#0b1d3a] text-[#f5ede0] text-[11px] sm:text-xs border-b border-[#d1a847]/35">
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 h-8 flex items-center justify-between gap-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 h-7 sm:h-8 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex items-center gap-2 shrink-0">
                 <a
@@ -221,18 +273,19 @@ export default function App() {
           </div>
         </div>
 
-        {/* Main Header Bar: Logo ONLY + Navigation Links + 4 Languages Switcher + CTA */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-4 lg:gap-6">
+        {/* Main Header Bar: Bigger 1:1 Logo ONLY + Navigation Links + 4 Languages Switcher + CTA */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-[72px] sm:h-24 flex items-center justify-between gap-4 lg:gap-6">
           <button
             type="button"
-            onClick={() => scrollToId('hero-stage')}
-            className="focus:outline-none cursor-pointer shrink-0 group"
-            aria-label="Return to 3D opening showcase"
+            onClick={() => openPage('home')}
+            className="focus:outline-none cursor-pointer w-14 h-14 sm:w-20 sm:h-20 lg:w-[86px] lg:h-[86px] aspect-square shrink-0 rounded-xl overflow-hidden bg-[#041533] border border-[#d1a847]/55 shadow-md group transition-transform duration-300 hover:scale-105"
+            aria-label="Golden Group Travels Home"
           >
             <img
               src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
               alt="Golden Group - Travel Services & Events"
-              className="h-12 sm:h-16 w-auto object-contain rounded-xl shadow-md border border-[#d1a847]/40 transition-transform duration-300 group-hover:scale-105"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-contain"
             />
           </button>
 
@@ -241,24 +294,34 @@ export default function App() {
             className="hidden lg:flex items-center gap-6 text-xs font-semibold uppercase tracking-[0.16em] text-[#2c405e]"
           >
             <a
-              href="#horizons"
+              href="#home"
               onClick={(e) => {
                 e.preventDefault();
-                scrollToId('horizons');
+                openPage('home');
               }}
               className="nav-editorial-link hover:text-[#0b1d3a] whitespace-nowrap shrink-0"
             >
-              {t.nav.horizons}
+              {chrome.homeNavLabel}
             </a>
             <a
               href="#services"
               onClick={(e) => {
                 e.preventDefault();
-                scrollToId('services');
+                openPage('home', 'services');
               }}
               className="nav-editorial-link hover:text-[#0b1d3a] whitespace-nowrap shrink-0"
             >
               {t.nav.services}
+            </a>
+            <a
+              href="#service/hajj-umrah"
+              onClick={(e) => {
+                e.preventDefault();
+                openPage('hajj-umrah');
+              }}
+              className="nav-editorial-link hover:text-[#0b1d3a] whitespace-nowrap shrink-0"
+            >
+              {t.servicesSection.services['hajj-umrah'].label}
             </a>
             <a
               href="#planner"
@@ -355,23 +418,24 @@ export default function App() {
             <nav className="flex flex-col space-y-2.5 text-xs font-semibold uppercase tracking-wider text-[#0b1d3a]">
               <button
                 type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  scrollToId('horizons');
-                }}
+                onClick={() => openPage('home')}
                 className="py-1 text-left rtl:text-right cursor-pointer"
               >
-                {t.nav.horizons}
+                {chrome.homeNavLabel}
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  scrollToId('services');
-                }}
+                onClick={() => openPage('home', 'services')}
                 className="py-1 text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.services}
+              </button>
+              <button
+                type="button"
+                onClick={() => openPage('hajj-umrah')}
+                className="py-1 text-left rtl:text-right cursor-pointer"
+              >
+                {t.servicesSection.services['hajj-umrah'].label}
               </button>
               <button
                 type="button"
@@ -399,326 +463,159 @@ export default function App() {
       </header>
 
       <main className="flex-1 bg-cream-paper">
-        {/* Section 1: Three Horizons — Makkah (2nd Picture) Centered with Clickable Arabic Writing */}
-        <section id="horizons" className="py-20 md:py-28 max-w-7xl mx-auto px-5 sm:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-16 reveal-init">
-            <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
-              {t.horizonsSection.eyebrow}
-            </p>
-            <h2 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0b1d3a] tracking-wide [text-wrap:balance]">
-              {t.horizonsSection.title}
-            </h2>
-            <p className="mt-4 text-[#2c405e] font-serif-display italic text-lg sm:text-xl leading-relaxed">
-              {t.horizonsSection.subtitle}
-            </p>
-            <div className="w-20 h-px bg-[#c59b38]/70 mx-auto mt-6" />
-          </div>
+        {activePage !== 'home' ? (
+          <ServiceDetailPage
+            serviceId={activePage}
+            t={t}
+            lang={lang}
+            isRtl={isRtl}
+            onSelectPage={(nextPage) => openPage(nextPage)}
+            destinationLocation={destinationLocation}
+            onDestinationLocationChange={setDestinationLocation}
+            hotelName={hotelName}
+            onHotelNameChange={setHotelName}
+            mapFocusCoords={mapFocusCoords}
+            onMapFocusCoordsChange={setMapFocusCoords}
+            onReturnToHero={() => openPage('home', 'hero-stage')}
+            whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+            displayPhone={DISPLAY_PHONE}
+            agencyMapsUrl={GOOGLE_MAPS_URL}
+          />
+        ) : (
+          <>
+            {/* Dedicated Services Overview — Animated Photography Cards Opening Each Service's Full Page */}
+            <section id="services" className="py-20 md:py-28 max-w-7xl mx-auto px-5 sm:px-8">
+              <div className="max-w-3xl mx-auto text-center mb-16 reveal-init">
+                <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
+                  {t.servicesSection.eyebrow}
+                </p>
+                <h2 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0b1d3a] tracking-wide [text-wrap:balance]">
+                  {t.servicesSection.title}
+                </h2>
+                <p className="mt-4 text-sm sm:text-base text-[#2c405e] leading-relaxed">
+                  {t.servicesSection.subtitle}
+                </p>
+                <div className="w-20 h-px bg-[#c59b38]/70 mx-auto mt-6" />
+              </div>
 
-          {/* 3-Column Balanced Grid: 01 Swiss Alps | 02 Makkah (Middle) | 03 Mediterranean */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-7 items-stretch perspective-1200">
-            {DESTINATIONS.map((destMeta, index) => {
-              const dest = t.horizonsSection.destinations[destMeta.id];
-              const isMakkah = destMeta.id === 'makkah';
-              const imgBroken = failedImages[destMeta.id];
-              const stagger = `stagger-${index + 1}`;
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 items-stretch">
+                {SERVICE_ORDER.map((srvId, idx) => {
+                  const srv = t.servicesSection.services[srvId];
+                  const Icon = SERVICE_ICONS[srvId];
+                  const media = SERVICE_THEME_MEDIA[srvId];
+                  const isOmra = srvId === 'hajj-umrah';
+                  const indexTag = `0${idx + 1}`;
+                  const stagger = `stagger-${(idx % 4) + 1}`;
 
-              return (
-                <div
-                  key={destMeta.id}
-                  id={isMakkah ? 'makkah-horizon' : undefined}
-                  className={`reveal-init ${stagger}`}
-                >
-                  <Tilt3DCard
-                    maxTilt={4.5}
-                    liftZ={12}
-                    className={`h-full bg-[#fcf9f2] rounded-2xl overflow-hidden flex flex-col ${
-                      isMakkah
-                        ? 'border-2 border-[#d1a847] shadow-[0_24px_54px_rgba(11,29,58,0.16)]'
-                        : 'border border-[#d1a847]/40 shadow-[0_18px_44px_rgba(11,29,58,0.09)]'
-                    }`}
-                  >
-                    {/* Second Picture / Makkah Card Triggers Gold Arabic Calligraphy on Click */}
-                    <div
-                      role={isMakkah ? 'button' : undefined}
-                      tabIndex={isMakkah ? 0 : undefined}
-                      onClick={
-                        isMakkah
-                          ? () => setShowMakkahCalligraphy((prev) => !prev)
-                          : undefined
-                      }
-                      onKeyDown={
-                        isMakkah
-                          ? (e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                setShowMakkahCalligraphy((prev) => !prev);
-                              }
-                            }
-                          : undefined
-                      }
-                      className={`relative h-72 sm:h-80 overflow-hidden ${
-                        isMakkah ? 'cursor-pointer group' : ''
+                  return (
+                    <article
+                      key={srvId}
+                      id={`service-${srvId}`}
+                      className={`reveal-init ${stagger} rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-all duration-300 hover:-translate-y-1 ${
+                        isOmra
+                          ? 'border-2 border-[#d1a847] shadow-[0_22px_50px_rgba(11,29,58,0.16)]'
+                          : 'border border-[#d1a847]/45 shadow-[0_16px_40px_rgba(11,29,58,0.09)] hover:border-[#c59b38]'
                       }`}
-                      style={{ background: destMeta.fallbackGradient }}
                     >
-                      {!imgBroken ? (
-                        <img
-                          src={destMeta.image}
-                          alt={dest.imageAlt}
-                          referrerPolicy="no-referrer"
-                          onError={() =>
-                            setFailedImages((prev) => ({ ...prev, [destMeta.id]: true }))
-                          }
-                          className="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.04]"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-8 text-[#f5ede0]">
-                          <Compass className="w-10 h-10 text-[#d1a847] mb-3" />
-                          <span className="font-serif-crest text-xl">{dest.title}</span>
-                        </div>
-                      )}
-
-                      <div
-                        aria-hidden="true"
-                        className={`absolute inset-0 transition-colors duration-500 ${
-                          isMakkah && showMakkahCalligraphy
-                            ? 'bg-gradient-to-t from-[#071429]/90 via-[#0b1d3a]/65 to-[#071429]/55'
-                            : 'bg-gradient-to-t from-[#071429]/85 via-[#071429]/20 to-transparent'
-                        }`}
-                      />
-
-                      {/* Centered Makkah Kaaba Icon Badge on Second Picture */}
-                      {isMakkah && (
-                        <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0b1d3a]/90 border border-[#d1a847] text-[#fceda2] text-[11px] font-semibold uppercase tracking-wider shadow-lg">
-                            <KaabaIcon className="w-3.5 h-3.5 text-[#d1a847]" />
-                            <span>{t.horizonsSection.omraBadge}</span>
-                          </span>
-                          <span className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#0b1d3a]/75 text-[#f5ede0] border border-[#d1a847]/45">
-                            {showMakkahCalligraphy ? '✦' : t.horizonsSection.omraTapHint}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Luminous Gold Arabic Calligraphy Revealed on the Second Picture (Makkah) When Clicked */}
-                      {isMakkah && showMakkahCalligraphy && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-5 z-10">
+                      {/* Clickable Animated Photography Header */}
+                      <button
+                        type="button"
+                        onClick={() => openPage(srvId)}
+                        className="relative w-full text-left cursor-pointer focus-visible:outline-2 focus-visible:outline-[#d1a847]"
+                      >
+                        <AnimatedServiceMedia
+                          src={media.image}
+                          alt={srv.headline}
+                          fallbackGradient={media.fallbackGradient}
+                          variant={idx % 2 === 0 ? 'slow' : 'alt'}
+                          aspectClass="aspect-[16/10]"
+                        >
                           <div
-                            lang="ar"
-                            dir="rtl"
-                            className="font-arabic-calligraphy text-3xl sm:text-4xl xl:text-[2.6rem] font-bold text-[#fceda2] drop-shadow-[0_4px_18px_rgba(7,20,41,0.98)] leading-relaxed"
-                          >
-                            {t.horizonsSection.omraTalbiyah}
+                            aria-hidden="true"
+                            className="absolute inset-0 bg-gradient-to-t from-[#071429]/90 via-[#0b1d3a]/25 to-transparent"
+                          />
+                          <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between gap-3 text-[#fcf9f2]">
+                            <div>
+                              <div className="text-[11px] uppercase tracking-[0.22em] text-[#fceda2] font-semibold tabular-nums">
+                                {indexTag} · {t.servicesSection.provisionTag}
+                              </div>
+                              <h3 className="font-serif-crest text-xl sm:text-2xl font-semibold mt-0.5">
+                                {srv.label}
+                              </h3>
+                            </div>
+                            <span className="w-11 h-11 rounded-xl bg-[#0b1d3a]/95 border border-[#d1a847] text-[#d1a847] flex items-center justify-center shrink-0 shadow-lg">
+                              <Icon className="w-6 h-6" />
+                            </span>
                           </div>
+                        </AnimatedServiceMedia>
+                      </button>
+
+                      {/* Card Body & Open Full Page Action */}
+                      <div className="p-6 flex-1 flex flex-col justify-between gap-5">
+                        <div className="space-y-3">
+                          <div className="text-sm font-semibold text-[#0b1d3a]">
+                            {srv.headline}
+                          </div>
+                          <p className="text-xs sm:text-sm text-[#2c405e] leading-[1.7]">
+                            {srv.description}
+                          </p>
+                          <ul className="space-y-2 pt-3 border-t border-[#d1a847]/25">
+                            {srv.includedDetails.map((detail, i) => (
+                              <li
+                                key={i}
+                                className="flex items-start gap-2.5 text-xs text-[#0b1d3a]"
+                              >
+                                <Check className="w-3.5 h-3.5 text-[#c59b38] shrink-0 mt-0.5" />
+                                <span>{detail}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                      )}
 
-                      <div className="absolute bottom-5 left-6 right-6 text-[#fcf9f2] z-10">
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-[#fceda2] font-medium">
-                          0{index + 1} · {dest.region}
-                        </div>
-                        <h3 className="font-serif-crest text-2xl font-semibold mt-1">
-                          {dest.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between gap-6">
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-[#2c405e]">
-                          <span className="font-semibold text-[#0b1d3a]">
-                            {dest.altitudeOrCoast}
-                          </span>
-                          <span aria-hidden="true">·</span>
-                          <span>{dest.season}</span>
-                        </div>
-
-                        <p className="text-sm text-[#1f3554] leading-[1.7]">{dest.summary}</p>
-
-                        <ul className="space-y-2 pt-2 border-t border-[#d1a847]/25">
-                          {dest.highlights.map((item, i) => (
-                            <li
-                              key={i}
-                              className="flex items-start gap-2.5 text-xs sm:text-sm text-[#0b1d3a]"
-                            >
-                              <span
-                                aria-hidden="true"
-                                className="mt-1.5 w-1.5 h-1.5 rotate-45 bg-[#c59b38] shrink-0"
-                              />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="pt-2 flex flex-wrap items-center gap-2.5">
                         <button
                           type="button"
-                          onClick={() =>
-                            handleChooseHorizonDestination(destMeta.id, destMeta.coordinates)
-                          }
-                          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#0b1d3a] text-[#fceda2] hover:bg-[#132d56] border border-[#d1a847]/50 text-xs font-semibold uppercase tracking-[0.14em] transition-colors cursor-pointer"
+                          onClick={() => openPage(srvId)}
+                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.14em] transition-colors cursor-pointer"
                         >
-                          <span>
-                            {isMakkah
-                              ? t.horizonsSection.omraBookCta
-                              : t.horizonsSection.selectDest}
-                          </span>
+                          <span className="whitespace-nowrap">{chrome.openPageCta}</span>
                           <ArrowRight
-                            className={`w-3.5 h-3.5 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+                            className={`w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
+                              isRtl ? 'rotate-180' : ''
+                            }`}
                           />
                         </button>
                       </div>
-                    </div>
-                  </Tilt3DCard>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Hairline Gold Divider */}
-        <div className="max-w-5xl mx-auto px-8">
-          <div className="h-px bg-gradient-to-r from-transparent via-[#c59b38]/50 to-transparent" />
-        </div>
-
-        {/* Section 2: OUR SERVICES — The Main & ONLY 5 Services (Flight Bookings, Hotel Reservations, Visa Assistance, Travel Insurance, Holiday Packages) */}
-        <section id="services" className="py-20 md:py-28 max-w-7xl mx-auto px-5 sm:px-8">
-          <div className="max-w-3xl mx-auto text-center mb-14 reveal-init">
-            <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
-              {t.servicesSection.eyebrow}
-            </p>
-            <h2 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0b1d3a] tracking-wide">
-              {t.servicesSection.title}
-            </h2>
-            <p className="mt-4 text-sm sm:text-base text-[#2c405e] leading-relaxed">
-              {t.servicesSection.subtitle}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5 mb-10 perspective-1200">
-            {SERVICE_ORDER.map((srvId, idx) => {
-              const srv = t.servicesSection.services[srvId];
-              const Icon = SERVICE_ICONS[srvId];
-              const isSelected = activeService === srvId;
-
-              return (
-                <button
-                  key={srvId}
-                  type="button"
-                  onClick={() => {
-                    setActiveService(srvId);
-                    scrollToId('planner');
-                  }}
-                  className={`text-left rtl:text-right p-5 sm:p-6 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col justify-between gap-4 ${
-                    isSelected
-                      ? 'bg-[#0b1d3a] text-[#fcf9f2] border-[#d1a847] shadow-[0_20px_42px_rgba(11,29,58,0.22)] -translate-y-1'
-                      : 'bg-[#fcf9f2] text-[#0b1d3a] border-[#d1a847]/35 hover:border-[#c59b38] hover:-translate-y-0.5'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`w-11 h-11 rounded-full flex items-center justify-center border ${
-                        isSelected
-                          ? 'bg-[#132d56] border-[#fceda2] text-[#fceda2]'
-                          : 'bg-[#ede1ce] border-[#c59b38]/50 text-[#0b1d3a]'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </span>
-                    <span
-                      className={`font-serif-crest text-sm tabular-nums ${
-                        isSelected ? 'text-[#d1a847]' : 'text-[#9a7220]'
-                      }`}
-                    >
-                      0{idx + 1}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="font-serif-crest text-base sm:text-lg font-semibold tracking-wide">
-                      {srv.label}
-                    </h3>
-                    <p
-                      className={`mt-1.5 text-xs leading-relaxed ${
-                        isSelected ? 'text-[#f5ede0]/80' : 'text-[#2c405e]'
-                      }`}
-                    >
-                      {srv.headline}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Active Service Details Panel */}
-          <div className="bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-7 sm:p-10 shadow-[0_16px_38px_rgba(11,29,58,0.08)] reveal-init">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-3">
-                <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-                  <ActiveServiceIcon className="w-4 h-4 text-[#c59b38]" />
-                  <span>
-                    {currentService.label} · {t.servicesSection.provisionTag}
-                  </span>
-                </div>
-                <h3 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a]">
-                  {currentService.headline}
-                </h3>
-                <p className="text-sm sm:text-base text-[#2c405e] leading-relaxed">
-                  {currentService.description}
-                </p>
+                    </article>
+                  );
+                })}
               </div>
+            </section>
 
-              <div className="lg:col-span-5 lg:border-s lg:border-[#d1a847]/30 lg:ps-8 space-y-3">
-                {currentService.includedDetails.map((detail, i) => (
-                  <div key={i} className="flex items-start gap-3 text-sm text-[#0b1d3a]">
-                    <Check className="w-4 h-4 text-[#c59b38] shrink-0 mt-0.5" />
-                    <span>{detail}</span>
-                  </div>
-                ))}
-                <div className="pt-3">
-                  <button
-                    type="button"
-                    onClick={() => scrollToId('planner')}
-                    className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#0b1d3a] hover:text-[#9a7220] transition-colors cursor-pointer"
-                  >
-                    <span>
-                      {t.servicesSection.configurePrefix} {currentService.label}
-                    </span>
-                    <ArrowRight
-                      className={`w-3.5 h-3.5 text-[#c59b38] ${isRtl ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                </div>
-              </div>
+            {/* Hairline Gold Divider */}
+            <div className="max-w-5xl mx-auto px-8">
+              <div className="h-px bg-gradient-to-r from-transparent via-[#c59b38]/50 to-transparent" />
             </div>
-          </div>
-        </section>
 
-        {/* Hairline Gold Divider */}
-        <div className="max-w-5xl mx-auto px-8">
-          <div className="h-px bg-gradient-to-r from-transparent via-[#c59b38]/50 to-transparent" />
-        </div>
-
-        {/* Section 3: Service-Dynamic Contact & Booking Form Connected with Google Maps */}
-        <TravelPlannerMapSection
-          t={t}
-          lang={lang}
-          isRtl={isRtl}
-          activeService={activeService}
-          onSelectService={setActiveService}
-          destinationLocation={destinationLocation}
-          onDestinationLocationChange={setDestinationLocation}
-          hotelName={hotelName}
-          onHotelNameChange={setHotelName}
-          mapFocusCoords={mapFocusCoords}
-          onMapFocusCoordsChange={setMapFocusCoords}
-          onReturnToHero={() => scrollToId('hero-stage')}
-          whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
-          displayPhone={DISPLAY_PHONE}
-          agencyMapsUrl={GOOGLE_MAPS_URL}
-        />
+            {/* Service-Dynamic Contact & Booking Form Connected with Google Maps */}
+            <TravelPlannerMapSection
+              t={t}
+              lang={lang}
+              isRtl={isRtl}
+              activeService={activeService}
+              onSelectService={setActiveService}
+              destinationLocation={destinationLocation}
+              onDestinationLocationChange={setDestinationLocation}
+              hotelName={hotelName}
+              onHotelNameChange={setHotelName}
+              mapFocusCoords={mapFocusCoords}
+              onMapFocusCoordsChange={setMapFocusCoords}
+              onReturnToHero={() => openPage('home', 'hero-stage')}
+              whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+              displayPhone={DISPLAY_PHONE}
+              agencyMapsUrl={GOOGLE_MAPS_URL}
+            />
+          </>
+        )}
       </main>
 
       {/* Restored Floating Bottom-Left (or Bottom-Right in RTL) 4-Language Switcher */}
@@ -793,18 +690,19 @@ export default function App() {
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-            {/* Brand Column: Official Logo ONLY */}
+            {/* Brand Column: Enlarged Official 1:1 Logo ONLY */}
             <div className="space-y-4">
               <button
                 type="button"
-                onClick={() => scrollToId('hero-stage')}
-                className="inline-block focus:outline-none cursor-pointer group"
+                onClick={() => openPage('home', 'hero-stage')}
+                className="inline-block w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 aspect-square rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/60 shadow-lg focus:outline-none cursor-pointer group transition-transform duration-300 hover:scale-105"
                 aria-label="Golden Group Travels"
               >
                 <img
                   src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
                   alt="Golden Group - Travel Services & Events"
-                  className="h-20 sm:h-24 w-auto object-contain rounded-xl shadow-lg border border-[#d1a847]/50 transition-transform duration-300 group-hover:scale-105"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-contain"
                 />
               </button>
               <p className="text-xs text-slate-300/90 leading-relaxed">{t.hero.subtitle}</p>
@@ -854,10 +752,7 @@ export default function App() {
                   <li key={srvId}>
                     <button
                       type="button"
-                      onClick={() => {
-                        setActiveService(srvId);
-                        scrollToId('planner');
-                      }}
+                      onClick={() => openPage(srvId)}
                       className="hover:text-[#fceda2] transition-colors cursor-pointer"
                     >
                       {t.servicesSection.services[srvId].label}

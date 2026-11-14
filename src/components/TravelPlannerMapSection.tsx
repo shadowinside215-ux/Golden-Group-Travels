@@ -32,17 +32,12 @@ import {
 } from 'lucide-react';
 import { Language, SERVICE_ORDER, ServiceId } from '../assets/destinations';
 import { TranslationPack } from '../i18n';
+import { SERVICE_ICONS, HajjUmrahServiceIcon } from './ServiceIcons';
+
+export { SERVICE_ICONS };
 
 const GOOGLE_MAPS_API_KEY =
   (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) || '';
-
-export const SERVICE_ICONS: Record<ServiceId, React.ComponentType<{ className?: string }>> = {
-  'flight-bookings': Plane,
-  'hotel-reservations': Building2,
-  'visa-assistance': FileCheck2,
-  'travel-insurance': ShieldCheck,
-  'holiday-packages': Palmtree
-};
 
 interface MapPlaceItem {
   id: string;
@@ -241,10 +236,13 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
 
-  const isHotelService = activeService === 'hotel-reservations';
+  const isHotelService =
+    activeService === 'hotel-reservations' || activeService === 'hajj-umrah';
+  const isUmrahService = activeService === 'hajj-umrah';
   const isVisaService = activeService === 'visa-assistance';
   const showHotelField =
     activeService === 'hotel-reservations' ||
+    activeService === 'hajj-umrah' ||
     activeService === 'holiday-packages' ||
     activeService === 'flight-bookings';
 
@@ -418,10 +416,17 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
     ]
   );
 
-  // Trigger initial hotel/visa/destination focus smoothly when switching services
+  // Trigger initial hotel/visa/umrah/destination focus smoothly when switching services
   useEffect(() => {
     if (!mapsEnabled || !placesLib) return;
-    if (isHotelService && (hotelName.trim() || destinationLocation.trim())) {
+    if (isUmrahService) {
+      if (hotelName.trim() || destinationLocation.trim()) {
+        void handleSearchOnMap(undefined, true);
+      } else {
+        onMapFocusCoordsChange({ lat: 21.4225, lng: 39.8262 });
+        void handleSearchOnMap('hotels near Masjid al-Haram Makkah', true);
+      }
+    } else if (isHotelService && (hotelName.trim() || destinationLocation.trim())) {
       void handleSearchOnMap(undefined, true);
     } else if (isVisaService) {
       if (visaCenter.trim() || destinationLocation.trim()) {
@@ -588,12 +593,12 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
       {/* Main Dynamic Service-Aware Form + Google Maps Connected Layout */}
       <div className="bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-6 sm:p-9 lg:p-10 shadow-[0_22px_54px_rgba(11,29,58,0.1)] reveal-init">
-        {/* Service Selector Row (5 Main Services Only) */}
+        {/* Service Selector Row (6 Official Services Matching User Banner Icons) */}
         <div className="mb-8">
           <label className="block text-xs font-semibold uppercase tracking-[0.18em] text-[#0b1d3a] mb-3">
             {t.plannerSection.serviceLabel}
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {SERVICE_ORDER.map((srvId) => {
               const srv = t.servicesSection.services[srvId];
               const Icon = SERVICE_ICONS[srvId];
@@ -1156,7 +1161,9 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
           <div className="lg:col-span-5 flex flex-col gap-3">
             <div className="p-4 rounded-xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/45">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#fceda2]">
-                {isHotelService ? (
+                {isUmrahService ? (
+                  <HajjUmrahServiceIcon className="w-4 h-4 text-[#d1a847] shrink-0" />
+                ) : isHotelService ? (
                   <Building2 className="w-4 h-4 text-[#d1a847] shrink-0" />
                 ) : isVisaService ? (
                   <FileCheck2 className="w-4 h-4 text-[#d1a847] shrink-0" />

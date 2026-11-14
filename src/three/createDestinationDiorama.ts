@@ -300,7 +300,19 @@ export function createDestinationDiorama(maxAnisotropy: number): DestinationDior
       dustPoints.position.y = Math.cos(time * 0.2) * 0.12;
     },
     setStageSpan: (width, height) => {
-      backdropMesh.scale.set(width * 1.48, height * 1.48, 1);
+      const minW = width * 1.48;
+      const minH = height * 1.48;
+      const imgAspect = 16 / 9;
+      let scaleW = minW;
+      let scaleH = minH;
+      if (minW / Math.max(0.01, minH) < imgAspect) {
+        scaleH = minH;
+        scaleW = minH * imgAspect;
+      } else {
+        scaleW = minW;
+        scaleH = minW / imgAspect;
+      }
+      backdropMesh.scale.set(scaleW, scaleH, 1);
       medLayer.mesh.position.set(-width * 0.24, -height * 0.16, -2.9);
       makkahLayer.mesh.position.set(width * 0.24, -height * 0.15, -2.7);
       alpsLayer.mesh.position.set(0, height * 0.16, -3.3);

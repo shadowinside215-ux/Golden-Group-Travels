@@ -23,13 +23,19 @@ function createFuselageLiveryTexture(maxAnisotropy: number): THREE.CanvasTexture
     ctx.fillStyle = baseGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Subtle metallic belly shading around phi = PI (middle of lathe UV X)
+    // Subtle ventral belly landing-gear door & keel beam seam around phi = PI (middle of lathe UV X)
     const bellyGrad = ctx.createLinearGradient(canvas.width * 0.25, 0, canvas.width * 0.75, 0);
     bellyGrad.addColorStop(0, 'rgba(200, 194, 182, 0)');
     bellyGrad.addColorStop(0.5, 'rgba(182, 176, 166, 0.45)');
     bellyGrad.addColorStop(1, 'rgba(200, 194, 182, 0)');
     ctx.fillStyle = bellyGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Subtle ventral nose gear & main gear door seams matching commercial airliner underside
+    ctx.strokeStyle = 'rgba(11, 29, 58, 0.22)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(canvas.width * 0.494, 96, canvas.width * 0.012, 48);
+    ctx.strokeRect(canvas.width * 0.486, 224, canvas.width * 0.028, 56);
 
     // Royal Navy Blue + Metallic Gold cheatlines along both port & starboard flanks
     const drawCheatline = (centerX: number) => {
@@ -129,7 +135,8 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
     color: 0xeae4d6,
     roughness: 0.24,
     metalness: 0.28,
-    envMapIntensity: 1.1
+    envMapIntensity: 1.1,
+    side: THREE.DoubleSide
   });
 
   const navyLiveryMat = new THREE.MeshPhysicalMaterial({
@@ -245,10 +252,11 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
   fairingMesh.receiveShadow = true;
   group.add(fairingMesh);
 
-  // 4. Swept Airfoil Main Wings + Blended Winglets (Left & Right)
+  // 4. Swept-Back Airfoil Main Wings + Blended Winglets (Left & Right)
+  // Using +Math.PI*0.5 rotation maps +Y -> +Z (forward root) and -Y -> -Z (swept-back tips toward tail)
   const wingShape = new THREE.Shape();
-  wingShape.moveTo(0.0, 0.55); // root leading edge
-  wingShape.lineTo(2.45, -0.72); // tip leading edge (swept back)
+  wingShape.moveTo(0.0, 0.55); // root leading edge (+Z)
+  wingShape.lineTo(2.45, -0.72); // tip leading edge (swept back -Z)
   wingShape.lineTo(2.45, -1.04); // tip trailing edge
   wingShape.lineTo(0.0, -0.52); // root trailing edge
   wingShape.closePath();
@@ -260,19 +268,20 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
     bevelSize: 0.025,
     bevelSegments: 3
   });
-  wingGeo.rotateX(-Math.PI * 0.5); // shape Y becomes -Z, so swept back toward -Z!
+  wingGeo.rotateX(Math.PI * 0.5);
+  wingGeo.translate(0, 0.028, 0);
   disposables.push(wingGeo);
 
   // Leading-edge chrome slat trim strip
   const slatGeo = new THREE.BoxGeometry(2.58, 0.024, 0.055);
   disposables.push(slatGeo);
 
-  // Upturned Winglet
+  // Swept-back Upturned Sharklet Winglet
   const wingletShape = new THREE.Shape();
   wingletShape.moveTo(0, 0);
   wingletShape.lineTo(0.32, 0);
-  wingletShape.lineTo(0.15, 0.42);
-  wingletShape.lineTo(-0.02, 0.42);
+  wingletShape.lineTo(0.48, 0.42);
+  wingletShape.lineTo(0.24, 0.42);
   wingletShape.closePath();
   const wingletGeo = new THREE.ExtrudeGeometry(wingletShape, {
     depth: 0.022,
@@ -297,14 +306,14 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
     wingPivot.add(wingMesh);
 
     const slatMesh = new THREE.Mesh(slatGeo, chromeMat);
-    slatMesh.position.set(side * 1.24, 0.02, 0.08);
-    slatMesh.rotation.y = side * 0.48;
+    slatMesh.position.set(side * 1.24, 0.015, -0.09);
+    slatMesh.rotation.y = side * 0.49;
     wingPivot.add(slatMesh);
 
-    // Winglet angled slightly outward
+    // Winglet seated at swept-back wingtip (-Z)
     const winglet = new THREE.Mesh(wingletGeo, navyLiveryMat);
-    winglet.position.set(side * 2.43, 0.02, 0.72);
-    winglet.rotation.z = -side * 0.34;
+    winglet.position.set(side * 2.43, 0.01, -0.72);
+    winglet.rotation.z = -side * 0.32;
     winglet.castShadow = true;
     wingPivot.add(winglet);
 
@@ -312,8 +321,8 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
     const tipBandGeo = new THREE.BoxGeometry(0.036, 0.12, 0.14);
     disposables.push(tipBandGeo);
     const tipBand = new THREE.Mesh(tipBandGeo, goldTrimMat);
-    tipBand.position.set(side * 2.51, 0.24, 0.85);
-    tipBand.rotation.z = -side * 0.34;
+    tipBand.position.set(side * 2.50, 0.22, -1.04);
+    tipBand.rotation.z = -side * 0.32;
     wingPivot.add(tipBand);
 
     // Subtle wingtip contrail ribbon trailing behind (-Z)
@@ -322,7 +331,7 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
     trailGeo.rotateX(Math.PI * 0.5);
     disposables.push(trailGeo);
     const trailMesh = new THREE.Mesh(trailGeo, contrailMat);
-    trailMesh.position.set(side * 2.58, 0.36, -0.5);
+    trailMesh.position.set(side * 2.55, 0.32, -2.35);
     wingPivot.add(trailMesh);
     contrails.push(trailMesh);
 
@@ -367,7 +376,7 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
 
   ([-1, 1] as const).forEach((side) => {
     const engineGroup = new THREE.Group();
-    engineGroup.position.set(side * 0.92, -0.21, 0.28);
+    engineGroup.position.set(side * 0.92, -0.21, 0.24);
 
     const pylon = new THREE.Mesh(pylonGeo, wingMat);
     pylon.position.set(0, 0.15, -0.05);
@@ -413,7 +422,7 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
     group.add(engineGroup);
   });
 
-  // 6. Tail Empennage (Vertical Fin in Deep Forest Green & Gold + Horizontal Stabilizers)
+  // 6. Tail Empennage (Vertical Fin in Royal Navy & Gold + Swept-Back Horizontal Stabilizers)
   const vFinShape = new THREE.Shape();
   vFinShape.moveTo(0, 0);
   vFinShape.lineTo(0.78, 0);
@@ -445,7 +454,7 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
   finGoldStripe.rotation.x = 0.36;
   group.add(finGoldStripe);
 
-  // Horizontal Stabilizers
+  // Swept-Back Horizontal Stabilizers
   const hStabShape = new THREE.Shape();
   hStabShape.moveTo(0, 0.24);
   hStabShape.lineTo(0.92, -0.3);
@@ -459,7 +468,8 @@ export function createCommercialAirplane(maxAnisotropy: number): AirplaneRig {
     bevelSize: 0.012,
     bevelSegments: 2
   });
-  hStabGeo.rotateX(-Math.PI * 0.5);
+  hStabGeo.rotateX(Math.PI * 0.5);
+  hStabGeo.translate(0, 0.016, 0);
   disposables.push(hStabGeo);
 
   ([-1, 1] as const).forEach((side) => {
