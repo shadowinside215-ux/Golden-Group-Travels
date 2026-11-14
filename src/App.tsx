@@ -26,11 +26,9 @@ import {
   MapPin,
   Users,
   ArrowDown,
-  ArrowUp,
-  QrCode
+  ArrowUp
 } from 'lucide-react';
 import { translations, Language } from './translations.ts';
-import { LinksHubPage, QrStudioPage } from './LinksAndQr.tsx';
 
 // Clean WhatsApp SVG icon
 const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
@@ -193,17 +191,8 @@ const SectionSeparator = ({ className = 'my-5 sm:my-6' }: { className?: string }
   </div>
 );
 
-const normalizeRoutePath = (pathname: string) => {
-  const trimmed = pathname.replace(/\/+$/, '');
-  return trimmed || '/';
-};
-
 export default function App() {
-  const [currentPath, setCurrentPath] = useState<string>(() =>
-    typeof window !== 'undefined' ? normalizeRoutePath(window.location.pathname) : '/'
-  );
-  const isSubPage = ['/links', '/card', '/carte', '/qr'].includes(currentPath);
-  const [initialLoading, setInitialLoading] = useState(() => !isSubPage);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [lang, setLang] = useState<Language>('fr');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
@@ -211,23 +200,6 @@ export default function App() {
 
   const t = translations[lang];
   const isRtl = t.dir === 'rtl';
-
-  const navigateTo = (path: string) => {
-    const normalized = normalizeRoutePath(path);
-    if (typeof window !== 'undefined' && normalizeRoutePath(window.location.pathname) !== normalized) {
-      window.history.pushState({}, '', normalized);
-    }
-    setCurrentPath(normalized);
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  };
-
-  useEffect(() => {
-    const onPopState = () => {
-      setCurrentPath(normalizeRoutePath(window.location.pathname));
-    };
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, []);
 
   // Smooth Scroll Tracking & 3D Scroll Physics
   const [scrollY, setScrollY] = useState(0);
@@ -262,7 +234,7 @@ export default function App() {
 
   // IntersectionObserver for elegant, non-repeating scroll-triggered animations
   useEffect(() => {
-    if (initialLoading || ['/links', '/card', '/carte', '/qr'].includes(currentPath)) return;
+    if (initialLoading) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -284,7 +256,7 @@ export default function App() {
     elements.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, [initialLoading, currentPath]);
+  }, [initialLoading]);
 
   // Smooth ease-out scrolling function with sticky header offset
   const scrollToSection = (id: string) => {
@@ -451,14 +423,6 @@ export default function App() {
     setSpecialRequests('');
     setHoneypot('');
   };
-
-  if (['/links', '/card', '/carte'].includes(currentPath)) {
-    return <LinksHubPage lang={lang} setLang={setLang} onNavigate={navigateTo} />;
-  }
-
-  if (currentPath === '/qr') {
-    return <QrStudioPage lang={lang} setLang={setLang} onNavigate={navigateTo} />;
-  }
 
   return (
     <div
@@ -1412,31 +1376,6 @@ export default function App() {
                 <li><a href="#why-us" className="hover:text-[#d1a847] transition-colors">{t.nav.whyUs}</a></li>
                 <li><a href="#consultation" className="hover:text-[#d1a847] transition-colors">{t.nav.inquiry}</a></li>
                 <li><a href="#faq" className="hover:text-[#d1a847] transition-colors">{t.nav.faq}</a></li>
-                <li>
-                  <a
-                    href="/links"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigateTo('/links');
-                    }}
-                    className="hover:text-[#d1a847] transition-colors inline-flex items-center gap-1.5"
-                  >
-                    <span>{lang === 'ar' ? 'صفحة الروابط السريعة' : lang === 'en' ? 'Quick Links Card' : lang === 'es' ? 'Tarjeta de Enlaces' : 'Carte & Liens Directs'}</span>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/qr"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigateTo('/qr');
-                    }}
-                    className="text-[#fceda2] hover:text-[#d1a847] transition-colors inline-flex items-center gap-1.5 font-semibold"
-                  >
-                    <QrCode className="w-3.5 h-3.5 text-[#d1a847]" />
-                    <span>{lang === 'ar' ? 'تحميل رمز QR (PDF)' : lang === 'en' ? 'Download QR Code (PDF)' : lang === 'es' ? 'Descargar QR (PDF)' : 'QR Code (Télécharger PDF)'}</span>
-                  </a>
-                </li>
               </ul>
             </div>
 
