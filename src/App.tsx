@@ -21,14 +21,11 @@ import {
   X,
   Award,
   Headphones,
-  Send,
-  Mail,
-  MapPin,
-  Users,
-  ArrowDown,
-  ArrowUp
+  Mail
 } from 'lucide-react';
 import { translations, Language } from './translations.ts';
+import { GoldenGlobe3DShowcase, AmbientSpaceField3D } from './components/LuxuryTravel3D.tsx';
+import { Tilt3DCard } from './components/Tilt3DCard.tsx';
 
 // Clean WhatsApp SVG icon
 const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
@@ -137,16 +134,16 @@ const DISPLAY_PHONE = '0666-484815';
 // Official Brand Logo (Golden Group Travels - Travel Services & Events)
 // Exact logo as uploaded: /assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png
 const GoldenLogo = ({ className = 'h-14 sm:h-22 md:h-26' }: { className?: string; lang?: Language }) => (
-  <div className="flex items-center group min-w-0">
+  <div className="flex items-center group min-w-0 perspective-1000">
     <img
       src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
       alt="Golden Group - Travel Services & Events"
-      className={`${className} w-auto shrink-0 object-contain rounded-xl shadow-lg border border-[#d1a847]/30 transition-transform duration-300 group-hover:scale-105 group-hover:border-[#d1a847]`}
+      className={`${className} w-auto shrink-0 object-contain rounded-xl shadow-lg border border-[#d1a847]/30 transition-all duration-300 group-hover:scale-105 group-hover:border-[#d1a847] group-hover:[transform:perspective(700px)_rotateY(6deg)_translateZ(8px)]`}
     />
   </div>
 );
 
-// Minimal, elegant initial loading screen with Golden Group Travels brand logo
+// Minimal, elegant 3D initial loading screen with orbiting golden armillary rings
 const BrandLoader = ({ onComplete }: { onComplete: () => void; lang?: Language }) => {
   const [fading, setFading] = useState(false);
 
@@ -157,7 +154,7 @@ const BrandLoader = ({ onComplete }: { onComplete: () => void; lang?: Language }
         onComplete();
       }, 550);
       return () => clearTimeout(removeTimer);
-    }, 1100);
+    }, 1150);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -167,12 +164,23 @@ const BrandLoader = ({ onComplete }: { onComplete: () => void; lang?: Language }
         fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
-      <div className="flex flex-col items-center text-center p-6 space-y-6 animate-in fade-in zoom-in-95 duration-500">
-        <img
-          src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
-          alt="Golden Group Travels"
-          className="h-28 sm:h-32 w-auto object-contain rounded-2xl shadow-[0_0_35px_rgba(209,168,71,0.35)] border border-[#d1a847]/40"
-        />
+      <div className="flex flex-col items-center text-center p-6 space-y-8 animate-in fade-in zoom-in-95 duration-500">
+        <div className="relative flex items-center justify-center perspective-1000 preserve-3d w-56 h-56">
+          {/* 3D Orbiting Armillary Rings */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-2 rounded-full border border-[#d1a847]/55 shadow-[0_0_25px_rgba(209,168,71,0.3)] animate-loader-orbit pointer-events-none"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 rounded-full border border-[#fceda2]/35 animate-loader-orbit-reverse pointer-events-none"
+          />
+          <img
+            src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+            alt="Golden Group Travels"
+            className="relative z-10 h-28 sm:h-32 w-auto object-contain rounded-2xl shadow-[0_0_40px_rgba(209,168,71,0.45)] border border-[#d1a847]/45 animate-loader-crest-3d"
+          />
+        </div>
         {/* Subtle Gold Shimmer Progress Bar */}
         <div className="w-48 sm:w-56 h-1 rounded-full bg-[#081528] overflow-hidden border border-[#d1a847]/25 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#fceda2] to-transparent animate-shimmer-beam" />
@@ -182,11 +190,11 @@ const BrandLoader = ({ onComplete }: { onComplete: () => void; lang?: Language }
   );
 };
 
-// Luxury Animated Section Separator
+// Luxury 3D Animated Section Separator with rotating faceted diamond
 const SectionSeparator = ({ className = 'my-5 sm:my-6' }: { className?: string }) => (
-  <div className={`flex items-center justify-center gap-3 ${className} reveal-init reveal-scale`}>
+  <div className={`flex items-center justify-center gap-3 ${className} reveal-init reveal-scale perspective-1000`}>
     <div className="h-px w-16 sm:w-28 bg-gradient-to-r from-transparent via-[#d1a847]/50 to-[#d1a847]" />
-    <div className="w-2 h-2 rotate-45 border border-[#d1a847] bg-[#fceda2]/40 shadow-[0_0_8px_rgba(209,168,71,0.6)]" />
+    <div className="w-2.5 h-2.5 border border-[#fceda2] bg-[#d1a847]/55 shadow-[0_0_12px_rgba(209,168,71,0.75)] animate-diamond-3d" />
     <div className="h-px w-16 sm:w-28 bg-gradient-to-l from-transparent via-[#d1a847]/50 to-[#d1a847]" />
   </div>
 );
@@ -201,13 +209,14 @@ export default function App() {
   const t = translations[lang];
   const isRtl = t.dir === 'rtl';
 
-  // Smooth Scroll Tracking & 3D Scroll Physics
+  // Smooth Scroll Tracking & 3D Hero/Scroll Physics
   const [scrollY, setScrollY] = useState(0);
   const [scrollTilt, setScrollTilt] = useState(0);
+  const heroBgRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
-    let tiltTimeout: any;
+    let tiltTimeout: ReturnType<typeof setTimeout> | undefined;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -219,7 +228,7 @@ export default function App() {
       const calculatedTilt = Math.max(-4, Math.min(4, delta * 0.09));
       setScrollTilt(calculatedTilt);
 
-      clearTimeout(tiltTimeout);
+      if (tiltTimeout) clearTimeout(tiltTimeout);
       tiltTimeout = setTimeout(() => {
         setScrollTilt(0);
       }, 150);
@@ -228,7 +237,45 @@ export default function App() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearTimeout(tiltTimeout);
+      if (tiltTimeout) clearTimeout(tiltTimeout);
+    };
+  }, []);
+
+  // Gentle damped 3D mouse + scroll parallax on the clear Kaaba Hero image
+  useEffect(() => {
+    const rm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (rm) return;
+
+    let targetX = 0;
+    let targetY = 0;
+    let curX = 0;
+    let curY = 0;
+    let rafId = 0;
+
+    const update = () => {
+      curX += (targetX - curX) * 0.08;
+      curY += (targetY - curY) * 0.08;
+      if (heroBgRef.current) {
+        const scrollShift = Math.min(window.scrollY * 0.08, 42);
+        heroBgRef.current.style.transform = `perspective(1200px) translate3d(${curX.toFixed(2)}px, ${(curY + scrollShift).toFixed(2)}px, 0) scale(1.06)`;
+      }
+      rafId = requestAnimationFrame(update);
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
+      const nx = e.clientX / Math.max(window.innerWidth, 1) - 0.5;
+      const ny = e.clientY / Math.max(window.innerHeight, 1) - 0.5;
+      targetX = -nx * 14;
+      targetY = -ny * 10;
+    };
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    rafId = requestAnimationFrame(update);
+
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -494,7 +541,7 @@ export default function App() {
       </div>
 
       {/* Main Navigation Bar (Luxury Deep Navy Blue & Gold, Sticky) */}
-      <header className="sticky top-0 z-40 bg-[#021939]/98 backdrop-blur-md text-slate-100 shadow-md border-b border-[#d1a847]/30">
+      <header className="sticky top-0 z-40 bg-[#021939]/98 text-slate-100 shadow-lg border-b border-[#d1a847]/30">
         <div className="w-full px-3 sm:px-5 lg:px-8 xl:px-10 min-h-20 sm:min-h-28 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-4 lg:gap-8">
           {/* Logo on Maximum Left Side */}
           <a href="#" className="focus:outline-none min-w-0">
@@ -544,8 +591,8 @@ export default function App() {
               {t.nav.circuitsMaroc}
             </a>
 
-            {/* Services Dropdown */}
-            <div className="relative group">
+            {/* Services Dropdown with 3D unfold */}
+            <div className="relative group perspective-1000">
               <button
                 type="button"
                 onClick={() => scrollToSection('services')}
@@ -554,7 +601,7 @@ export default function App() {
                 <span>{t.nav.services}</span>
                 <ChevronDown className="w-3.5 h-3.5 text-[#d1a847] transition-transform duration-300 group-hover:rotate-180" />
               </button>
-              <div className="absolute top-full left-0 w-64 bg-[#0b1d3a] border border-[#d1a847]/40 rounded-lg shadow-2xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 normal-case font-normal">
+              <div className="absolute top-full left-0 w-64 bg-[#0b1d3a] border border-[#d1a847]/40 rounded-lg shadow-2xl py-2 opacity-0 invisible origin-top [transform:perspective(800px)_rotateX(-14deg)_translateY(-6px)] group-hover:opacity-100 group-hover:visible group-hover:[transform:perspective(800px)_rotateX(0deg)_translateY(0)] transition-all duration-250 z-50 normal-case font-normal">
                 {SEARCH_TABS.map((tab) => {
                   const TabIcon = tab.icon;
                   return (
@@ -731,10 +778,13 @@ export default function App() {
         )}
       </header>
 
-      {/* Hero Section: Full, Clear Kaaba Golden Door Hero Image */}
+      {/* Hero Section: Full, Clear Kaaba Golden Door Hero Image with silky 3D Parallax */}
       <section className="relative overflow-hidden min-h-[500px] md:min-h-[580px] flex flex-col justify-end items-center pb-10 sm:pb-14 pt-20">
-        {/* Background Atmosphere: Hands at the Kaaba's Golden Door Hero Image (Clear, full coverage, no dark screen) */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        {/* Background Atmosphere: Hands at the Kaaba's Golden Door Hero Image (Clear, full coverage, ZERO dark overlay) */}
+        <div
+          ref={heroBgRef}
+          className="absolute inset-0 pointer-events-none overflow-hidden select-none will-change-transform scale-[1.06]"
+        >
           <img
             src="/assets/aistudio/Hands_at_the_Kaaba_s_Golden_Door_e35c1ffa.png"
             alt="Hands at the Kaaba's Golden Door"
@@ -742,14 +792,14 @@ export default function App() {
           />
         </div>
 
-        {/* Quick Action Buttons */}
+        {/* Quick 3D Floating Action Buttons */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-end text-center w-full">
-          <div className="flex flex-wrap items-center justify-center gap-4 hero-reveal-4">
+          <div className="flex flex-wrap items-center justify-center gap-4 hero-reveal-4 perspective-1000 preserve-3d">
             <a
               href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-[#0b1d3a] btn-gold-luxury shadow-xl cursor-pointer"
+              className="btn-3d-hero inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-[#0b1d3a] btn-gold-luxury shadow-xl cursor-pointer"
             >
               <WhatsAppIcon className="w-4 h-4 fill-current" />
               <span>{t.consultation.whatsappCta}</span>
@@ -760,7 +810,7 @@ export default function App() {
                 e.preventDefault();
                 scrollToSection('services');
               }}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-200 btn-outline-gold cursor-pointer"
+              className="btn-3d-hero inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider text-slate-200 btn-outline-gold cursor-pointer"
             >
               <span>{t.nav.services}</span>
               <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
@@ -768,12 +818,12 @@ export default function App() {
           </div>
         </div>
 
-        {/* Floating Bottom-Left Language Switcher (Exact match to screenshot: 🇫🇷 FR ▴ in Dark Navy & Gold) */}
+        {/* Floating Bottom-Left Language Switcher (Exact match: 🇫🇷 FR ▴ in Dark Navy & Gold, no backdrop-blur) */}
         <div className={`fixed bottom-6 z-40 ${isRtl ? 'right-6' : 'left-6'}`}>
           <div className="relative">
             <button
               onClick={() => setFloatingLangOpen(!floatingLangOpen)}
-              className="bg-[#0b1d3a]/95 text-white border border-[#d1a847]/40 shadow-[0_4px_25px_rgba(0,0,0,0.5)] hover:border-[#d1a847] px-3.5 py-2 rounded-lg flex items-center gap-2 text-sm font-bold transition-all hover:scale-105 cursor-pointer backdrop-blur-md"
+              className="bg-[#0b1d3a]/95 text-white border border-[#d1a847]/40 shadow-[0_4px_25px_rgba(0,0,0,0.5)] hover:border-[#d1a847] px-3.5 py-2 rounded-lg flex items-center gap-2 text-sm font-bold transition-all hover:scale-105 cursor-pointer"
               aria-label="Sélectionner la langue"
             >
               <span className="text-base">{LANGUAGES.find(l => l.code === lang)?.flag}</span>
@@ -783,7 +833,7 @@ export default function App() {
 
             {/* Language Selection Popup */}
             {floatingLangOpen && (
-              <div className="absolute bottom-full mb-2 left-0 rtl:left-auto rtl:right-0 w-44 bg-[#0b1d3a] border border-[#d1a847]/40 rounded-xl shadow-2xl p-1.5 space-y-1 z-50 animate-in fade-in slide-in-from-bottom-2 duration-150 text-slate-200 backdrop-blur-md">
+              <div className="absolute bottom-full mb-2 left-0 rtl:left-auto rtl:right-0 w-44 bg-[#0b1d3a] border border-[#d1a847]/40 rounded-xl shadow-2xl p-1.5 space-y-1 z-50 animate-in fade-in slide-in-from-bottom-2 duration-150 text-slate-200">
                 {LANGUAGES.map((item) => (
                   <button
                     key={item.code}
@@ -810,11 +860,25 @@ export default function App() {
         </div>
       </section>
 
+      {/* Interactive 3D Golden Armillary Travel Globe & Flight Routes */}
+      <GoldenGlobe3DShowcase
+        lang={lang}
+        scrollTilt={scrollTilt}
+        onSelectDestination={(destName) => {
+          setDestination(destName);
+          handleServiceSelectForInquiry(t.services.items[0].name);
+        }}
+      />
+
+      {/* Ambient 3D Spatial Crystal Field Wrapper for Core Sections */}
+      <div className="relative overflow-hidden">
+        <AmbientSpaceField3D scrollY={scrollY} />
+
       {/* Luxury Section Transition Separator */}
       <SectionSeparator />
 
-      {/* Services Section: Clean Premium Cards WITHOUT Descriptions, Highlights, or Destination Text */}
-      <section id="services" className="py-20 md:py-28 bg-[#0b1d3a] relative">
+      {/* Services Section: Clean 3D Spatial Tilt Cards */}
+      <section id="services" className="py-20 md:py-28 bg-[#0b1d3a]/75 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto mb-16 reveal-init reveal-up">
@@ -824,39 +888,39 @@ export default function App() {
             <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto" />
           </div>
 
-          {/* Clean Service Cards Grid: 5 Core Services styled with 3D Pop & Luxury Scroll Reveal */}
+          {/* Clean Service Cards Grid: 5 Core Services styled with Interactive 3D Tilt & Depth Layers */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 perspective-1200 preserve-3d">
             {t.services.items.map((service, index) => {
               const IconComponent = SERVICE_ICONS[service.id] || Compass;
               const staggerClass = `stagger-${Math.min(index + 1, 6)}`;
 
               return (
-                <div
+                <Tilt3DCard
                   key={service.id}
-                  style={{
-                    transform: `perspective(1000px) rotateX(${scrollTilt * 0.5}deg)`
-                  }}
-                  className={`service-card-luxury reveal-init reveal-up ${staggerClass} bg-[#081528] border border-[#d1a847]/30 hover:border-[#d1a847] rounded-xl p-8 relative flex flex-col justify-between group min-h-[220px]`}
+                  maxTilt={9}
+                  liftZ={22}
+                  scrollTilt={scrollTilt}
+                  className={`service-card-luxury reveal-init reveal-up ${staggerClass} bg-[#081528]/95 border border-[#d1a847]/30 hover:border-[#d1a847] rounded-xl p-8 relative flex flex-col justify-between group min-h-[220px] shadow-[0_14px_38px_rgba(2,8,18,0.65)]`}
                 >
-                  <div>
-                    {/* Top Bar with Number & Luxury Icon */}
-                    <div className="flex items-center justify-between mb-6">
+                  <div className="preserve-3d">
+                    {/* Top Bar with Number & Raised 3D Luxury Icon */}
+                    <div className="flex items-center justify-between mb-6 depth-z-2">
                       <div className="service-icon-box w-14 h-14 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/40 flex items-center justify-center group-hover:border-[#d1a847] group-hover:shadow-[0_0_15px_rgba(209,168,71,0.3)] transition-all duration-300">
                         <IconComponent className="w-7 h-7 text-[#d1a847] transition-transform duration-300 group-hover:scale-110" />
                       </div>
-                      <span className="font-serif-luxury text-2xl font-bold text-[#d1a847]/40 group-hover:text-[#d1a847] transition-colors">
+                      <span className="font-serif-luxury text-2xl font-bold text-[#d1a847]/45 group-hover:text-[#fceda2] transition-colors">
                         0{index + 1}
                       </span>
                     </div>
 
-                    {/* Service Title */}
-                    <h3 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-white group-hover:text-[#fceda2] transition-colors mb-2">
+                    {/* Raised 3D Service Title */}
+                    <h3 className="depth-z-2 font-serif-luxury text-2xl sm:text-3xl font-bold text-white group-hover:text-[#fceda2] transition-colors mb-2">
                       {service.name}
                     </h3>
                   </div>
 
                   {/* Card Bottom CTA Actions */}
-                  <div className="pt-6 border-t border-[#d1a847]/15 flex items-center justify-between gap-3">
+                  <div className="depth-z-1 pt-6 border-t border-[#d1a847]/15 flex items-center justify-between gap-3">
                     <button
                       onClick={() => handleServiceSelectForInquiry(service.name)}
                       className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#d1a847] hover:text-[#fceda2] transition-colors cursor-pointer group/btn"
@@ -875,27 +939,32 @@ export default function App() {
                       <span>WhatsApp</span>
                     </a>
                   </div>
-                </div>
+                </Tilt3DCard>
               );
             })}
 
-            {/* 6th Card: Direct Personalized Assistance */}
-            <div className="service-card-luxury reveal-init reveal-up stagger-6 bg-gradient-to-br from-[#0f264c] via-[#0b1d3a] to-[#081528] border border-[#d1a847]/50 rounded-xl p-8 flex flex-col justify-between min-h-[220px]">
-              <div>
-                <div className="flex items-center justify-between mb-6">
+            {/* 6th Card: Direct Personalized Assistance with 3D Tilt */}
+            <Tilt3DCard
+              maxTilt={9}
+              liftZ={24}
+              scrollTilt={scrollTilt}
+              className="service-card-luxury reveal-init reveal-up stagger-6 bg-gradient-to-br from-[#0f264c] via-[#0b1d3a] to-[#081528] border border-[#d1a847]/50 rounded-xl p-8 flex flex-col justify-between min-h-[220px] shadow-[0_14px_40px_rgba(2,8,18,0.7)]"
+            >
+              <div className="preserve-3d">
+                <div className="flex items-center justify-between mb-6 depth-z-2">
                   <div className="service-icon-box w-14 h-14 rounded-xl bg-[#d1a847]/20 border border-[#d1a847] flex items-center justify-center">
                     <Headphones className="w-7 h-7 text-[#fceda2]" />
                   </div>
-                  <span className="font-serif-luxury text-2xl font-bold text-[#d1a847]/40">
+                  <span className="font-serif-luxury text-2xl font-bold text-[#d1a847]/45">
                     VIP
                   </span>
                 </div>
-                <h3 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-white mb-2">
+                <h3 className="depth-z-2 font-serif-luxury text-2xl sm:text-3xl font-bold text-white mb-2">
                   {t.services.customCardTitle}
                 </h3>
               </div>
 
-              <div className="pt-6 border-t border-[#d1a847]/20">
+              <div className="depth-z-1 pt-6 border-t border-[#d1a847]/20">
                 <a
                   href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
                   target="_blank"
@@ -906,7 +975,7 @@ export default function App() {
                   <span>WhatsApp Booking</span>
                 </a>
               </div>
-            </div>
+            </Tilt3DCard>
           </div>
         </div>
       </section>
@@ -915,7 +984,7 @@ export default function App() {
       <SectionSeparator />
 
       {/* Why Choose Us Section */}
-      <section id="why-us" className="py-20 md:py-28 bg-[#081528] relative">
+      <section id="why-us" className="py-20 md:py-28 bg-[#081528]/80 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 reveal-init reveal-up">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-[#d1a847]/30 bg-[#0b1d3a] text-xs font-semibold uppercase tracking-widest text-[#fceda2] mb-3">
@@ -928,27 +997,30 @@ export default function App() {
             <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 perspective-1200 preserve-3d">
             {t.whyUs.pillars.map((pillar, idx) => {
               const PillarIcons = [Compass, FileCheck2, Headphones, ShieldCheck];
               const IconComp = PillarIcons[idx % PillarIcons.length];
               const staggerClass = `stagger-${idx + 1}`;
 
               return (
-                <div
+                <Tilt3DCard
                   key={idx}
-                  className={`service-card-luxury reveal-init reveal-up ${staggerClass} bg-[#0b1d3a] border border-[#d1a847]/25 rounded-xl p-6 relative group hover:border-[#d1a847] transition-all`}
+                  maxTilt={10}
+                  liftZ={20}
+                  scrollTilt={scrollTilt}
+                  className={`service-card-luxury reveal-init reveal-up ${staggerClass} bg-[#0b1d3a]/95 border border-[#d1a847]/25 rounded-xl p-6 relative group hover:border-[#d1a847] shadow-[0_12px_32px_rgba(2,8,18,0.65)]`}
                 >
-                  <div className="service-icon-box w-12 h-12 rounded-lg bg-[#081528] border border-[#d1a847]/40 flex items-center justify-center mb-5 text-[#d1a847]">
+                  <div className="depth-z-2 service-icon-box w-12 h-12 rounded-lg bg-[#081528] border border-[#d1a847]/40 flex items-center justify-center mb-5 text-[#d1a847]">
                     <IconComp className="w-6 h-6" />
                   </div>
-                  <h3 className="font-serif-luxury text-xl font-bold text-white mb-2 group-hover:text-[#fceda2] transition-colors">
+                  <h3 className="depth-z-2 font-serif-luxury text-xl font-bold text-white mb-2 group-hover:text-[#fceda2] transition-colors">
                     {pillar.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  <p className="depth-z-1 text-xs sm:text-sm text-slate-300 leading-relaxed">
                     {pillar.desc}
                   </p>
-                </div>
+                </Tilt3DCard>
               );
             })}
           </div>
@@ -959,7 +1031,7 @@ export default function App() {
       <SectionSeparator />
 
       {/* Interactive Consultation / Booking Form Section (DISPATCHES DIRECTLY TO WHATSAPP 0666-484815) */}
-      <section id="consultation" className="py-20 md:py-28 bg-[#0b1d3a] relative">
+      <section id="consultation" className="py-20 md:py-28 bg-[#0b1d3a]/75 relative z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12 reveal-init reveal-up">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-emerald-500/40 bg-emerald-950/40 text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-3">
@@ -975,9 +1047,14 @@ export default function App() {
             </p>
           </div>
 
-          <div className="reveal-init reveal-scale bg-[#081528] border border-[#d1a847]/40 rounded-2xl p-6 sm:p-10 shadow-[0_15px_50px_rgba(2,6,12,0.8)]">
+          <div
+            style={{
+              transform: `perspective(1200px) rotateX(${(scrollTilt * 0.35).toFixed(2)}deg)`
+            }}
+            className="terminal-3d-shell reveal-init reveal-scale bg-[#081528]/95 border border-[#d1a847]/45 rounded-2xl p-6 sm:p-10 shadow-[0_24px_65px_rgba(2,6,12,0.88),0_0_30px_rgba(209,168,71,0.12)]"
+          >
             {submitted ? (
-              <div className="text-center py-8 space-y-6 animate-in fade-in duration-300">
+              <div className="text-center py-8 space-y-6 animate-3d-flip-in">
                 <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center mx-auto text-emerald-400">
                   <WhatsAppIcon className="w-8 h-8 fill-current" />
                 </div>
@@ -1074,12 +1151,12 @@ export default function App() {
                   />
                 </div>
 
-                {/* Service Selector Tabs */}
+                {/* Service Selector Tabs with 3D Extruded Depth */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-[#d1a847] mb-2">
                     {t.consultation.selectService}
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 perspective-1000">
                     {t.services.items.map((s) => (
                       <button
                         key={s.id}
@@ -1087,8 +1164,8 @@ export default function App() {
                         onClick={() => setFormService(s.name)}
                         className={`px-3 py-2.5 rounded-lg text-xs font-medium border text-center transition-all cursor-pointer ${
                           formService === s.name
-                            ? 'bg-[#d1a847] text-[#0b1d3a] border-[#fceda2] font-bold shadow-[0_0_12px_rgba(209,168,71,0.4)]'
-                            : 'bg-[#0b1d3a] text-slate-300 border-[#d1a847]/20 hover:border-[#d1a847]/60 hover:text-white'
+                            ? 'bg-[#d1a847] text-[#0b1d3a] border-[#fceda2] font-bold pill-3d-active'
+                            : 'bg-[#0b1d3a] text-slate-300 border-[#d1a847]/20 hover:border-[#d1a847]/60 hover:text-white pill-3d-idle'
                         }`}
                       >
                         {s.name}
@@ -1237,8 +1314,8 @@ export default function App() {
       {/* Luxury Section Transition Separator */}
       <SectionSeparator />
 
-      {/* Frequently Asked Questions Section */}
-      <section id="faq" className="py-20 md:py-24 bg-[#081528] relative">
+      {/* Frequently Asked Questions Section with 3D Unfold Cards */}
+      <section id="faq" className="py-20 md:py-24 bg-[#081528]/80 relative z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14 reveal-init reveal-up">
             <h2 className="font-serif-luxury text-3xl sm:text-4xl font-bold text-white mb-3">
@@ -1247,14 +1324,14 @@ export default function App() {
             <div className="w-20 h-0.5 bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto" />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 perspective-1000">
             {t.faq.items.map((item, index) => {
               const isOpen = activeFaq === index;
               const staggerClass = `stagger-${(index % 5) + 1}`;
               return (
                 <div
                   key={index}
-                  className={`reveal-init reveal-up ${staggerClass} bg-[#0b1d3a] border border-[#d1a847]/25 hover:border-[#d1a847]/50 rounded-xl overflow-hidden transition-all duration-300`}
+                  className={`reveal-init reveal-up ${staggerClass} bg-[#0b1d3a]/95 border border-[#d1a847]/25 hover:border-[#d1a847]/60 rounded-xl overflow-hidden transition-all duration-300 hover:[transform:perspective(900px)_translateZ(10px)] hover:shadow-[0_12px_30px_rgba(2,8,18,0.65)]`}
                 >
                   <button
                     onClick={() => setActiveFaq(isOpen ? null : index)}
@@ -1270,7 +1347,7 @@ export default function App() {
                     />
                   </button>
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-[#d1a847]/10 animate-in fade-in duration-200">
+                    <div className="px-5 pb-5 pt-2 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-[#d1a847]/15 animate-faq-3d">
                       {item.a}
                     </div>
                   )}
@@ -1280,6 +1357,7 @@ export default function App() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* Floating WhatsApp Action Button */}
       <aside
