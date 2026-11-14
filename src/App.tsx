@@ -57,11 +57,8 @@ export default function App() {
   const [floatingLangOpen, setFloatingLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [activePage, setActivePage] = useState<'home' | ServiceId>(() => parseHashPage());
-  const [activeService, setActiveService] = useState<ServiceId>(() => {
-    const p = parseHashPage();
-    return p === 'home' ? 'hotel-reservations' : p;
-  });
+  const [activePage, setActivePage] = useState<'home' | ServiceId>('home');
+  const [activeService, setActiveService] = useState<ServiceId>('hotel-reservations');
   const [destinationLocation, setDestinationLocation] = useState('');
   const [hotelName, setHotelName] = useState('');
   const [mapFocusCoords, setMapFocusCoords] = useState<{ lat: number; lng: number }>({
@@ -90,8 +87,14 @@ export default function App() {
     document.documentElement.dir = t.dir;
   }, [lang, t.dir]);
 
+  // Always guarantee initial load opens on the Home hero screen (never jump directly into a service page)
   useEffect(() => {
-    const onHashChange = () => {
+    if (window.location.hash.startsWith('#service/')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    window.scrollTo({ top: 0, behavior: 'auto' });
+
+    const onPopState = () => {
       const next = parseHashPage();
       setActivePage(next);
       if (next !== 'home') {
@@ -99,8 +102,8 @@ export default function App() {
         setMapFocusCoords(SERVICE_THEME_MEDIA[next].defaultCoordinates);
       }
     };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   useEffect(() => {
@@ -143,7 +146,7 @@ export default function App() {
 
     if (page === 'home') {
       if (window.location.hash.startsWith('#service/')) {
-        window.history.replaceState(null, '', '#');
+        window.history.pushState(null, '', window.location.pathname + window.location.search);
       }
       if (sectionIdAfter) {
         scrollToId(sectionIdAfter);
@@ -156,7 +159,7 @@ export default function App() {
       if (page === 'hajj-umrah' && !destinationLocation.trim()) {
         setDestinationLocation(t.horizonsSection.destinations.makkah.title);
       }
-      window.location.hash = `service/${page}`;
+      window.history.pushState({ servicePage: page }, '', `#service/${page}`);
       if (sectionIdAfter) {
         scrollToId(sectionIdAfter);
       } else {
@@ -282,7 +285,7 @@ export default function App() {
             aria-label="Golden Group Travels Home"
           >
             <img
-              src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+              src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
               alt="Golden Group - Travel Services & Events"
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
@@ -699,7 +702,7 @@ export default function App() {
                 aria-label="Golden Group Travels"
               >
                 <img
-                  src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+                  src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
                   alt="Golden Group - Travel Services & Events"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-contain"

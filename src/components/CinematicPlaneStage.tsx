@@ -579,7 +579,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
               aria-label="Golden Group Travels"
             >
               <img
-                src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+                src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
                 alt="Golden Group - Travel Services & Events"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-contain"

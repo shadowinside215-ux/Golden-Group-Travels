@@ -57,7 +57,9 @@ export const BrandLoadingScreen: React.FC<BrandLoadingScreenProps> = ({
     };
   }, [onStartReveal, onFinished]);
 
-  const handleManualDismiss = () => {
+  const handleManualDismiss = (e: React.MouseEvent | React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (fadingOut) return;
     setFadingOut(true);
     onStartReveal();
@@ -70,8 +72,9 @@ export const BrandLoadingScreen: React.FC<BrandLoadingScreenProps> = ({
       aria-live="polite"
       aria-label="Golden Group Travels"
       onClick={handleManualDismiss}
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#041533] px-6 py-8 select-none cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-        fadingOut ? 'opacity-0 scale-[1.03] pointer-events-none' : 'opacity-100 scale-100'
+      onPointerDown={(e) => e.stopPropagation()}
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#041533] px-6 py-8 select-none cursor-pointer pointer-events-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        fadingOut ? 'opacity-0 scale-[1.03]' : 'opacity-100 scale-100'
       }`}
     >
       {/* Subtle radial navy & warm champagne gold ambient glow matching the official logo */}
@@ -88,7 +91,7 @@ export const BrandLoadingScreen: React.FC<BrandLoadingScreenProps> = ({
         {/* Large 1:1 Square Golden Group Crest */}
         <div className="animate-splash-crest relative w-[min(64vw,260px)] sm:w-[min(44vw,320px)] md:w-[360px] aspect-square rounded-3xl border-2 border-[#d1a847]/75 bg-[#041533] shadow-[0_28px_80px_rgba(0,0,0,0.68)] overflow-hidden p-1.5 sm:p-2">
           <img
-            src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+            src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
             alt="Golden Group - Travel Services & Events"
             referrerPolicy="no-referrer"
             className="w-full h-full object-contain rounded-2xl"
