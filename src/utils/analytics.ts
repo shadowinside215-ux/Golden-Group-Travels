@@ -1,10 +1,14 @@
 import type { ServiceId } from '../assets/destinations';
 
+export const GA4_MEASUREMENT_ID = 'G-453M4XZZCQ';
+export const GOOGLE_TAG_ID = 'GTM-NLJ83W9F';
+
 declare global {
   interface Window {
     dataLayer: unknown[];
     gtag?: (...args: unknown[]) => void;
     doNotTrack?: string;
+    'ga-disable-G-453M4XZZCQ'?: boolean;
   }
 }
 
@@ -21,7 +25,8 @@ const SERVICE_CANONICAL_TITLES: Record<ServiceId, string> = {
 
 export function hasPrivacyOptOut(): boolean {
   if (typeof window === 'undefined') return false;
-  const gpc = (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true;
+  const gpc =
+    (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true;
   const dnt = navigator.doNotTrack === '1' || window.doNotTrack === '1';
   let storedDenied = false;
   try {
@@ -29,11 +34,12 @@ export function hasPrivacyOptOut(): boolean {
   } catch {
     storedDenied = false;
   }
-  return gpc || dnt || storedDenied;
+  return gpc || dnt || storedDenied || window['ga-disable-G-453M4XZZCQ'] === true;
 }
 
 export function updateAnalyticsConsent(granted: boolean): void {
   if (typeof window === 'undefined') return;
+  window['ga-disable-G-453M4XZZCQ'] = !granted;
   try {
     window.localStorage.setItem(CONSENT_STORAGE_KEY, granted ? 'granted' : 'denied');
   } catch {
@@ -50,7 +56,11 @@ export function updateAnalyticsConsent(granted: boolean): void {
 }
 
 export function trackPageView(page: 'home' | ServiceId): void {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.gtag !== 'function' ||
+    hasPrivacyOptOut()
+  ) {
     return;
   }
 
@@ -61,6 +71,7 @@ export function trackPageView(page: 'home' | ServiceId): void {
       : SERVICE_CANONICAL_TITLES[page];
 
   window.gtag('event', 'page_view', {
+    send_to: GA4_MEASUREMENT_ID,
     page_title: pageTitle,
     page_path: pagePath,
     page_location: `${window.location.origin}${pagePath}`

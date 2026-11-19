@@ -39,23 +39,40 @@
       href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Google tag (gtag.js / Google Tag GTM-NLJ83W9F) -->
+    <!-- Google tag (gtag.js / Google Tag GTM-NLJ83W9F -> GA4 G-453M4XZZCQ) -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       (function () {
         var gpc = navigator.globalPrivacyControl === true;
         var dnt = navigator.doNotTrack === '1' || window.doNotTrack === '1';
-        var optOut = false;
+        var storedConsent = null;
         try {
-          optOut = window.localStorage.getItem('ggt_analytics_consent') === 'denied';
+          storedConsent = window.localStorage.getItem('ggt_analytics_consent');
         } catch (e) {}
-        var analyticsGranted = !(gpc || dnt || optOut);
+        var optedOut = gpc || dnt || storedConsent === 'denied';
+        if (optedOut) {
+          window['ga-disable-G-453M4XZZCQ'] = true;
+        }
+        if (storedConsent !== 'granted') {
+          gtag('consent', 'default', {
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            analytics_storage: 'denied',
+            region: [
+              'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
+              'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'LV', 'LI', 'LT', 'LU',
+              'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+              'GB', 'CH'
+            ]
+          });
+        }
         gtag('consent', 'default', {
           ad_storage: 'denied',
           ad_user_data: 'denied',
           ad_personalization: 'denied',
-          analytics_storage: analyticsGranted ? 'granted' : 'denied'
+          analytics_storage: optedOut ? 'denied' : 'granted'
         });
       })();
       gtag('js', new Date());
