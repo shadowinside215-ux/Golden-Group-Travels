@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight,
   Check,
@@ -31,6 +31,7 @@ import {
 } from './assets/destinations';
 import { SERVICE_PAGE_CHROME } from './assets/servicePagesData';
 import { LANGUAGES, translations } from './i18n';
+import { trackPageView } from './utils/analytics';
 
 const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
 const DISPLAY_PHONE = '0666-484815';
@@ -112,6 +113,15 @@ export default function App() {
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
+
+  const lastTrackedPageRef = useRef<'home' | ServiceId>('home');
+  useEffect(() => {
+    if (activePage === lastTrackedPageRef.current) {
+      return;
+    }
+    lastTrackedPageRef.current = activePage;
+    trackPageView(activePage);
+  }, [activePage]);
 
   useEffect(() => {
     const onQuotaExceeded = () => setQuotaExceeded(true);
