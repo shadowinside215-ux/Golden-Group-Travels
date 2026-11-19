@@ -66,10 +66,10 @@ export const WORLD_CITY_SLIDES: WorldCitySlide[] = [
     id: 'makkah',
     image: makkahHaramImg,
     title: {
-      fr: 'La Mecque, Arabie Saoudite',
-      ar: 'مكة المكرمة، المملكة العربية السعودية',
-      en: 'Makkah, Saudi Arabia',
-      es: 'La Meca, Arabia Saudita'
+      fr: 'Hajj & Omra · Arabie Saoudite',
+      ar: 'الحج والعمرة، المملكة العربية السعودية',
+      en: 'Hajj & Omra · Saudi Arabia',
+      es: 'Hajj y Omra · Arabia Saudita'
     },
     subtitle: {
       fr: 'Masjid al-Haram & Sainte Kaaba',

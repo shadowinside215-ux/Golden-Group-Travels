@@ -302,7 +302,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
     const pkgLabel = pack.umrah.packageOptions[umrahPackageIdx] ?? '';
     const lines = [
       'Bonjour Golden Group Travels,',
-      'Je souhaite recevoir un devis pour un séjour El Omra / La Mecque :',
+      'Je souhaite recevoir un devis pour un programme Hajj & Omra :',
       `• Ville de départ : ${umrahDepartureCity.trim()}`,
       `• Date de départ : ${umrahDepartDate}`,
       umrahReturnDate ? `• Date de retour : ${umrahReturnDate}` : '',
@@ -1625,58 +1625,6 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
           </p>
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#d1a847] to-transparent mx-auto mt-6" />
         </div>
-
-        {/* 6 Quick Section Jump Emblems */}
-        <nav
-          aria-label={pack.servicesHubTitle}
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-6 sm:gap-5 mb-12 md:mb-14 perspective-1200"
-        >
-          {tabsToRender.map((catId) => {
-            const Icon = CATEGORY_ICONS[catId];
-            const meta = pack.categories[catId];
-            const isActive = activeCategory === catId;
-
-            return (
-              <button
-                key={catId}
-                id={`${uid}-service-tab-${catId}`}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => handleSelectCategory(catId)}
-                className="group flex flex-col items-center text-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#fceda2] rounded-2xl py-1 cursor-pointer active:scale-95 transition-transform duration-150"
-              >
-                <span
-                  className={`w-20 h-20 sm:w-[88px] sm:h-[88px] lg:w-[98px] lg:h-[98px] rounded-full flex items-center justify-center border-2 transition-all duration-300 will-change-transform ${
-                    isActive
-                      ? 'bg-[#132d56] border-[#fceda2] text-[#fceda2] ring-4 ring-[#d1a847]/30 shadow-[0_14px_36px_rgba(209,168,71,0.38)] scale-105'
-                      : 'bg-[#071429]/90 border-[#d1a847]/50 text-[#d1a847] group-hover:border-[#fceda2] group-hover:text-[#fceda2] group-hover:bg-[#0e2347] group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-[0_16px_34px_rgba(209,168,71,0.32)] shadow-[0_10px_26px_rgba(4,12,28,0.45)]'
-                  }`}
-                >
-                  <Icon className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 transition-transform duration-300 group-hover:scale-105" />
-                </span>
-
-                <div className="space-y-0.5 max-w-[160px]">
-                  <div
-                    className={`text-xs sm:text-[13px] font-bold uppercase tracking-[0.09em] leading-snug transition-colors ${
-                      isActive
-                        ? 'text-[#fceda2]'
-                        : 'text-[#fcf9f2]/95 group-hover:text-[#fceda2]'
-                    }`}
-                  >
-                    {meta.tabLabel}
-                  </div>
-                  <div
-                    className={`text-[11px] leading-tight ${
-                      isActive ? 'text-[#d1a847]' : 'text-slate-300/75'
-                    }`}
-                  >
-                    {meta.shortSub}
-                  </div>
-                </div>
-              </button>
-            );
-          })}
-        </nav>
 
         {/* All 6 Dedicated Always-Mounted Travel Service Sections with Unique Stable IDs */}
         <div className="space-y-10 md:space-y-14">

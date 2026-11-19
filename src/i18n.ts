@@ -147,7 +147,7 @@ export const translations: Record<Language, TranslationPack> = {
       domesticNote: 'Voyages Nationaux & Internationaux',
       exploreCta: 'Explorer nos Voyages',
       worldHorizonsLabel: 'Horizons du Monde',
-      omraBottomLabel: 'El Omra · La Mecque',
+      omraBottomLabel: 'Hajj & Omra',
       categories: {
         flights: 'Vols',
         hotels: 'Hôtels',
@@ -167,10 +167,10 @@ export const translations: Record<Language, TranslationPack> = {
       title: 'Trois Horizons d’Exception',
       subtitle: 'Voyages sur mesure. Planification fluide. Lieux inoubliables.',
       selectDest: 'Choisir cette Destination',
-      omraBadge: 'El Omra · La Mecque',
+      omraBadge: 'Hajj & Omra',
       omraTalbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
-      omraTapHint: 'Cliquer sur l’icône La Mecque pour afficher la calligraphie',
-      omraBookCta: 'Demander un Forfait El Omra',
+      omraTapHint: 'Cliquer sur l’icône Hajj & Omra pour afficher la calligraphie',
+      omraBookCta: 'Demander un Forfait Hajj & Omra',
       destinations: {
         'swiss-alps': {
           id: 'swiss-alps',
@@ -190,19 +190,19 @@ export const translations: Record<Language, TranslationPack> = {
         },
         makkah: {
           id: 'makkah',
-          title: 'La Mecque, Arabie Saoudite',
+          title: 'Hajj & Omra',
           region: 'Sanctuaire de Masjid al-Haram',
-          season: 'Toute l’année · El Omra & Saisons Spirituelles',
+          season: 'Toute l’année · Hajj & Omra · Saisons Spirituelles',
           altitudeOrCoast: 'Esplanade Sacrée & Vue Haram',
           summary:
             'Proximité sereine de la Sainte Kaaba et de Masjid al-Haram avec gestion complète des visas, transferts privés et suites donnant sur l’esplanade.',
           highlights: [
             'Suites avec vue directe sur Masjid al-Haram et la Kaaba',
-            'Organisation fluide de El Omra et transferts VIP',
+            'Organisation fluide de Hajj & Omra et transferts VIP',
             'Accompagnement dédié multilingue du départ au retour'
           ],
           imageAlt:
-            'Vue panoramique de la Sainte Kaaba au cœur du Masjid al-Haram et de ses minarets illuminés à La Mecque'
+            'Vue panoramique de la Sainte Kaaba au cœur du Masjid al-Haram et de ses minarets illuminés'
         },
         mediterranean: {
           id: 'mediterranean',
@@ -269,8 +269,8 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'hajj-umrah': {
           id: 'hajj-umrah',
-          label: 'Hajj & Umrah',
-          headline: 'Voyages Sacrés · La Mecque & Médine',
+          label: 'Hajj & Omra',
+          headline: 'Voyages Sacrés · Hajj & Omra',
           description:
             'Forfaits El Omra et Hajj organisés avec sérénité : hôtels face à Masjid al-Haram, visas dédiés, vols directs et encadrement spirituel.',
           includedDetails: [
@@ -312,9 +312,9 @@ export const translations: Record<Language, TranslationPack> = {
         'Sélectionnez un service ci-dessous : le formulaire et la carte Google Maps s’adaptent automatiquement à votre besoin (hôtels, vols, visa, assurance ou séjour).',
       serviceLabel: 'Service Sélectionné',
       destLabel: 'Destination Horizon / Ville (Saisie Libre)',
-      destPlaceholder: 'Ex : Paris, Marrakech, La Mecque, Istanbul, Zurich...',
+      destPlaceholder: 'Ex : Paris, Marrakech, Istanbul, Dubaï, Zurich...',
       hotelLabel: 'Nom de l’Hôtel Souhaité (Saisie Libre ou via Carte)',
-      hotelPlaceholder: 'Écrivez le nom de n’importe quel hôtel (ex : Fairmont Makkah, Ritz Paris)...',
+      hotelPlaceholder: 'Écrivez le nom de n’importe quel hôtel (ex : Fairmont Clock Tower, Ritz Paris)...',
       departureCityLabel: 'Ville de Départ',
       departureCityPlaceholder: 'Ex : Casablanca (CMN), Rabat-Salé (RBA), Paris...',
       visaPurposeLabel: 'Type de Visa / Consulat',
@@ -387,7 +387,7 @@ export const translations: Record<Language, TranslationPack> = {
       domesticNote: 'رحلات داخلية ودولية',
       exploreCta: 'استكشف رحلاتنا',
       worldHorizonsLabel: 'آفاق العالم',
-      omraBottomLabel: 'العمرة · مكة المكرمة',
+      omraBottomLabel: 'الحج والعمرة',
       categories: {
         flights: 'الطيران',
         hotels: 'الفنادق',
@@ -407,10 +407,10 @@ export const translations: Record<Language, TranslationPack> = {
       title: 'ثلاث وجهات استثنائية',
       subtitle: 'سفر مُصمَّم بعناية. تخطيط سلس. وجهات لا تُنسى.',
       selectDest: 'اختر هذه الوجهة',
-      omraBadge: 'العمرة · مكة المكرمة',
+      omraBadge: 'الحج والعمرة',
       omraTalbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
-      omraTapHint: 'اضغط على أيقونة مكة لإظهار الخط العربي الذهبي',
-      omraBookCta: 'حجز برنامج العمرة',
+      omraTapHint: 'اضغط على أيقونة الحج والعمرة لإظهار الخط العربي الذهبي',
+      omraBookCta: 'حجز برنامج الحج والعمرة',
       destinations: {
         'swiss-alps': {
           id: 'swiss-alps',
@@ -429,18 +429,18 @@ export const translations: Record<Language, TranslationPack> = {
         },
         makkah: {
           id: 'makkah',
-          title: 'مكة المكرمة، المملكة العربية السعودية',
+          title: 'الحج والعمرة',
           region: 'رحاب المسجد الحرام',
-          season: 'طوال العام · رحلات العمرة والمواسم المباركة',
+          season: 'طوال العام · رحلات الحج والعمرة والمواسم المباركة',
           altitudeOrCoast: 'ساحات الحرم وإطلالة الكعبة',
           summary:
             'إقامة روحانية مطمئنة بالقرب من الكعبة المشرفة والمسجد الحرام، مع إنهاء إجراءات التأشيرة، تنقلات خاصة، وأجنحة مطلة على الحرم.',
           highlights: [
             'فنادق وأجنحة فاخرة مطلة مباشرة على المسجد الحرام والكعبة',
-            'تنظيم متكامل لرحلات العمرة مع تنقلات مريحة',
+            'تنظيم متكامل لرحلات الحج والعمرة مع تنقلات مريحة',
             'مرافقة وإرشاد متعدد اللغات من لحظة الوصول حتى المغادرة'
           ],
-          imageAlt: 'منظر واسع للكعبة المشرفة في قلب المسجد الحرام في مكة المكرمة'
+          imageAlt: 'منظر واسع للكعبة المشرفة في قلب المسجد الحرام'
         },
         mediterranean: {
           id: 'mediterranean',
@@ -507,7 +507,7 @@ export const translations: Record<Language, TranslationPack> = {
         'hajj-umrah': {
           id: 'hajj-umrah',
           label: 'الحج والعمرة',
-          headline: 'Hajj & Umrah · رحلات مكة والمدينة المنورة',
+          headline: 'الحج والعمرة · رحلات روحانية متكاملة',
           description:
             'برامج عمرة وحج متكاملة بإقامة فاخرة في رحاب المسجد الحرام، مع إصدار التأشيرات وتنقلات خاصة وإشراف مستمر.',
           includedDetails: [
@@ -549,7 +549,7 @@ export const translations: Record<Language, TranslationPack> = {
         'اختر الخدمة المطلوبة، وسيتم تكييف الحقول وخرائط جوجل تلقائياً للبحث عن أي فندق أو مدينة ترغب بها.',
       serviceLabel: 'الخدمة المختارة',
       destLabel: 'الوجهة / المدينة (حرية الكتابة)',
-      destPlaceholder: 'اكتب أي مدينة أو دولة (مثال: مكة المكرمة، باريس، إسطنبول، دبي...)',
+      destPlaceholder: 'اكتب أي مدينة أو دولة (مثال: الحج والعمرة، باريس، إسطنبول، دبي...)',
       hotelLabel: 'اسم الفندق المطلوب (حرية الكتابة أو من الخريطة)',
       hotelPlaceholder: 'اكتب اسم أي فندق ترغب بالإقامة فيه...',
       departureCityLabel: 'مدينة المغادرة',
@@ -624,7 +624,7 @@ export const translations: Record<Language, TranslationPack> = {
       domesticNote: 'Domestic & International Travel',
       exploreCta: 'Explore Journeys',
       worldHorizonsLabel: 'World Horizons',
-      omraBottomLabel: 'El Omra · Makkah',
+      omraBottomLabel: 'Hajj & Omra',
       categories: {
         flights: 'Flights',
         hotels: 'Hotels',
@@ -644,10 +644,10 @@ export const translations: Record<Language, TranslationPack> = {
       title: 'Three Extraordinary Horizons',
       subtitle: 'Curated travel. Seamless planning. Unforgettable places.',
       selectDest: 'Choose This Destination',
-      omraBadge: 'El Omra · Makkah',
+      omraBadge: 'Hajj & Omra',
       omraTalbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
-      omraTapHint: 'Click the Makkah icon to reveal the Arabic calligraphy',
-      omraBookCta: 'Request El Omra Package',
+      omraTapHint: 'Click the Hajj & Omra icon to reveal the Arabic calligraphy',
+      omraBookCta: 'Request Hajj & Omra Package',
       destinations: {
         'swiss-alps': {
           id: 'swiss-alps',
@@ -667,9 +667,9 @@ export const translations: Record<Language, TranslationPack> = {
         },
         makkah: {
           id: 'makkah',
-          title: 'Makkah, Saudi Arabia',
+          title: 'Hajj & Omra',
           region: 'Masjid al-Haram Sanctuary',
-          season: 'Year-Round · El Omra & Spiritual Seasons',
+          season: 'Year-Round · Hajj & Omra · Spiritual Seasons',
           altitudeOrCoast: 'Sacred Courtyard & Haram Views',
           summary:
             'Reverent proximity to the Sacred Mosque and the Kaaba, curated with seamless visa coordination, private airport transfers, and Haram-facing suites.',
@@ -746,8 +746,8 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'hajj-umrah': {
           id: 'hajj-umrah',
-          label: 'Hajj & Umrah',
-          headline: 'Sacred Makkah & Madinah Pilgrimages',
+          label: 'Hajj & Omra',
+          headline: 'Sacred Hajj & Omra Pilgrimages',
           description:
             'Reverent, seamless Hajj & El Omra journeys with Haram-view hotels, coordinated Saudi visas, direct flights, and dedicated spiritual hospitality.',
           includedDetails: [
@@ -789,9 +789,9 @@ export const translations: Record<Language, TranslationPack> = {
         'Select any service below — the contact form and Google Maps panel dynamically adapt so you can write any city or search any hotel directly on the map.',
       serviceLabel: 'Selected Service',
       destLabel: 'Horizon Destination / City (Write Any Location)',
-      destPlaceholder: 'Write any city or country (e.g., Makkah, Paris, Istanbul, Swiss Alps)...',
+      destPlaceholder: 'Write any city or country (e.g., Paris, Istanbul, Dubai, Swiss Alps)...',
       hotelLabel: 'Hotel Name (Write Any Hotel or Pick on Maps)',
-      hotelPlaceholder: 'Write any hotel name (e.g., Swissotel Makkah, Four Seasons, Burj Al Arab)...',
+      hotelPlaceholder: 'Write any hotel name (e.g., Swissotel Clock Tower, Four Seasons, Burj Al Arab)...',
       departureCityLabel: 'Departure City / Airport',
       departureCityPlaceholder: 'e.g., Casablanca (CMN), Rabat-Salé (RBA), London...',
       visaPurposeLabel: 'Visa Type & Consulate',
@@ -864,7 +864,7 @@ export const translations: Record<Language, TranslationPack> = {
       domesticNote: 'Viajes Nacionales e Internacionales',
       exploreCta: 'Explorar Viajes',
       worldHorizonsLabel: 'Horizontes del Mundo',
-      omraBottomLabel: 'El Omra · La Meca',
+      omraBottomLabel: 'Hajj y Omra',
       categories: {
         flights: 'Vuelos',
         hotels: 'Hoteles',
@@ -884,10 +884,10 @@ export const translations: Record<Language, TranslationPack> = {
       title: 'Tres Horizontes Extraordinarios',
       subtitle: 'Viajes a medida. Planificación fluida. Lugares inolvidables.',
       selectDest: 'Elegir este Destino',
-      omraBadge: 'El Omra · La Meca',
+      omraBadge: 'Hajj y Omra',
       omraTalbiyah: 'لَبَّيْكَ اللَّهُمَّ لَبَّيْك',
-      omraTapHint: 'Haz clic en el icono de La Meca para ver la caligrafía árabe',
-      omraBookCta: 'Solicitar Paquete El Omra',
+      omraTapHint: 'Haz clic en el icono de Hajj y Omra para ver la caligrafía árabe',
+      omraBookCta: 'Solicitar Paquete Hajj y Omra',
       destinations: {
         'swiss-alps': {
           id: 'swiss-alps',
@@ -907,19 +907,19 @@ export const translations: Record<Language, TranslationPack> = {
         },
         makkah: {
           id: 'makkah',
-          title: 'La Meca, Arabia Saudita',
+          title: 'Hajj y Omra',
           region: 'Santuario de Masjid al-Haram',
-          season: 'Todo el año · El Omra y Temporadas Espirituales',
+          season: 'Todo el año · Hajj y Omra · Temporadas Espirituales',
           altitudeOrCoast: 'Patio Sagrado y Vistas al Haram',
           summary:
             'Cercanía reverente a la Sagrada Kaaba y Masjid al-Haram con gestión integral de visados, traslados privados y suites con vistas al santuario.',
           highlights: [
             'Suites de acceso directo con vistas a Masjid al-Haram y la Kaaba',
-            'Planificación integral de El Omra con traslados privados',
+            'Planificación integral de Hajj y Omra con traslados privados',
             'Asistencia multilingüe dedicada de llegada a salida'
           ],
           imageAlt:
-            'Vista de la Sagrada Kaaba en el centro de Masjid al-Haram y sus minaretes iluminados en La Meca'
+            'Vista de la Sagrada Kaaba en el centro de Masjid al-Haram y sus minaretes iluminados'
         },
         mediterranean: {
           id: 'mediterranean',
@@ -986,8 +986,8 @@ export const translations: Record<Language, TranslationPack> = {
         },
         'hajj-umrah': {
           id: 'hajj-umrah',
-          label: 'Hajj & Umrah',
-          headline: 'Peregrinaciones a La Meca y Medina',
+          label: 'Hajj y Omra',
+          headline: 'Peregrinaciones de Hajj y Omra',
           description:
             'Programas de El Omra y Hajj con total serenidad: hoteles frente a Masjid al-Haram, visado saudí, vuelos y asistencia continua.',
           includedDetails: [
@@ -1029,7 +1029,7 @@ export const translations: Record<Language, TranslationPack> = {
         'Elige un servicio: el formulario y Google Maps se adaptan automáticamente para escribir cualquier ciudad o buscar el hotel deseado.',
       serviceLabel: 'Servicio Seleccionado',
       destLabel: 'Destino Horizonte / Ciudad (Texto Libre)',
-      destPlaceholder: 'Escribe cualquier ciudad o país (ej. París, La Meca, Estambul)...',
+      destPlaceholder: 'Escribe cualquier ciudad o país (ej. París, Estambul, Dubái)...',
       hotelLabel: 'Nombre del Hotel (Texto Libre o en el Mapa)',
       hotelPlaceholder: 'Escribe el nombre de cualquier hotel...',
       departureCityLabel: 'Ciudad de Salida',

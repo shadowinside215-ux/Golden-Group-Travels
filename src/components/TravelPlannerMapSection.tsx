@@ -424,7 +424,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
         void handleSearchOnMap(undefined, true);
       } else {
         onMapFocusCoordsChange({ lat: 21.4225, lng: 39.8262 });
-        void handleSearchOnMap('hotels near Masjid al-Haram Makkah', true);
+        void handleSearchOnMap('hotels near Masjid al-Haram', true);
       }
     } else if (isHotelService && (hotelName.trim() || destinationLocation.trim())) {
       void handleSearchOnMap(undefined, true);

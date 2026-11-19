@@ -228,7 +228,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     categories: {
       flights: { tabLabel: 'Vols', shortSub: 'Aviasales & Kiwi' },
       hotels: { tabLabel: 'Hôtels', shortSub: 'Expedia Stays' },
-      umrah: { tabLabel: 'El Omra / La Mecque', shortSub: 'Pèlerinages Sacrés' },
+      umrah: { tabLabel: 'Hajj & Omra', shortSub: 'Pèlerinages Sacrés' },
       holidays: { tabLabel: 'Séjours', shortSub: 'Vacances Sur Mesure' },
       tours: { tabLabel: 'Circuits & Activités', shortSub: 'Klook, Tiqets & WeGoTrip' },
       'car-transfers': { tabLabel: 'Voitures & Transferts Aéroport', shortSub: 'Location & Chauffeurs' }
@@ -437,9 +437,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     },
     umrah: {
       badge: 'Pèlerinages Sacrés · Accompagnement Golden Group',
-      title: 'Demande de Programme El Omra / La Mecque',
+      title: 'Demande de Programme Hajj & Omra',
       subtitle:
-        'Renseignez vos préférences de voyage vers La Mecque et Médine. Notre bureau prépare votre proposition personnalisée sans frais cachés via WhatsApp.',
+        'Renseignez vos préférences pour votre programme Hajj & Omra. Notre bureau prépare votre proposition personnalisée sans frais cachés via WhatsApp.',
       departureCityLabel: 'Ville de départ',
       departureCityPlaceholder: 'Ex : Casablanca, Rabat-Salé, Tanger...',
       departureDateLabel: 'Date de départ souhaitée',
@@ -449,7 +449,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       hotelOptions: [
         'Hôtel 5★ Vue Haram / Clock Tower',
         'Hôtel 4★ Proche Masjid al-Haram',
-        'Combiné La Mecque + Médine Confort',
+        'Formule Hajj & Omra Confort',
         'Selon conseil de l’agence'
       ],
       packagePrefLabel: 'Type de programme souhaité',
@@ -536,7 +536,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     categories: {
       flights: { tabLabel: 'الطيران', shortSub: 'Aviasales و Kiwi' },
       hotels: { tabLabel: 'الفنادق', shortSub: 'فنادق Expedia' },
-      umrah: { tabLabel: 'العمرة / مكة', shortSub: 'رحلات روحانية' },
+      umrah: { tabLabel: 'الحج والعمرة', shortSub: 'رحلات روحانية' },
       holidays: { tabLabel: 'العطلات', shortSub: 'باقات مخصصة' },
       tours: { tabLabel: 'الجولات والأنشطة', shortSub: 'Klook و Tiqets و WeGoTrip' },
       'car-transfers': { tabLabel: 'تأجير السيارات والنقل من المطار', shortSub: 'سيارات وسائقون' }
@@ -729,9 +729,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     },
     umrah: {
       badge: 'العمرة والحج · جولدن جروب',
-      title: 'طلب برنامج العمرة / مكة المكرمة',
+      title: 'طلب برنامج الحج والعمرة',
       subtitle:
-        'شاركنا تفاصيل رحلتك المباركة إلى مكة والمدينة المنورة ليقوم فريقنا بإعداد عرض دقيق ومناسب عبر واتساب.',
+        'شاركنا تفاصيل رحلتك المباركة للحج والعمرة ليقوم فريقنا بإعداد عرض دقيق ومناسب عبر واتساب.',
       departureCityLabel: 'مدينة المغادرة',
       departureCityPlaceholder: 'مثال: الدار البيضاء، الرباط-سلا، طنجة...',
       departureDateLabel: 'تاريخ السفر المفضل',
@@ -741,7 +741,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       hotelOptions: [
         'فندق 5 نجوم مطل على الحرم / أبراج الساعة',
         'فندق 4 نجوم قريب من المسجد الحرام',
-        'باقة مكة + المدينة مريحة',
+        'باقة الحج والعمرة المريحة',
         'حسب اقتراح الوكالة'
       ],
       packagePrefLabel: 'تفضيل الباقة',
@@ -821,7 +821,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     categories: {
       flights: { tabLabel: 'Flights', shortSub: 'Aviasales & Kiwi' },
       hotels: { tabLabel: 'Hotels', shortSub: 'Expedia Stays' },
-      umrah: { tabLabel: 'El Omra / Makkah', shortSub: 'Sacred Journeys' },
+      umrah: { tabLabel: 'Hajj & Omra', shortSub: 'Sacred Journeys' },
       holidays: { tabLabel: 'Holidays', shortSub: 'Bespoke Stays' },
       tours: { tabLabel: 'Tours & Activities', shortSub: 'Klook, Tiqets & WeGoTrip' },
       'car-transfers': { tabLabel: 'Car Rentals & Airport Transfers', shortSub: 'Cars & Chauffeurs' }
@@ -1026,9 +1026,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     },
     umrah: {
       badge: 'Sacred Pilgrimages · Golden Group Concierge',
-      title: 'El Omra / Makkah Package Inquiry',
+      title: 'Hajj & Omra Package Inquiry',
       subtitle:
-        'Share your departure city, preferred dates, and hotel preferences for Makkah & Madinah. Our advisors prepare your tailored quote directly on WhatsApp.',
+        'Share your departure city, preferred dates, and hotel preferences for your Hajj & Omra journey. Our advisors prepare your tailored quote directly on WhatsApp.',
       departureCityLabel: 'Departure city',
       departureCityPlaceholder: 'e.g. Casablanca, Rabat-Salé, Tangier...',
       departureDateLabel: 'Preferred departure date',
@@ -1038,7 +1038,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       hotelOptions: [
         '5★ Haram-View / Clock Tower',
         '4★ Close to Masjid al-Haram',
-        'Makkah + Madinah Comfort Pair',
+        'Hajj & Omra Comfort Package',
         'Agency Recommendation'
       ],
       packagePrefLabel: 'Package preference',
@@ -1120,7 +1120,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     categories: {
       flights: { tabLabel: 'Vuelos', shortSub: 'Aviasales y Kiwi' },
       hotels: { tabLabel: 'Hoteles', shortSub: 'Expedia Stays' },
-      umrah: { tabLabel: 'El Omra / La Meca', shortSub: 'Viajes Sagrados' },
+      umrah: { tabLabel: 'Hajj y Omra', shortSub: 'Viajes Sagrados' },
       holidays: { tabLabel: 'Vacaciones', shortSub: 'Paquetes a Medida' },
       tours: { tabLabel: 'Tours y Actividades', shortSub: 'Klook, Tiqets y WeGoTrip' },
       'car-transfers': { tabLabel: 'Coches y Traslados Aeropuerto', shortSub: 'Alquiler y Traslados' }
@@ -1322,9 +1322,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     },
     umrah: {
       badge: 'Peregrinación Sagrada · Golden Group',
-      title: 'Solicitud de Programa El Omra / La Meca',
+      title: 'Solicitud de Programa Hajj y Omra',
       subtitle:
-        'Indícanos tu ciudad de salida, fechas y preferencias de hotel en La Meca y Medina para recibir una propuesta personalizada por WhatsApp.',
+        'Indícanos tu ciudad de salida, fechas y preferencias de hotel para tu viaje de Hajj y Omra y recibirás una propuesta personalizada por WhatsApp.',
       departureCityLabel: 'Ciudad de salida',
       departureCityPlaceholder: 'Ej.: Casablanca, Rabat-Salé, Tánger...',
       departureDateLabel: 'Fecha de salida deseada',
@@ -1334,7 +1334,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       hotelOptions: [
         'Hotel 5★ Vista al Haram / Clock Tower',
         'Hotel 4★ Cerca de Masjid al-Haram',
-        'Combinado La Meca + Medina Confort',
+        'Paquete Hajj y Omra Confort',
         'Recomendación de la agencia'
       ],
       packagePrefLabel: 'Preferencia de programa',

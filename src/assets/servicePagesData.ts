@@ -214,9 +214,9 @@ export const SERVICE_PAGE_DETAILS: Record<
       ]
     },
     'hajj-umrah': {
-      tagline: 'Accompagnement Spirituel & Séjours Privilégiés à La Mecque et Médine',
+      tagline: 'Accompagnement Spirituel & Séjours Privilégiés Hajj & Omra',
       overview:
-        'Vivez votre El Omra ou Hajj dans la quiétude et la dignité. Nous organisons l’ensemble du pèlerinage : hôtels à deux pas de Masjid al-Haram et Masjid an-Nabawi, visas saoudiens officiels, vols directs, train Haramain et encadrement attentionné.',
+        'Vivez votre Hajj & Omra dans la quiétude et la dignité. Nous organisons l’ensemble du pèlerinage : hôtels à deux pas de Masjid al-Haram et Masjid an-Nabawi, visas saoudiens officiels, vols directs, train Haramain et encadrement attentionné.',
       highlights: [
         {
           title: 'Hôtels Face à Masjid al-Haram',
@@ -236,14 +236,14 @@ export const SERVICE_PAGE_DETAILS: Record<
         {
           title: 'Encadrement & Ziyarat Guidées',
           detail:
-            'Visites spirituelles des sites historiques à La Mecque et Médine avec accompagnateurs bilingues Arabe / Français.'
+            'Visites spirituelles des lieux saints pendant votre Hajj & Omra avec accompagnateurs bilingues Arabe / Français.'
         }
       ],
       steps: [
         {
           title: 'Choisissez Votre Période & Hôtel Haram',
           detail:
-            'Sélectionnez vos dates (hors saison, vacances, Chaabane, Ramadan) et votre hôtel à La Mecque sur Google Maps.'
+            'Sélectionnez vos dates (hors saison, vacances, Chaabane, Ramadan) et votre hôtel proche du Haram sur Google Maps.'
         },
         {
           title: 'Visa & Vols Dédiés',
@@ -482,7 +482,7 @@ export const SERVICE_PAGE_DETAILS: Record<
     'hajj-umrah': {
       tagline: 'برامج عمرة وحج متكاملة وإقامة فاخرة في رحاب المسجد الحرام والمسجد النبوي',
       overview:
-        'انعم برحلة روحانية مطمئنة إلى مكة المكرمة والمدينة المنورة. نوفر لك فنادق مطلة مباشرة على الحرم المكي والنبوي، إصدار تأشيرة العمرة، الطيران المريح، قطار الحرمين، والتنقلات الخاصة مع إرشاد ديني ولوجستي طوال الرحلة.',
+        'انعم برحلة روحانية مطمئنة في برنامج الحج والعمرة. نوفر لك فنادق مطلة مباشرة على الحرم المكي والنبوي، إصدار التأشيرة، الطيران المريح، قطار الحرمين، والتنقلات الخاصة مع إرشاد ديني ولوجستي طوال الرحلة.',
       highlights: [
         {
           title: 'فنادق مطلة مباشرة على الحرم',
@@ -502,14 +502,14 @@ export const SERVICE_PAGE_DETAILS: Record<
         {
           title: 'مزارات وإرشاد روحي مستمر',
           detail:
-            'جولات للمزارات التاريخية في مكة والمدينة مع مرافقين متحدثين بالعربية والفرنسية.'
+            'جولات للمزارات التاريخية ضمن رحلات الحج والعمرة مع مرافقين متحدثين بالعربية والفرنسية.'
         }
       ],
       steps: [
         {
           title: 'اختر موسم العمرة والفندق المفضل',
           detail:
-            'حدّد تواريخ السفر والفندق المطلوب في مكة المكرمة والمدينة مباشرة على خرائط جوجل.'
+            'حدّد تواريخ السفر والفندق المطلوب لرحلة الحج والعمرة مباشرة على خرائط جوجل.'
         },
         {
           title: 'إصدار التأشيرة وتذاكر الطيران',
@@ -746,9 +746,9 @@ export const SERVICE_PAGE_DETAILS: Record<
       ]
     },
     'hajj-umrah': {
-      tagline: 'Reverent El Omra & Hajj Pilgrimages in Makkah and Madinah',
+      tagline: 'Reverent Hajj & Omra Pilgrimages & Sacred Hospitality',
       overview:
-        'Embark on your sacred journey with complete peace of mind. Golden Group Travels coordinates Haram-facing 4★ and 5★ hotels in Makkah and Madinah, official Saudi Umra visas, direct flights, Haramain high-speed rail, and attentive multilingual ground hospitality.',
+        'Embark on your sacred journey with complete peace of mind. Golden Group Travels coordinates Haram-facing 4★ and 5★ hotels for your Hajj & Omra, official Saudi visas, direct flights, Haramain high-speed rail, and attentive multilingual ground hospitality.',
       highlights: [
         {
           title: 'Steps From Masjid al-Haram & Kaaba',
@@ -768,14 +768,14 @@ export const SERVICE_PAGE_DETAILS: Record<
         {
           title: 'Guided Ziyarat & Ground Support',
           detail:
-            'Guided historical visits across Makkah and Madinah led by Arabic, French, and English coordinators.'
+            'Guided historical visits during your Hajj & Omra led by Arabic, French, and English coordinators.'
         }
       ],
       steps: [
         {
           title: 'Choose Season & Haram Hotel',
           detail:
-            'Pick your preferred travel window and explore Makkah hotels near Masjid al-Haram on Google Maps.'
+            'Pick your preferred travel window and explore Hajj & Omra hotels near Masjid al-Haram on Google Maps.'
         },
         {
           title: 'Visa & Flight Coordination',
@@ -1012,7 +1012,7 @@ export const SERVICE_PAGE_DETAILS: Record<
       ]
     },
     'hajj-umrah': {
-      tagline: 'Viajes Espirituales de El Omra y Hajj en La Meca y Medina',
+      tagline: 'Viajes Espirituales de Hajj y Omra en los Santos Lugares',
       overview:
         'Vive una peregrinación serena y organizada hacia los Santos Lugares. Coordinamos hoteles 4★ y 5★ frente a Masjid al-Haram y Masjid an-Nabawi, visado saudí, vuelos directos, tren Haramain y asistencia continua.',
       highlights: [
@@ -1039,7 +1039,7 @@ export const SERVICE_PAGE_DETAILS: Record<
       ],
       steps: [
         {
-          title: 'Elige Fechas y Hotel en La Meca',
+          title: 'Elige Fechas y Hotel de Hajj y Omra',
           detail:
             'Selecciona temporada y ubica hoteles cercanos al Haram en Google Maps.'
         },

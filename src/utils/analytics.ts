@@ -26,7 +26,7 @@ const CONSENT_STORAGE_KEY = 'ggt_analytics_consent';
 const SERVICE_CANONICAL_TITLES: Record<ServiceId, string> = {
   'flight-bookings': 'Flight Bookings | Golden Group Travels',
   'hotel-reservations': 'Hotel Reservations | Golden Group Travels',
-  'hajj-umrah': 'El Omra & Makkah | Golden Group Travels',
+  'hajj-umrah': 'Hajj & Omra | Golden Group Travels',
   'holiday-packages': 'Holiday Packages | Golden Group Travels',
   'visa-assistance': 'Tours & Visa Assistance | Golden Group Travels',
   'travel-insurance': 'Travel Insurance | Golden Group Travels'

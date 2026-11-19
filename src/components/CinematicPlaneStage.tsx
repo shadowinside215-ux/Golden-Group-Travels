@@ -590,12 +590,12 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
         {/* Top Row: Official Golden Group 1:1 Logo & Micro-Tags */}
         <div className="w-full flex items-center justify-between gap-4">
           <a
-            href="#explore-travel-services"
+            href="/"
             onClick={(e) => {
               e.preventDefault();
-              onExploreBelow();
+              window.location.reload();
             }}
-            className="pointer-events-auto inline-block w-16 h-16 min-[380px]:w-20 min-[380px]:h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 aspect-square shrink-0 rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/75 shadow-[0_14px_34px_rgba(11,29,58,0.34)] focus-visible:outline-2 focus-visible:outline-[#d1a847] group transition-transform duration-300 hover:scale-105"
+            className="pointer-events-auto inline-block w-16 h-16 min-[380px]:w-20 min-[380px]:h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 aspect-square shrink-0 rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/75 shadow-[0_14px_34px_rgba(11,29,58,0.34)] focus-visible:outline-2 focus-visible:outline-[#d1a847] group transition-transform duration-300 hover:scale-105 cursor-pointer"
             aria-label="Golden Group Travels"
           >
             <img
