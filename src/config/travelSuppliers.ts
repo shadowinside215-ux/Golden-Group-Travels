@@ -32,6 +32,8 @@ export const SERVICE_TO_SEARCH_CATEGORY: Partial<Record<ServiceId, SearchCategor
   'holiday-packages': 'holidays'
 };
 
+export type FlightProviderId = 'aviasales' | 'expedia';
+
 /**
  * Modular Affiliate & Partner Configuration (Phase 1)
  * Keep all supplied tracking URLs and attributes intact and separate from Travelpayouts Drive.
@@ -39,11 +41,26 @@ export const SERVICE_TO_SEARCH_CATEGORY: Partial<Record<ServiceId, SearchCategor
 export const AVIASALES_PARTNER = {
   id: 'aviasales',
   name: 'Aviasales',
-  /** Exact unmodified Travelpayouts affiliate redirect supplied by the client */
+  /** Official self-contained Travelpayouts / Aviasales Cascoon flight search widget script URL (French, EUR) */
+  widgetScriptSrc:
+    'https://tpemb.com/content?currency=eur&trs=603176&shmarker=808002&show_hotels=true&powered_by=true&locale=fr&searchUrl=www.aviasales.fr%2Fsearch&primary_override=%230b2369&color_button=%230b2369&color_icons=%230b2369&dark=%23262626&light=%23FFFFFF&secondary=%23FFFFFF&special=%23C4C4C4&color_focused=%2332a8dd&border_radius=0&plain=true&promo_id=7879&campaign_id=100',
+  /** Direct Travelpayouts Aviasales partner fallback link */
   affiliateUrl:
     'https://tp.media/r?campaign_id=100&marker=808002&p=4114&trs=603176&u=https%3A%2F%2Faviasales.com',
-  /** Modular placeholder slot prepared for future official Aviasales embed widget */
-  widgetSlotId: 'aviasales-official-widget-slot'
+  widgetContainerId: 'aviasales-official-widget'
+} as const;
+
+export const EXPEDIA_FLIGHTS_WIDGET_CONFIG = {
+  widget: 'search',
+  program: 'fr-expedia',
+  lobs: 'flights',
+  network: 'pz',
+  camref: '1110lTryc',
+  pubref: 'golden_main_search',
+  scriptSrc: 'https://creator.expediagroup.com/products/widgets/assets/eg-widgets.js',
+  styleSrc: 'https://creator.expediagroup.com/products/widgets/assets/eg-widgets.css',
+  origin: 'https://creator.expediagroup.com',
+  widgetsBaseUrl: 'https://creator.expediagroup.com/products/widgets'
 } as const;
 
 export const EXPEDIA_HOTELS_WIDGET_CONFIG = {

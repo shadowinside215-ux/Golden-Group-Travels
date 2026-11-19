@@ -16,7 +16,6 @@ import { AnimatedServiceMedia } from './components/AnimatedServiceMedia';
 import { SERVICE_ICONS } from './components/ServiceIcons';
 import { ServiceDetailPage } from './components/ServiceDetailPage';
 import { TravelPlannerMapSection } from './components/TravelPlannerMapSection';
-import { TravelSearchEngine } from './components/TravelSearchEngine';
 import {
   HERO_TO_SEARCH_CATEGORY,
   SEARCH_CATEGORY_TO_SERVICE,
@@ -184,7 +183,6 @@ export default function App() {
     const nextSearchCat = HERO_TO_SEARCH_CATEGORY[categoryId];
     setActiveSearchCategory(nextSearchCat);
     setActiveService(SEARCH_CATEGORY_TO_SERVICE[nextSearchCat]);
-    scrollToId('search-hub');
   };
 
   const handleHeroOmraClick = () => {
@@ -193,7 +191,6 @@ export default function App() {
     if (!destinationLocation.trim()) {
       setDestinationLocation(t.horizonsSection.destinations.makkah.title);
     }
-    scrollToId('search-hub');
   };
 
   return (
@@ -228,15 +225,24 @@ export default function App() {
         </div>
       )}
 
-      {/* Primary Full-Viewport 3D GSAP Paper-Cutting Plane Cinema Stage on Home */}
+      {/* Primary Full-Viewport 3D GSAP Paper-Cutting Plane Cinema Stage with Integrated Multi-Widget Search Hub */}
       {activePage === 'home' && (
         <CinematicPlaneStage
           lang={lang}
+          isRtl={isRtl}
           readyToAnimate={heroAnimationReady}
           activeCategory={activeSearchCategory}
+          onCategoryChange={(cat) => {
+            setActiveSearchCategory(cat);
+            setActiveService(SEARCH_CATEGORY_TO_SERVICE[cat]);
+          }}
           onSelectHeroCategory={handleHeroCategoryClick}
           onSelectOmra={handleHeroOmraClick}
-          onExploreBelow={() => scrollToId('search-hub')}
+          onOpenServicePage={(srvId) => openPage(srvId)}
+          onJumpToPlanner={() => scrollToId('planner')}
+          onExploreBelow={() => scrollToId('services')}
+          whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+          displayPhone={DISPLAY_PHONE}
         />
       )}
 
@@ -501,26 +507,6 @@ export default function App() {
           />
         ) : (
           <>
-            {/* Wego-Style 5-Category Functional Travel Search Hub */}
-            <TravelSearchEngine
-              lang={lang}
-              isRtl={isRtl}
-              activeCategory={activeSearchCategory}
-              onCategoryChange={(cat) => {
-                setActiveSearchCategory(cat);
-                setActiveService(SEARCH_CATEGORY_TO_SERVICE[cat]);
-              }}
-              onOpenServicePage={(srvId) => openPage(srvId)}
-              onJumpToPlanner={() => scrollToId('planner')}
-              whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
-              displayPhone={DISPLAY_PHONE}
-            />
-
-            {/* Hairline Gold Divider */}
-            <div className="max-w-5xl mx-auto px-8">
-              <div className="h-px bg-gradient-to-r from-transparent via-[#c59b38]/50 to-transparent" />
-            </div>
-
             {/* Dedicated Services Overview — Animated Photography Cards Opening Each Service's Full Page */}
             <section id="services" className="py-20 md:py-28 max-w-7xl mx-auto px-5 sm:px-8">
               <div className="max-w-3xl mx-auto text-center mb-16 reveal-init">

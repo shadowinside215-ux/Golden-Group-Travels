@@ -14,6 +14,22 @@ export interface SearchEngineLocalePack {
     }
   >;
   flights: {
+    providerSelectorLabel: string;
+    providers: {
+      aviasales: { label: string; sub: string };
+      expedia: { label: string; sub: string };
+    };
+    expediaBadge: string;
+    expediaTitle: string;
+    expediaSubtitle: string;
+    expediaNote: string;
+    liveBadge: string;
+    liveTitle: string;
+    liveSubtitle: string;
+    loadingLabel: string;
+    loadErrorFallback: string;
+    conciergeTitle: string;
+    conciergeDesc: string;
     tripRoundTrip: string;
     tripOneWay: string;
     originLabel: string;
@@ -167,6 +183,27 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       tours: { tabLabel: 'Circuits', shortSub: 'Activités & Excursions' }
     },
     flights: {
+      providerSelectorLabel: 'Fournisseur de recherche de vols',
+      providers: {
+        aviasales: { label: 'Aviasales', sub: 'Comparateur Vols · EUR' },
+        expedia: { label: 'Expedia', sub: 'Expedia France · Vols' }
+      },
+      expediaBadge: 'Recherche Aérienne Officielle · Expedia France',
+      expediaTitle: 'Rechercher Vos Billets d’Avion via Expedia',
+      expediaSubtitle:
+        'Saisissez votre ville de départ, votre destination, vos dates et vos voyageurs dans le moteur officiel Expedia.fr ci-dessous.',
+      expediaNote:
+        'Les horaires, disponibilités et tarifs aériens proviennent directement d’Expedia Group dans un nouvel onglet.',
+      liveBadge: 'Recherche Aérienne Officielle · Aviasales',
+      liveTitle: 'Rechercher Vos Billets d’Avion en Direct',
+      liveSubtitle:
+        'Sélectionnez vos aéroports, dates et passagers directement dans le moteur Aviasales ci-dessous pour consulter les offres en temps réel en EUR.',
+      loadingLabel: 'Chargement du moteur de recherche Aviasales…',
+      loadErrorFallback:
+        'Le widget intégré n’a pas pu s’afficher ici. Ouvrez directement la recherche sur Aviasales :',
+      conciergeTitle: 'Accompagnement Agence Golden Group :',
+      conciergeDesc:
+        'Billets multi-destinations, bagages spéciaux ou règlement à notre agence de Salé.',
       tripRoundTrip: 'Aller-retour',
       tripOneWay: 'Aller simple',
       originLabel: 'Ville ou aéroport de départ',
@@ -360,6 +397,27 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       tours: { tabLabel: 'الجولات', shortSub: 'أنشطة وتجارب' }
     },
     flights: {
+      providerSelectorLabel: 'مزوّد البحث عن رحلات الطيران',
+      providers: {
+        aviasales: { label: 'Aviasales', sub: 'مقارنة الرحلات · EUR' },
+        expedia: { label: 'Expedia', sub: 'Expedia France · طيران' }
+      },
+      expediaBadge: 'محرك البحث الرسمي عن الطيران · Expedia France',
+      expediaTitle: 'ابحث عن تذاكر الطيران عبر Expedia',
+      expediaSubtitle:
+        'أدخل مدينة المغادرة والوجهة وتواريخ السفر وعدد المسافرين مباشرة في أداة Expedia الرسمية أدناه.',
+      expediaNote:
+        'تُعرض الأسعار والرحلات الحقيقية مباشرة عبر بوابة Expedia.fr الرسمية.',
+      liveBadge: 'محرك البحث الرسمي عن الطيران · Aviasales',
+      liveTitle: 'ابحث عن تذاكر الطيران مباشرة',
+      liveSubtitle:
+        'اختر مطار الانطلاق والوصول وتواريخ السفر وعدد المسافرين مباشرة عبر أداة Aviasales المعتمدة باليورو.',
+      loadingLabel: 'جاري تحميل محرك البحث Aviasales…',
+      loadErrorFallback:
+        'تعذر عرض الأداة المدمجة هنا. يمكنك المتابعة مباشرة إلى منصة Aviasales:',
+      conciergeTitle: 'خدمة وكالة جولدن جروب:',
+      conciergeDesc:
+        'لحجوزات الوجهات المتعددة أو المساعدة المباشرة من فريقنا بسلا.',
       tripRoundTrip: 'ذهاب وعودة',
       tripOneWay: 'ذهاب فقط',
       originLabel: 'مدينة أو مطار المغادرة',
@@ -542,6 +600,27 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       tours: { tabLabel: 'Tours', shortSub: 'Klook & KKday' }
     },
     flights: {
+      providerSelectorLabel: 'Flight Search Provider',
+      providers: {
+        aviasales: { label: 'Aviasales', sub: 'Fare Search · EUR' },
+        expedia: { label: 'Expedia', sub: 'Expedia France · Flights' }
+      },
+      expediaBadge: 'Official Flight Search · Expedia France',
+      expediaTitle: 'Search Flights Directly with Expedia',
+      expediaSubtitle:
+        'Enter your departure, destination, travel dates, and passengers inside the official Expedia.fr flight search controls below.',
+      expediaNote:
+        'Live flight schedules and fares are served directly by Expedia Group in a new tab.',
+      liveBadge: 'Official Flight Search · Aviasales',
+      liveTitle: 'Search Live Airline Fares',
+      liveSubtitle:
+        'Pick your origin, destination, travel dates, and passengers directly inside the official Aviasales search widget below (EUR).',
+      loadingLabel: 'Loading official Aviasales flight widget…',
+      loadErrorFallback:
+        'The embedded widget could not load here. Continue directly to Aviasales search:',
+      conciergeTitle: 'Golden Group Concierge Desk:',
+      conciergeDesc:
+        'Need multi-city routing or personal assistance from our Salé office?',
       tripRoundTrip: 'Round-trip',
       tripOneWay: 'One-way',
       originLabel: 'Origin airport or city',
@@ -728,6 +807,27 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       tours: { tabLabel: 'Tours', shortSub: 'Klook y KKday' }
     },
     flights: {
+      providerSelectorLabel: 'Proveedor de búsqueda de vuelos',
+      providers: {
+        aviasales: { label: 'Aviasales', sub: 'Buscador · EUR' },
+        expedia: { label: 'Expedia', sub: 'Expedia France · Vuelos' }
+      },
+      expediaBadge: 'Buscador Oficial de Vuelos · Expedia France',
+      expediaTitle: 'Buscar Vuelos Directamente con Expedia',
+      expediaSubtitle:
+        'Introduce origen, destino, fechas y pasajeros directamente en el buscador oficial de Expedia.fr.',
+      expediaNote:
+        'Los horarios y tarifas reales se muestran directamente en Expedia Group en una nueva pestaña.',
+      liveBadge: 'Buscador Oficial de Vuelos · Aviasales',
+      liveTitle: 'Buscar Vuelos en Tiempo Real',
+      liveSubtitle:
+        'Elige origen, destino, fechas y pasajeros directamente en el buscador oficial de Aviasales (EUR).',
+      loadingLabel: 'Cargando el buscador oficial de Aviasales…',
+      loadErrorFallback:
+        'No se pudo cargar el widget aquí. Continúa directamente al buscador de Aviasales:',
+      conciergeTitle: 'Asistencia Golden Group:',
+      conciergeDesc:
+        '¿Necesitas itinerarios multidestino o atención personalizada en Salé?',
       tripRoundTrip: 'Ida y vuelta',
       tripOneWay: 'Solo ida',
       originLabel: 'Aeropuerto o ciudad de origen',

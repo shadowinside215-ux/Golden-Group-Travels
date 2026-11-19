@@ -1,36 +1,24 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import {
   AlertCircle,
-  ArrowLeftRight,
   ArrowRight,
-  Calendar,
-  CheckCircle2,
-  ChevronDown,
   Compass,
   ExternalLink,
-  Layers,
   MapPin,
-  Minus,
-  Plane,
-  Plus,
-  RotateCcw,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Users
+  ShieldCheck
 } from 'lucide-react';
 import { Language, ServiceId } from '../assets/destinations';
 import { SEARCH_ENGINE_PACKS } from '../assets/searchEngineData';
 import {
-  AVIASALES_PARTNER,
-  POPULAR_FLIGHT_DESTINATIONS,
-  POPULAR_FLIGHT_ORIGINS,
+  FlightProviderId,
   POPULAR_TOUR_DESTINATIONS,
   SEARCH_CATEGORY_ORDER,
   SEARCH_CATEGORY_TO_SERVICE,
   SearchCategoryId,
   TOURS_AFFILIATE_PARTNERS
 } from '../config/travelSuppliers';
+import { AviasalesFlightWidget } from './AviasalesFlightWidget';
+import { ExpediaFlightWidget } from './ExpediaFlightWidget';
 import { ExpediaSearchWidget } from './ExpediaSearchWidget';
 import {
   FlightServiceIcon,
@@ -50,6 +38,7 @@ interface TravelSearchEngineProps {
   displayPhone: string;
   visibleCategories?: SearchCategoryId[];
   embeddedOnServicePage?: boolean;
+  embeddedInHero?: boolean;
 }
 
 const CATEGORY_ICONS: Record<
@@ -62,8 +51,6 @@ const CATEGORY_ICONS: Record<
   holidays: HolidayPackagesServiceIcon,
   tours: Compass
 };
-
-type CabinKey = 'economy' | 'premium' | 'business' | 'first';
 
 function getTodayIsoLocal(): string {
   const now = new Date();
@@ -83,27 +70,16 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
   whatsappInternational,
   displayPhone,
   visibleCategories,
-  embeddedOnServicePage = false
+  embeddedOnServicePage = false,
+  embeddedInHero = false
 }) => {
   const pack = SEARCH_ENGINE_PACKS[lang];
   const todayIso = getTodayIsoLocal();
   const tabsToRender = visibleCategories ?? SEARCH_CATEGORY_ORDER;
   const uid = useId();
 
-  // ---------------- FLIGHTS STATE ----------------
-  const [tripType, setTripType] = useState<'round-trip' | 'one-way'>('round-trip');
-  const [flightOrigin, setFlightOrigin] = useState('Casablanca (CMN)');
-  const [flightDest, setFlightDest] = useState('');
-  const [flightDepartDate, setFlightDepartDate] = useState('');
-  const [flightReturnDate, setFlightReturnDate] = useState('');
-  const [flightAdults, setFlightAdults] = useState(1);
-  const [flightChildren, setFlightChildren] = useState(0);
-  const [flightInfants, setFlightInfants] = useState(0);
-  const [cabinClass, setCabinClass] = useState<CabinKey>('economy');
-  const [paxDropdownOpen, setPaxDropdownOpen] = useState(false);
-  const [flightErrors, setFlightErrors] = useState<string[]>([]);
-  const [flightValidated, setFlightValidated] = useState(false);
-  const paxMenuRef = useRef<HTMLDivElement | null>(null);
+  // ---------------- FLIGHTS PROVIDER STATE (DEFAULT: AVIASALES) ----------------
+  const [flightProvider, setFlightProvider] = useState<FlightProviderId>('aviasales');
 
   // ---------------- UMRAH INQUIRY STATE ----------------
   const [umrahDepartureCity, setUmrahDepartureCity] = useState('');
@@ -134,99 +110,11 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
   // ---------------- TOURS & ACTIVITIES STATE ----------------
   const [tourDestination, setTourDestination] = useState('');
 
-  // Close passenger dropdown when clicking outside
-  useEffect(() => {
-    if (!paxDropdownOpen) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      if (paxMenuRef.current && !paxMenuRef.current.contains(event.target as Node)) {
-        setPaxDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [paxDropdownOpen]);
-
   // Clear stale validation errors on language change
   useEffect(() => {
-    setFlightErrors([]);
     setUmrahErrors([]);
     setHolidayErrors([]);
   }, [lang]);
-
-  // ---------------- FLIGHT HANDLERS ----------------
-  const swapFlightLocations = () => {
-    const prevOrigin = flightOrigin;
-    setFlightOrigin(flightDest);
-    setFlightDest(prevOrigin);
-    setFlightValidated(false);
-  };
-
-  const adjustFlightPax = (kind: 'adults' | 'children' | 'infants', delta: number) => {
-    const total = flightAdults + flightChildren + flightInfants;
-    if (delta > 0 && total >= 9) return;
-
-    if (kind === 'adults') {
-      const next = Math.max(1, Math.min(9, flightAdults + delta));
-      setFlightAdults(next);
-      if (flightInfants > next) setFlightInfants(next);
-    } else if (kind === 'children') {
-      const next = Math.max(0, Math.min(8, flightChildren + delta));
-      setFlightChildren(next);
-    } else {
-      const next = Math.max(0, Math.min(flightAdults, flightInfants + delta));
-      setFlightInfants(next);
-    }
-    setFlightValidated(false);
-  };
-
-  const handleFlightSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const errs: string[] = [];
-    const o = flightOrigin.trim();
-    const d = flightDest.trim();
-
-    if (!o) errs.push(pack.flights.errors.originRequired);
-    if (!d) errs.push(pack.flights.errors.destinationRequired);
-    if (o && d && o.toLowerCase() === d.toLowerCase()) {
-      errs.push(pack.flights.errors.sameRoute);
-    }
-    if (!flightDepartDate) {
-      errs.push(pack.flights.errors.departureRequired);
-    } else if (flightDepartDate < todayIso) {
-      errs.push(pack.flights.errors.departurePast);
-    }
-    if (tripType === 'round-trip') {
-      if (!flightReturnDate) {
-        errs.push(pack.flights.errors.returnRequired);
-      } else if (flightDepartDate && flightReturnDate < flightDepartDate) {
-        errs.push(pack.flights.errors.returnBeforeDeparture);
-      }
-    }
-    if (flightAdults < 1) errs.push(pack.flights.errors.adultsMin);
-    if (flightInfants > flightAdults) errs.push(pack.flights.errors.infantsExceedAdults);
-    if (flightAdults + flightChildren + flightInfants > 9) {
-      errs.push(pack.flights.errors.maxPassengers);
-    }
-
-    setFlightErrors(errs);
-    setFlightValidated(errs.length === 0);
-    setPaxDropdownOpen(false);
-  };
-
-  const buildFlightWhatsappUrl = () => {
-    const lines = [
-      'Bonjour Golden Group Travels,',
-      'Je souhaite un devis pour un vol :',
-      `• Type : ${tripType === 'round-trip' ? pack.flights.tripRoundTrip : pack.flights.tripOneWay}`,
-      `• Départ : ${flightOrigin.trim()}`,
-      `• Destination : ${flightDest.trim()}`,
-      `• Date de départ : ${flightDepartDate}`,
-      tripType === 'round-trip' && flightReturnDate ? `• Date de retour : ${flightReturnDate}` : '',
-      `• Passagers : ${flightAdults} ${pack.flights.adultsLabel}, ${flightChildren} ${pack.flights.childrenLabel}, ${flightInfants} ${pack.flights.infantsLabel}`,
-      `• Classe : ${pack.flights.cabins[cabinClass]}`
-    ].filter(Boolean);
-    return `https://wa.me/${whatsappInternational}?text=${encodeURIComponent(lines.join('\n'))}`;
-  };
 
   // ---------------- UMRAH HANDLERS ----------------
   const handleUmrahSubmit = (e: React.FormEvent) => {
@@ -319,19 +207,31 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
     return `https://wa.me/${whatsappInternational}?text=${encodeURIComponent(lines.join('\n'))}`;
   };
 
-  const totalFlightPax = flightAdults + flightChildren + flightInfants;
+  const wrapperClass =
+    embeddedOnServicePage || embeddedInHero
+      ? 'w-full'
+      : 'py-16 md:py-24 max-w-7xl mx-auto px-5 sm:px-8';
 
-  const wrapperClass = embeddedOnServicePage
-    ? 'bg-[#fcf9f2] border border-[#d1a847]/50 rounded-2xl p-5 sm:p-8 lg:p-10 shadow-[0_20px_50px_rgba(11,29,58,0.09)]'
-    : 'py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-8';
+  const cardClass = embeddedInHero
+    ? 'bg-[#fcf9f2]/95 backdrop-blur-md border border-[#d1a847]/65 rounded-2xl p-3.5 sm:p-5 lg:p-6 shadow-[0_24px_64px_rgba(7,20,41,0.36)]'
+    : embeddedOnServicePage
+    ? 'bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-5 sm:p-8 lg:p-10 shadow-[0_18px_44px_rgba(11,29,58,0.08)]'
+    : 'bg-[#fcf9f2] border border-[#d1a847]/45 rounded-3xl p-5 sm:p-8 lg:p-10 shadow-[0_24px_60px_rgba(11,29,58,0.08)]';
 
-  const cardClass = embeddedOnServicePage
-    ? 'space-y-6'
-    : 'bg-[#fcf9f2] border-2 border-[#d1a847]/55 rounded-2xl p-4 sm:p-8 lg:p-10 shadow-[0_24px_60px_rgba(11,29,58,0.12)]';
+  const handleProviderKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setFlightProvider((prev) => (prev === 'aviasales' ? 'expedia' : 'aviasales'));
+    }
+  };
 
   return (
-    <section id="search-hub" aria-label={pack.hubTitle} className={wrapperClass}>
-      {!embeddedOnServicePage && (
+    <section
+      id={embeddedInHero ? 'hero-search-hub' : 'search-hub'}
+      aria-label={pack.hubTitle}
+      className={wrapperClass}
+    >
+      {!embeddedOnServicePage && !embeddedInHero && (
         <div className="max-w-3xl mx-auto text-center mb-10">
           <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-2.5">
             {pack.hubEyebrow}
@@ -347,8 +247,8 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
       )}
 
       <div className={cardClass}>
-        {/* Category Switcher Tabs (Show when multiple categories available) */}
-        {tabsToRender.length > 1 && (
+        {/* Category Switcher Tabs (Shown when not already controlled by Hero circular category icons) */}
+        {tabsToRender.length > 1 && !embeddedInHero && (
           <div className="mb-7 pb-5 border-b border-[#d1a847]/35">
             <div
               role="tablist"
@@ -406,47 +306,53 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
 
         {/* Active Category Content with Smooth Panel Entrance */}
         <div key={activeCategory} className="animate-search-panel-in">
-          {/* ==================== 1. FLIGHTS SEARCH ==================== */}
+          {/* ==================== 1. FLIGHTS SEARCH (AVIASALES + EXPEDIA TABS) ==================== */}
           {activeCategory === 'flights' && (
-            <div className="space-y-6">
-              {/* Trip Type Selector + Future Widget Slot Badge */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="inline-flex rounded-xl bg-[#ede1ce] p-1 border border-[#d1a847]/45">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTripType('round-trip');
-                      setFlightValidated(false);
-                    }}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
-                      tripType === 'round-trip'
-                        ? 'bg-[#0b1d3a] text-[#fceda2]'
-                        : 'text-[#0b1d3a]/80 hover:text-[#0b1d3a]'
-                    }`}
+            <div className={embeddedInHero ? 'space-y-4' : 'space-y-5'}>
+              {/* Flight Provider Selector Header + Service Page Link */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-[#d1a847]/35">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#2c405e] whitespace-nowrap">
+                    {pack.flights.providerSelectorLabel}
+                  </span>
+
+                  <div
+                    role="tablist"
+                    aria-label={pack.flights.providerSelectorLabel}
+                    className="inline-flex items-center gap-1 p-1 rounded-xl bg-[#ede1ce]/90 border border-[#d1a847]/55"
                   >
-                    {pack.flights.tripRoundTrip}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTripType('one-way');
-                      setFlightValidated(false);
-                    }}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
-                      tripType === 'one-way'
-                        ? 'bg-[#0b1d3a] text-[#fceda2]'
-                        : 'text-[#0b1d3a]/80 hover:text-[#0b1d3a]'
-                    }`}
-                  >
-                    {pack.flights.tripOneWay}
-                  </button>
+                    {(['aviasales', 'expedia'] as const).map((providerId) => {
+                      const selected = flightProvider === providerId;
+                      const meta = pack.flights.providers[providerId];
+                      return (
+                        <button
+                          key={providerId}
+                          id={`${uid}-flight-provider-${providerId}`}
+                          type="button"
+                          role="tab"
+                          aria-selected={selected}
+                          aria-controls={`${uid}-flight-provider-panel`}
+                          tabIndex={selected ? 0 : -1}
+                          onClick={() => setFlightProvider(providerId)}
+                          onKeyDown={handleProviderKeyDown}
+                          className={`px-3.5 sm:px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.12em] transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b1d3a] ${
+                            selected
+                              ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847] shadow-sm'
+                              : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a] hover:bg-[#fcf9f2]/80 border border-transparent'
+                          }`}
+                        >
+                          <span>{meta.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {onOpenServicePage && !embeddedOnServicePage && (
                   <button
                     type="button"
                     onClick={() => onOpenServicePage(SEARCH_CATEGORY_TO_SERVICE.flights)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9a7220] hover:text-[#0b1d3a] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9a7220] hover:text-[#0b1d3a] transition-colors cursor-pointer whitespace-nowrap"
                   >
                     <span>{pack.openDedicatedPage}</span>
                     <ArrowRight className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
@@ -454,405 +360,46 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                 )}
               </div>
 
-              <form onSubmit={handleFlightSubmit} noValidate className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
-                  {/* Origin */}
-                  <div className="md:col-span-5">
-                    <label
-                      htmlFor={`${uid}-flight-origin`}
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#0b1d3a] mb-1.5"
-                    >
-                      <Plane className="w-3.5 h-3.5 text-[#c59b38]" />
-                      <span>{pack.flights.originLabel}</span>
-                    </label>
-                    <input
-                      id={`${uid}-flight-origin`}
-                      list={`${uid}-origins-list`}
-                      type="text"
-                      value={flightOrigin}
-                      onChange={(e) => {
-                        setFlightOrigin(e.target.value);
-                        setFlightValidated(false);
-                      }}
-                      placeholder={pack.flights.originPlaceholder}
-                      className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
-                    />
-                    <datalist id={`${uid}-origins-list`}>
-                      {POPULAR_FLIGHT_ORIGINS.map((city) => (
-                        <option key={city} value={city} />
-                      ))}
-                    </datalist>
-                  </div>
-
-                  {/* Swap Button */}
-                  <div className="md:col-span-2 flex justify-center">
-                    <button
-                      type="button"
-                      onClick={swapFlightLocations}
-                      aria-label={pack.flights.swapAria}
-                      title={pack.flights.swapAria}
-                      className="w-full md:w-11 h-[42px] rounded-xl bg-[#ede1ce] hover:bg-[#0b1d3a] text-[#0b1d3a] hover:text-[#fceda2] border border-[#d1a847]/60 flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <ArrowLeftRight className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Destination */}
-                  <div className="md:col-span-5">
-                    <label
-                      htmlFor={`${uid}-flight-dest`}
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#0b1d3a] mb-1.5"
-                    >
-                      <MapPin className="w-3.5 h-3.5 text-[#c59b38]" />
-                      <span>{pack.flights.destinationLabel}</span>
-                    </label>
-                    <input
-                      id={`${uid}-flight-dest`}
-                      list={`${uid}-dests-list`}
-                      type="text"
-                      value={flightDest}
-                      onChange={(e) => {
-                        setFlightDest(e.target.value);
-                        setFlightValidated(false);
-                      }}
-                      placeholder={pack.flights.destinationPlaceholder}
-                      className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
-                    />
-                    <datalist id={`${uid}-dests-list`}>
-                      {POPULAR_FLIGHT_DESTINATIONS.map((city) => (
-                        <option key={city} value={city} />
-                      ))}
-                    </datalist>
-                  </div>
-                </div>
-
-                {/* Dates + Passengers + Cabin Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5 items-end">
-                  <div className={tripType === 'round-trip' ? 'lg:col-span-3' : 'lg:col-span-4'}>
-                    <label
-                      htmlFor={`${uid}-flight-depart`}
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#0b1d3a] mb-1.5"
-                    >
-                      <Calendar className="w-3.5 h-3.5 text-[#c59b38]" />
-                      <span>{pack.flights.departureDateLabel}</span>
-                    </label>
-                    <input
-                      id={`${uid}-flight-depart`}
-                      type="date"
-                      min={todayIso}
-                      value={flightDepartDate}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFlightDepartDate(val);
-                        if (flightReturnDate && val && flightReturnDate < val) {
-                          setFlightReturnDate(val);
-                        }
-                        setFlightValidated(false);
-                      }}
-                      className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                    />
-                  </div>
-
-                  {tripType === 'round-trip' && (
-                    <div className="lg:col-span-3">
-                      <label
-                        htmlFor={`${uid}-flight-return`}
-                        className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#0b1d3a] mb-1.5"
-                      >
-                        <Calendar className="w-3.5 h-3.5 text-[#c59b38]" />
-                        <span>{pack.flights.returnDateLabel}</span>
-                      </label>
-                      <input
-                        id={`${uid}-flight-return`}
-                        type="date"
-                        min={flightDepartDate || todayIso}
-                        value={flightReturnDate}
-                        onChange={(e) => {
-                          setFlightReturnDate(e.target.value);
-                          setFlightValidated(false);
-                        }}
-                        className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                    </div>
-                  )}
-
-                  {/* Interactive Passengers Stepper Dropdown */}
-                  <div
-                    ref={paxMenuRef}
-                    className={`relative ${tripType === 'round-trip' ? 'lg:col-span-3' : 'lg:col-span-4'}`}
-                  >
-                    <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#0b1d3a] mb-1.5">
-                      <Users className="w-3.5 h-3.5 text-[#c59b38]" />
-                      <span>{pack.flights.travelersLabel}</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setPaxDropdownOpen((prev) => !prev)}
-                      aria-expanded={paxDropdownOpen}
-                      className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] flex items-center justify-between gap-2 focus:outline-none focus:border-[#0b1d3a] cursor-pointer"
-                    >
-                      <span className="truncate font-medium">
-                        {totalFlightPax} · {flightAdults} {pack.flights.adultsLabel}
-                        {flightChildren > 0 ? `, ${flightChildren} ${pack.flights.childrenLabel}` : ''}
-                        {flightInfants > 0 ? `, ${flightInfants} ${pack.flights.infantsLabel}` : ''}
-                      </span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-[#9a7220] shrink-0 transition-transform ${
-                          paxDropdownOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    {paxDropdownOpen && (
-                      <div className="absolute left-0 right-0 z-30 mt-2 bg-[#fcf9f2] border border-[#d1a847] rounded-xl shadow-[0_18px_40px_rgba(11,29,58,0.2)] p-4 space-y-3">
-                        {/* Adults */}
-                        <div className="flex items-center justify-between gap-3">
-                          <div>
-                            <div className="text-xs font-bold text-[#0b1d3a]">
-                              {pack.flights.adultsLabel}
-                            </div>
-                            <div className="text-[11px] text-[#2c405e]">
-                              {pack.flights.adultsHint}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              aria-label={`- ${pack.flights.adultsLabel}`}
-                              onClick={() => adjustFlightPax('adults', -1)}
-                              disabled={flightAdults <= 1}
-                              className="w-7 h-7 rounded-lg border border-[#d1a847]/60 flex items-center justify-center text-[#0b1d3a] disabled:opacity-35 cursor-pointer"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="w-5 text-center text-sm font-bold tabular-nums">
-                              {flightAdults}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label={`+ ${pack.flights.adultsLabel}`}
-                              onClick={() => adjustFlightPax('adults', 1)}
-                              disabled={totalFlightPax >= 9}
-                              className="w-7 h-7 rounded-lg border border-[#d1a847]/60 flex items-center justify-center text-[#0b1d3a] disabled:opacity-35 cursor-pointer"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Children */}
-                        <div className="flex items-center justify-between gap-3 pt-2 border-t border-[#d1a847]/20">
-                          <div>
-                            <div className="text-xs font-bold text-[#0b1d3a]">
-                              {pack.flights.childrenLabel}
-                            </div>
-                            <div className="text-[11px] text-[#2c405e]">
-                              {pack.flights.childrenHint}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              aria-label={`- ${pack.flights.childrenLabel}`}
-                              onClick={() => adjustFlightPax('children', -1)}
-                              disabled={flightChildren <= 0}
-                              className="w-7 h-7 rounded-lg border border-[#d1a847]/60 flex items-center justify-center text-[#0b1d3a] disabled:opacity-35 cursor-pointer"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="w-5 text-center text-sm font-bold tabular-nums">
-                              {flightChildren}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label={`+ ${pack.flights.childrenLabel}`}
-                              onClick={() => adjustFlightPax('children', 1)}
-                              disabled={totalFlightPax >= 9}
-                              className="w-7 h-7 rounded-lg border border-[#d1a847]/60 flex items-center justify-center text-[#0b1d3a] disabled:opacity-35 cursor-pointer"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Infants */}
-                        <div className="flex items-center justify-between gap-3 pt-2 border-t border-[#d1a847]/20">
-                          <div>
-                            <div className="text-xs font-bold text-[#0b1d3a]">
-                              {pack.flights.infantsLabel}
-                            </div>
-                            <div className="text-[11px] text-[#2c405e]">
-                              {pack.flights.infantsHint}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              aria-label={`- ${pack.flights.infantsLabel}`}
-                              onClick={() => adjustFlightPax('infants', -1)}
-                              disabled={flightInfants <= 0}
-                              className="w-7 h-7 rounded-lg border border-[#d1a847]/60 flex items-center justify-center text-[#0b1d3a] disabled:opacity-35 cursor-pointer"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="w-5 text-center text-sm font-bold tabular-nums">
-                              {flightInfants}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label={`+ ${pack.flights.infantsLabel}`}
-                              onClick={() => adjustFlightPax('infants', 1)}
-                              disabled={totalFlightPax >= 9 || flightInfants >= flightAdults}
-                              className="w-7 h-7 rounded-lg border border-[#d1a847]/60 flex items-center justify-center text-[#0b1d3a] disabled:opacity-35 cursor-pointer"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Cabin Class */}
-                  <div className={tripType === 'round-trip' ? 'lg:col-span-3' : 'lg:col-span-4'}>
-                    <label
-                      htmlFor={`${uid}-flight-cabin`}
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#0b1d3a] mb-1.5"
-                    >
-                      <Layers className="w-3.5 h-3.5 text-[#c59b38]" />
-                      <span>{pack.flights.cabinLabel}</span>
-                    </label>
-                    <select
-                      id={`${uid}-flight-cabin`}
-                      value={cabinClass}
-                      onChange={(e) => {
-                        setCabinClass(e.target.value as CabinKey);
-                        setFlightValidated(false);
-                      }}
-                      className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                    >
-                      <option value="economy">{pack.flights.cabins.economy}</option>
-                      <option value="premium">{pack.flights.cabins.premium}</option>
-                      <option value="business">{pack.flights.cabins.business}</option>
-                      <option value="first">{pack.flights.cabins.first}</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Validation Messages */}
-                {flightErrors.length > 0 && (
-                  <div
-                    role="alert"
-                    className="rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-xs text-amber-950 space-y-1"
-                  >
-                    {flightErrors.map((err, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                        <span>{err}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                  <button
-                    type="submit"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.15em] shadow-md transition-colors cursor-pointer"
-                  >
-                    <Search className="w-4 h-4 text-[#d1a847]" />
-                    <span>{pack.flights.searchBtn}</span>
-                  </button>
-
-                  <span className="text-[11px] text-[#2c405e]/85 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#c59b38] shrink-0" />
-                    <span>{pack.flights.aviasalesNotice}</span>
-                  </span>
-                </div>
-              </form>
-
-              {/* Validated Flight Summary & Official Unmodified Aviasales Continue CTA */}
-              {flightValidated && (
-                <div className="rounded-2xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847] p-5 sm:p-7 space-y-4 animate-search-panel-in">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <div className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-[#d1a847] font-semibold">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>{pack.flights.summaryTitle}</span>
-                      </div>
-                      <h3 className="font-serif-crest text-xl sm:text-2xl font-semibold text-[#fcf9f2] mt-1">
-                        {flightOrigin.trim()} → {flightDest.trim()}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                        {flightDepartDate}
-                        {tripType === 'round-trip' && flightReturnDate ? ` → ${flightReturnDate}` : ''}{' '}
-                        · {totalFlightPax} {pack.flights.travelersLabel} ·{' '}
-                        {pack.flights.cabins[cabinClass]}
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setFlightValidated(false)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#fceda2]/90 hover:text-white cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>{pack.flights.resetBtn}</span>
-                    </button>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                    {pack.flights.summarySubtitle}
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
-                    <a
-                      href={AVIASALES_PARTNER.affiliateUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.15em] shadow-lg transition-colors"
-                    >
-                      <span>{pack.flights.continueAviasalesBtn}</span>
-                      <ExternalLink className="w-4 h-4 shrink-0" />
-                    </a>
-
-                    <a
-                      href={buildFlightWhatsappUrl()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#071429] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors"
-                    >
-                      <span>
-                        {pack.flights.agencyFlightQuoteBtn} ({displayPhone})
-                      </span>
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {/* Modular Future Aviasales Official Search Widget Slot (Prepared cleanly for Phase 2) */}
+              {/* Single Active Provider Widget (Never Stacked) */}
               <div
-                id={AVIASALES_PARTNER.widgetSlotId}
-                data-supplier="aviasales"
-                className="rounded-xl bg-[#f5ede0]/60 border border-dashed border-[#d1a847]/60 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[#2c405e]"
+                id={`${uid}-flight-provider-panel`}
+                role="tabpanel"
+                aria-labelledby={`${uid}-flight-provider-${flightProvider}`}
+                className="animate-search-panel-in"
+                key={flightProvider}
               >
-                <div className="flex items-center gap-2 font-semibold text-[#0b1d3a]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#c59b38] shrink-0" />
-                  <span>{pack.flights.futureWidgetBadge}</span>
-                </div>
-                <span className="text-[11px] text-[#2c405e]/85">{pack.flights.futureWidgetNote}</span>
+                {flightProvider === 'aviasales' ? (
+                  <AviasalesFlightWidget
+                    key="aviasales-flights-widget"
+                    lang={lang}
+                    onJumpToPlanner={onJumpToPlanner}
+                    whatsappInternational={whatsappInternational}
+                    displayPhone={displayPhone}
+                    compact={embeddedInHero}
+                  />
+                ) : (
+                  <ExpediaFlightWidget
+                    key="expedia-flights-widget"
+                    lang={lang}
+                    onJumpToPlanner={onJumpToPlanner}
+                    whatsappInternational={whatsappInternational}
+                    displayPhone={displayPhone}
+                    compact={embeddedInHero}
+                  />
+                )}
               </div>
             </div>
           )}
 
           {/* ==================== 2. HOTELS SEARCH (OFFICIAL FR-EXPEDIA WIDGET) ==================== */}
           {activeCategory === 'hotels' && (
-            <div className="space-y-5">
+            <div className={embeddedInHero ? 'space-y-4' : 'space-y-5'}>
               {onOpenServicePage && !embeddedOnServicePage && (
                 <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={() => onOpenServicePage(SEARCH_CATEGORY_TO_SERVICE.hotels)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9a7220] hover:text-[#0b1d3a] transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#9a7220] hover:text-[#0b1d3a] transition-colors cursor-pointer whitespace-nowrap"
                   >
                     <span>{pack.openDedicatedPage}</span>
                     <ArrowRight className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
