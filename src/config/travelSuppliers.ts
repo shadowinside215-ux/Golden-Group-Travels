@@ -1,13 +1,22 @@
 import { HeroCategoryId, ServiceId } from '../assets/destinations';
 
-export type SearchCategoryId = 'flights' | 'hotels' | 'umrah' | 'holidays' | 'tours';
+export type SearchCategoryId =
+  | 'flights'
+  | 'hotels'
+  | 'umrah'
+  | 'holidays'
+  | 'tours'
+  | 'car-transfers';
+
+export type CarTransfersTabId = 'car_rentals' | 'airport_transfers';
 
 export const SEARCH_CATEGORY_ORDER: SearchCategoryId[] = [
   'flights',
   'hotels',
   'umrah',
   'holidays',
-  'tours'
+  'tours',
+  'car-transfers'
 ];
 
 export const HERO_TO_SEARCH_CATEGORY: Record<HeroCategoryId, SearchCategoryId> = {
@@ -22,7 +31,8 @@ export const SEARCH_CATEGORY_TO_SERVICE: Record<SearchCategoryId, ServiceId> = {
   hotels: 'hotel-reservations',
   umrah: 'hajj-umrah',
   holidays: 'holiday-packages',
-  tours: 'holiday-packages'
+  tours: 'holiday-packages',
+  'car-transfers': 'holiday-packages'
 };
 
 export const SERVICE_TO_SEARCH_CATEGORY: Partial<Record<ServiceId, SearchCategoryId>> = {
@@ -34,9 +44,21 @@ export const SERVICE_TO_SEARCH_CATEGORY: Partial<Record<ServiceId, SearchCategor
 
 export type FlightProviderId = 'aviasales' | 'expedia';
 
+export interface TravelpayoutsWidgetSpec {
+  id: string;
+  providerName: string;
+  campaignId: string;
+  promoId: string;
+  scriptSrc: string;
+  layoutKind: 'search' | 'cards' | 'banner';
+  minHeightClass?: string;
+  containerClassName?: string;
+}
+
 /**
- * Modular Affiliate & Partner Configuration (Phase 1)
- * Keep all supplied tracking URLs and attributes intact and separate from Travelpayouts Drive.
+ * Modular Affiliate & Partner Configuration
+ * Keep all supplied tracking URLs, campaign IDs, promo IDs, trs=603176, shmarker=808002,
+ * Expedia data-camref="1110lTryc" and data-pubref="golden_main_search" intact.
  */
 export const AVIASALES_PARTNER = {
   id: 'aviasales',
@@ -49,6 +71,17 @@ export const AVIASALES_PARTNER = {
     'https://tp.media/r?campaign_id=100&marker=808002&p=4114&trs=603176&u=https%3A%2F%2Faviasales.com',
   widgetContainerId: 'aviasales-official-widget'
 } as const;
+
+export const FLIGHTS_OFFERS_WIDGET: TravelpayoutsWidgetSpec = {
+  id: 'kiwi-flight-offers',
+  providerName: 'Kiwi.com',
+  campaignId: '111',
+  promoId: '3411',
+  scriptSrc:
+    'https://tpemb.com/content?currency=usd&trs=603176&shmarker=808002&locale=en&powered_by=true&limit=4&primary_color=00AE98&results_background_color=FFFFFF&form_background_color=FFFFFF&campaign_id=111&promo_id=3411',
+  layoutKind: 'cards',
+  minHeightClass: 'min-h-[340px]'
+};
 
 export const EXPEDIA_FLIGHTS_WIDGET_CONFIG = {
   widget: 'search',
@@ -63,10 +96,13 @@ export const EXPEDIA_FLIGHTS_WIDGET_CONFIG = {
   widgetsBaseUrl: 'https://creator.expediagroup.com/products/widgets'
 } as const;
 
+/**
+ * Official Expedia Hotels Search Configuration (Hotels-only via documented lobs="stays")
+ */
 export const EXPEDIA_HOTELS_WIDGET_CONFIG = {
   widget: 'search',
   program: 'fr-expedia',
-  lobs: 'stays,flights',
+  lobs: 'stays',
   network: 'pz',
   camref: '1110lTryc',
   pubref: 'golden_main_search',
@@ -75,6 +111,105 @@ export const EXPEDIA_HOTELS_WIDGET_CONFIG = {
   origin: 'https://creator.expediagroup.com',
   widgetsBaseUrl: 'https://creator.expediagroup.com/products/widgets'
 } as const;
+
+export const TOURS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
+  {
+    id: 'tours-klook-dynamic',
+    providerName: 'Klook',
+    campaignId: '137',
+    promoId: '4497',
+    scriptSrc:
+      'https://tpemb.com/content?currency=USD&trs=603176&shmarker=808002&locale=en&city_id=4&category=4&amount=3&powered_by=true&campaign_id=137&promo_id=4497',
+    layoutKind: 'cards',
+    minHeightClass: 'min-h-[470px]'
+  },
+  {
+    id: 'tours-tiqets-discovery',
+    providerName: 'Tiqets',
+    campaignId: '89',
+    promoId: '3948',
+    scriptSrc:
+      'https://tpemb.com/content?currency=USD&trs=603176&shmarker=808002&product=&language=en&layout=horizontal&powered_by=true&campaign_id=89&promo_id=3948',
+    layoutKind: 'cards',
+    minHeightClass: 'min-h-[320px]'
+  },
+  {
+    id: 'tours-wegotrip-audio',
+    providerName: 'WeGoTrip',
+    campaignId: '150',
+    promoId: '4489',
+    scriptSrc:
+      'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&tours=3&powered_by=true&campaign_id=150&promo_id=4489',
+    layoutKind: 'cards',
+    minHeightClass: 'min-h-[480px]'
+  }
+] as const;
+
+export const CAR_RENTALS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
+  {
+    id: 'car-localrent',
+    providerName: 'Localrent',
+    campaignId: '87',
+    promoId: '2466',
+    scriptSrc:
+      'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&country=12&city=53741&powered_by=true&campaign_id=87&promo_id=2466',
+    layoutKind: 'search',
+    minHeightClass: 'min-h-[560px]'
+  },
+  {
+    id: 'car-getrentacar',
+    providerName: 'GetRentacar',
+    campaignId: '222',
+    promoId: '8813',
+    scriptSrc:
+      'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&powered_by=true&campaign_id=222&promo_id=8813',
+    layoutKind: 'search',
+    minHeightClass: 'min-h-[560px]'
+  },
+  {
+    id: 'car-economybookings-banner',
+    providerName: 'EconomyBookings',
+    campaignId: '10',
+    promoId: '2082',
+    scriptSrc:
+      'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&width=100&height=100&powered_by=true&campaign_id=10&promo_id=2082',
+    layoutKind: 'banner',
+    containerClassName: 'w-full max-w-[600px] mx-auto h-[420px] sm:h-[460px]'
+  },
+  {
+    id: 'car-autoeurope',
+    providerName: 'AutoEurope',
+    campaignId: '143',
+    promoId: '4362',
+    scriptSrc:
+      'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&powered_by=true&border_radius=5&plain=true&show_logo=true&color_background=%230b2033&color_button=%23e8b917&promo_id=4362&campaign_id=143',
+    layoutKind: 'search',
+    minHeightClass: 'min-h-[260px]'
+  }
+] as const;
+
+export const AIRPORT_TRANSFERS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
+  {
+    id: 'transfer-intui',
+    providerName: 'Intui.travel',
+    campaignId: '22',
+    promoId: '3507',
+    scriptSrc:
+      'https://tpemb.com/content?trs=603176&shmarker=808002&powered_by=true&locale=en&curr=USD&color=basic&pbi=0&ag=18&ap=34&rid=481&campaign_id=22&promo_id=3507',
+    layoutKind: 'cards',
+    minHeightClass: 'min-h-[400px]'
+  },
+  {
+    id: 'transfer-kiwitaxi',
+    providerName: 'Kiwitaxi',
+    campaignId: '1',
+    promoId: '3879',
+    scriptSrc:
+      'https://tpemb.com/content?currency=USD&trs=603176&shmarker=808002&locale=en&powered_by=true&transfer_options_limit=10&transfer_options=MCR&disable_currency_selector=true&hide_form_extras=true&hide_external_links=true&campaign_id=1&promo_id=3879',
+    layoutKind: 'search',
+    minHeightClass: 'min-h-[340px]'
+  }
+] as const;
 
 export interface ToursAffiliatePartner {
   id: 'klook' | 'kkday';
@@ -93,23 +228,6 @@ export const TOURS_AFFILIATE_PARTNERS: readonly ToursAffiliatePartner[] = [
     name: 'KKday',
     affiliateUrl: 'https://kkday.tpk.lu/wb2MzuCE'
   }
-] as const;
-
-export const POPULAR_FLIGHT_ORIGINS = [
-  'Casablanca (CMN)',
-  'Rabat-Salé (RBA)',
-  'Marrakech (RAK)',
-  'Tanger (TNG)',
-  'Paris (CDG / ORY)'
-] as const;
-
-export const POPULAR_FLIGHT_DESTINATIONS = [
-  'Paris (CDG)',
-  'Istanbul (IST)',
-  'Dubaï (DXB)',
-  'Jeddah (JED)',
-  'Madrid (MAD)',
-  'Londres (LHR)'
 ] as const;
 
 export const POPULAR_TOUR_DESTINATIONS = [

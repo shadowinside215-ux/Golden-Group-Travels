@@ -5,6 +5,9 @@ export interface SearchEngineLocalePack {
   hubEyebrow: string;
   hubTitle: string;
   hubSubtitle: string;
+  servicesHubEyebrow: string;
+  servicesHubTitle: string;
+  servicesHubSubtitle: string;
   openDedicatedPage: string;
   categories: Record<
     SearchCategoryId,
@@ -28,6 +31,11 @@ export interface SearchEngineLocalePack {
     liveSubtitle: string;
     loadingLabel: string;
     loadErrorFallback: string;
+    offersBadge: string;
+    offersTitle: string;
+    offersSubtitle: string;
+    offersLoadingLabel: string;
+    offersLoadErrorFallback: string;
     conciergeTitle: string;
     conciergeDesc: string;
     tripRoundTrip: string;
@@ -95,6 +103,15 @@ export interface SearchEngineLocalePack {
     quickDestinationsLabel: string;
     selectedDestinationLabel: string;
     transparencyNote: string;
+    widgetsHeader: string;
+    widgetsSubtitle: string;
+    widgetLoadingLabel: string;
+    widgetLoadErrorFallback: string;
+    widgets: {
+      'tours-klook-dynamic': { badge: string; title: string; subtitle: string };
+      'tours-tiqets-discovery': { badge: string; title: string; subtitle: string };
+      'tours-wegotrip-audio': { badge: string; title: string; subtitle: string };
+    };
     klookTitle: string;
     klookDesc: string;
     klookCta: string;
@@ -103,6 +120,34 @@ export interface SearchEngineLocalePack {
     kkdayCta: string;
     customTourBtn: string;
     architectureNote: string;
+  };
+  carTransfers: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    tabSelectorLabel: string;
+    tabs: {
+      car_rentals: { label: string; sub: string };
+      airport_transfers: { label: string; sub: string };
+    };
+    carRentalsTitle: string;
+    carRentalsSubtitle: string;
+    transfersTitle: string;
+    transfersSubtitle: string;
+    loadingLabel: string;
+    loadErrorFallback: string;
+    transparencyNote: string;
+    widgets: {
+      'car-localrent': { badge: string; title: string; subtitle: string };
+      'car-getrentacar': { badge: string; title: string; subtitle: string };
+      'car-economybookings-banner': { badge: string; title: string; subtitle: string };
+      'car-autoeurope': { badge: string; title: string; subtitle: string };
+      'transfer-intui': { badge: string; title: string; subtitle: string };
+      'transfer-kiwitaxi': { badge: string; title: string; subtitle: string };
+    };
+    conciergeTitle: string;
+    conciergeDesc: string;
+    conciergeCta: string;
   };
   umrah: {
     badge: string;
@@ -173,14 +218,18 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     hubEyebrow: 'Moteur de Recherche Voyage · Golden Group Travels',
     hubTitle: 'Planifiez & Recherchez Votre Prochain Départ',
     hubSubtitle:
-      'Sélectionnez une catégorie pour accéder aux critères dédiés : vols internationaux, hôtels Expedia, El Omra sur mesure, séjours ou circuits.',
+      'Sélectionnez une catégorie pour accéder aux critères dédiés : vols internationaux, hôtels Expedia, El Omra sur mesure, séjours, circuits ou location de voitures.',
+    servicesHubEyebrow: 'Conciergerie & Réservation Directe · Golden Group Travels',
+    servicesHubTitle: 'Découvrez Nos Services de Voyage',
+    servicesHubSubtitle: 'Tout ce dont vous avez besoin pour votre prochain voyage, réuni au même endroit.',
     openDedicatedPage: 'Ouvrir la page complète du service',
     categories: {
-      flights: { tabLabel: 'Vols', shortSub: 'Billets & Correspondances' },
-      hotels: { tabLabel: 'Hôtels', shortSub: 'Expedia France' },
+      flights: { tabLabel: 'Vols', shortSub: 'Aviasales & Kiwi' },
+      hotels: { tabLabel: 'Hôtels', shortSub: 'Expedia Stays' },
       umrah: { tabLabel: 'El Omra / La Mecque', shortSub: 'Pèlerinages Sacrés' },
       holidays: { tabLabel: 'Séjours', shortSub: 'Vacances Sur Mesure' },
-      tours: { tabLabel: 'Circuits', shortSub: 'Activités & Excursions' }
+      tours: { tabLabel: 'Circuits & Activités', shortSub: 'Klook, Tiqets & WeGoTrip' },
+      'car-transfers': { tabLabel: 'Voitures & Transferts Aéroport', shortSub: 'Location & Chauffeurs' }
     },
     flights: {
       providerSelectorLabel: 'Fournisseur de recherche de vols',
@@ -201,6 +250,13 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       loadingLabel: 'Chargement du moteur de recherche Aviasales…',
       loadErrorFallback:
         'Le widget intégré n’a pas pu s’afficher ici. Ouvrez directement la recherche sur Aviasales :',
+      offersBadge: 'Recherche & Offres Aériennes · Kiwi.com',
+      offersTitle: 'Recherche Rapide & Top 4 des Itinéraires Vols via Kiwi.com',
+      offersSubtitle:
+        'Complétez votre comparaison avec le moteur officiel Kiwi.com et ses 4 meilleures suggestions d’itinéraires.',
+      offersLoadingLabel: 'Chargement du module Kiwi.com…',
+      offersLoadErrorFallback:
+        'Le module Kiwi.com n’a pas pu se charger pour le moment. Vous pouvez réessayer ou contacter notre agence.',
       conciergeTitle: 'Accompagnement Agence Golden Group :',
       conciergeDesc:
         'Billets multi-destinations, bagages spéciaux ou règlement à notre agence de Salé.',
@@ -253,13 +309,13 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       }
     },
     hotels: {
-      badge: 'Recherche Hôtelière Officielle · Expedia France',
+      badge: 'Recherche Hôtelière Officielle · Expedia',
       title: 'Rechercher Votre Hôtel en Direct avec Expedia',
       subtitle:
-        'Utilisez directement les champs officiels ci-contre (destination, arrivée, départ, chambres, adultes, enfants) pour lancer une recherche réelle sur Expedia.fr.',
-      includesLabel: 'Contrôles disponibles dans le moteur Expedia',
+        'Utilisez directement les champs officiels ci-contre (destination, arrivée, départ, chambres, adultes, enfants) pour lancer une recherche hôtelière réelle sur Expedia.',
+      includesLabel: 'Contrôles disponibles dans le moteur Hôtels Expedia',
       includesItems: [
-        'Destination libre (ville, quartier ou hôtel)',
+        'Recherche dédiée aux hébergements et hôtels',
         'Dates d’arrivée et de départ en temps réel',
         'Nombre de chambres, adultes et enfants',
         'Ouverture sécurisée des disponibilités sur Expedia.fr'
@@ -275,13 +331,36 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       badge: 'Circuits, Excursions & Billets · Partenaires Officiels',
       title: 'Explorer les Circuits & Activités dans le Monde',
       subtitle:
-        'Sélectionnez votre destination souhaitée puis accédez aux plateformes partenaires Klook ou KKday pour découvrir les activités disponibles.',
+        'Parcourez les sélections en direct de nos partenaires Klook, Tiqets et WeGoTrip ou ouvrez les portails partenaires Klook et KKday.',
       destinationLabel: 'Destination souhaitée (repère personnel)',
       destinationPlaceholder: 'Ex : Marrakech, Istanbul, Dubaï, Paris, Suisse...',
       quickDestinationsLabel: 'Destinations populaires',
       selectedDestinationLabel: 'Destination notée :',
       transparencyNote:
-        'Ces boutons ouvrent les portails partenaires Klook et KKday dans un nouvel onglet. Ils ne filtrent pas automatiquement un inventaire interne sans API fournisseur connectée.',
+        'Les sélections ci-dessous proviennent directement des widgets officiels de nos partenaires.',
+      widgetsHeader: 'Sélections Partenaires en Direct',
+      widgetsSubtitle:
+        'Comparez des visites guidées, billets coupe-file et expériences audio dans le monde entier.',
+      widgetLoadingLabel: 'Chargement de l’expérience partenaire…',
+      widgetLoadErrorFallback:
+        'Ce module partenaire est temporairement indisponible ici. Utilisez les liens directs ci-dessous.',
+      widgets: {
+        'tours-klook-dynamic': {
+          badge: 'Klook · Activités & Pass',
+          title: 'Activités & Excursions Sélectionnées',
+          subtitle: 'Billets d’attractions, expériences urbaines et sorties recommandées via Klook.'
+        },
+        'tours-tiqets-discovery': {
+          badge: 'Tiqets · Musées & Monuments',
+          title: 'Découverte Culturelle & Billets Coupe-File',
+          subtitle: 'Sélection horizontale d’entrées musées, monuments et visites avec Tiqets.'
+        },
+        'tours-wegotrip-audio': {
+          badge: 'WeGoTrip · Audioguides & Billets',
+          title: 'Visites Audio Autoguidées',
+          subtitle: 'Parcours audio immersifs et billets d’entrée proposés par WeGoTrip.'
+        }
+      },
       klookTitle: 'Klook · Activités, Billets & Excursions',
       klookDesc:
         'Parcs, visites guidées, transferts et expériences urbaines dans les grandes destinations.',
@@ -292,7 +371,65 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       kkdayCta: 'Explorer les circuits avec KKday',
       customTourBtn: 'Organiser un circuit privé via WhatsApp',
       architectureNote:
-        'Espace modulaire préparé pour l’intégration future de widgets ou API fournisseurs circuits.'
+        'Besoin d’un itinéraire privé ou d’un groupe organisé depuis Salé / Rabat ?'
+    },
+    carTransfers: {
+      badge: 'Mobilité & Chauffeurs · Partenaires Officiels',
+      title: 'Location de Voitures & Transferts Aéroport',
+      subtitle:
+        'Choisissez entre la location de véhicules auprès de loueurs internationaux et les transferts privés depuis votre aéroport d’arrivée.',
+      tabSelectorLabel: 'Choisir le service de mobilité',
+      tabs: {
+        car_rentals: { label: 'Location de Voitures', sub: '4 Partenaires' },
+        airport_transfers: { label: 'Transferts Aéroport', sub: '2 Partenaires' }
+      },
+      carRentalsTitle: 'Comparateurs & Loueurs Partenaires',
+      carRentalsSubtitle:
+        'Recherchez et comparez votre véhicule directement sur Localrent, GetRentacar, EconomyBookings et AutoEurope.',
+      transfersTitle: 'Transferts Aéroport Privés & Navettes',
+      transfersSubtitle:
+        'Réservez votre accueil aéroport avec Intui.travel ou Kiwitaxi vers votre hôtel ou domicile.',
+      loadingLabel: 'Chargement du module partenaire…',
+      loadErrorFallback:
+        'Le module partenaire n’a pas pu s’afficher ici. Contactez notre agence sur WhatsApp pour organiser votre trajet.',
+      transparencyNote:
+        'Tous les tarifs, conditions de caution et disponibilités proviennent directement de chaque partenaire ci-dessous.',
+      widgets: {
+        'car-localrent': {
+          badge: 'Localrent',
+          title: 'Location Locale Vérifiée',
+          subtitle: 'Véhicules sélectionnés auprès d’agences locales avec conditions transparentes.'
+        },
+        'car-getrentacar': {
+          badge: 'GetRentacar',
+          title: 'Places de Marché & Véhicules avec ou sans Chauffeur',
+          subtitle: 'Comparez les offres disponibles directement sur GetRentacar.'
+        },
+        'car-economybookings-banner': {
+          badge: 'EconomyBookings',
+          title: 'Recherche Rapide Multi-Loueurs',
+          subtitle: 'Accès direct aux offres de location internationale via EconomyBookings.'
+        },
+        'car-autoeurope': {
+          badge: 'AutoEurope',
+          title: 'Réseau Mondial de Location Automobile',
+          subtitle: 'Recherchez votre véhicule dans plus de 24 000 agences partenaires.'
+        },
+        'transfer-intui': {
+          badge: 'Intui.travel',
+          title: 'Transferts & Navettes Aéroport Mondiales',
+          subtitle: 'Découvrez les trajets populaires et tarifs transferts avec Intui.travel.'
+        },
+        'transfer-kiwitaxi': {
+          badge: 'Kiwitaxi',
+          title: 'Réservation de Chauffeur Privé à l’Arrivée',
+          subtitle: 'Planifiez votre transfert aéroport porte-à-porte avec accueil personnalisé.'
+        }
+      },
+      conciergeTitle: 'Assistance Mobilité Golden Group :',
+      conciergeDesc:
+        'Besoin d’un van familial à Salé, Rabat, Casablanca ou d’un transfert VIP pendant votre séjour ?',
+      conciergeCta: 'Contacter sur WhatsApp'
     },
     umrah: {
       badge: 'Pèlerinages Sacrés · Accompagnement Golden Group',
@@ -387,14 +524,18 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     hubEyebrow: 'محرك البحث عن السفر · جولدن جروب',
     hubTitle: 'ابحث وخطّط لرحلتك القادمة بسهولة',
     hubSubtitle:
-      'اختر الفئة المناسبة لعرض الحقول الخاصة بها فقط: الطيران الدولي، الفنادق عبر Expedia، العمرة، العطلات أو الجولات.',
+      'اختر الفئة المناسبة لعرض الأدوات الخاصة بها فقط: الطيران، الفنادق، العمرة، العطلات، الجولات أو تأجير السيارات.',
+    servicesHubEyebrow: 'منصة الحجز الشاملة · جولدن جروب ترافيلز',
+    servicesHubTitle: 'استكشف خدمات السفر لدينا',
+    servicesHubSubtitle: 'كل ما تحتاجه لرحلتك القادمة في مكان واحد.',
     openDedicatedPage: 'فتح الصفحة الكاملة للخدمة',
     categories: {
-      flights: { tabLabel: 'الطيران', shortSub: 'رحلات دولية' },
-      hotels: { tabLabel: 'الفنادق', shortSub: 'Expedia France' },
+      flights: { tabLabel: 'الطيران', shortSub: 'Aviasales و Kiwi' },
+      hotels: { tabLabel: 'الفنادق', shortSub: 'فنادق Expedia' },
       umrah: { tabLabel: 'العمرة / مكة', shortSub: 'رحلات روحانية' },
       holidays: { tabLabel: 'العطلات', shortSub: 'باقات مخصصة' },
-      tours: { tabLabel: 'الجولات', shortSub: 'أنشطة وتجارب' }
+      tours: { tabLabel: 'الجولات والأنشطة', shortSub: 'Klook و Tiqets و WeGoTrip' },
+      'car-transfers': { tabLabel: 'تأجير السيارات والنقل من المطار', shortSub: 'سيارات وسائقون' }
     },
     flights: {
       providerSelectorLabel: 'مزوّد البحث عن رحلات الطيران',
@@ -406,18 +547,21 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       expediaTitle: 'ابحث عن تذاكر الطيران عبر Expedia',
       expediaSubtitle:
         'أدخل مدينة المغادرة والوجهة وتواريخ السفر وعدد المسافرين مباشرة في أداة Expedia الرسمية أدناه.',
-      expediaNote:
-        'تُعرض الأسعار والرحلات الحقيقية مباشرة عبر بوابة Expedia.fr الرسمية.',
+      expediaNote: 'تُعرض الأسعار والرحلات الحقيقية مباشرة عبر بوابة Expedia.fr الرسمية.',
       liveBadge: 'محرك البحث الرسمي عن الطيران · Aviasales',
       liveTitle: 'ابحث عن تذاكر الطيران مباشرة',
       liveSubtitle:
         'اختر مطار الانطلاق والوصول وتواريخ السفر وعدد المسافرين مباشرة عبر أداة Aviasales المعتمدة باليورو.',
       loadingLabel: 'جاري تحميل محرك البحث Aviasales…',
-      loadErrorFallback:
-        'تعذر عرض الأداة المدمجة هنا. يمكنك المتابعة مباشرة إلى منصة Aviasales:',
+      loadErrorFallback: 'تعذر عرض الأداة المدمجة هنا. يمكنك المتابعة مباشرة إلى منصة Aviasales:',
+      offersBadge: 'بحث وعروض الطيران · Kiwi.com',
+      offersTitle: 'بحث سريع وأبرز 4 عروض رحلات عبر Kiwi.com',
+      offersSubtitle:
+        'استعرض مقارنة إضافية للرحلات وأبرز 4 مسارات مقترحة مباشرة عبر أداة Kiwi.com.',
+      offersLoadingLabel: 'جاري تحميل أداة Kiwi.com…',
+      offersLoadErrorFallback: 'تعذر تحميل أداة Kiwi.com حالياً. يمكنك المحاولة لاحقاً أو التواصل معنا.',
       conciergeTitle: 'خدمة وكالة جولدن جروب:',
-      conciergeDesc:
-        'لحجوزات الوجهات المتعددة أو المساعدة المباشرة من فريقنا بسلا.',
+      conciergeDesc: 'لحجوزات الوجهات المتعددة أو المساعدة المباشرة من فريقنا بسلا.',
       tripRoundTrip: 'ذهاب وعودة',
       tripOneWay: 'ذهاب فقط',
       originLabel: 'مدينة أو مطار المغادرة',
@@ -451,8 +595,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       continueAviasalesBtn: 'المتابعة إلى Aviasales',
       agencyFlightQuoteBtn: 'طلب عرض سعر طيران عبر واتساب',
       futureWidgetBadge: 'بنية جاهزة · أداة Aviasales الرسمية',
-      futureWidgetNote:
-        'مساحة مهيأة لإدراج أداة البحث الرسمية من Aviasales فور استلام الكود الخاص بها.',
+      futureWidgetNote: 'مساحة مهيأة لإدراج أداة البحث الرسمية من Aviasales فور استلام الكود الخاص بها.',
       errors: {
         originRequired: 'يرجى إدخال مدينة أو مطار المغادرة.',
         destinationRequired: 'يرجى إدخال وجهة الوصول.',
@@ -467,11 +610,11 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       }
     },
     hotels: {
-      badge: 'البحث الفندقي الرسمي · Expedia France',
+      badge: 'البحث الفندقي الرسمي · Expedia',
       title: 'ابحث عن الفنادق مباشرة عبر Expedia',
       subtitle:
-        'استخدم حقول البحث الرسمية في أداة Expedia (الوجهة، تسجيل الدخول، المغادرة، الغرف، البالغون والأطفال) لإجراء بحث حقيقي.',
-      includesLabel: 'عناصر البحث المتوفرة في الأداة الرسمية',
+        'استخدم حقول البحث الرسمية في أداة Expedia (الوجهة، تسجيل الدخول، المغادرة، الغرف، البالغون والأطفال) لإجراء بحث حقيقي عن الفنادق.',
+      includesLabel: 'عناصر البحث المتوفرة في أداة الفنادق',
       includesItems: [
         'اختيار الوجهة أو المدينة أو الفندق',
         'تحديد تواريخ الوصول والمغادرة',
@@ -480,21 +623,40 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       ],
       widgetNote: 'جميع النتائج والتوافر تُعرض مباشرة من Expedia عبر هذه الأداة الرسمية.',
       agencyHotelTitle: 'تفضل حجزاً مخصصاً عبر وكالتنا بسلا؟',
-      agencyHotelDesc:
-        'يمكنك أيضاً تحديد أي فندق على خرائط جوجل والتواصل مباشرة مع مستشارينا.',
+      agencyHotelDesc: 'يمكنك أيضاً تحديد أي فندق على خرائط جوجل والتواصل مباشرة مع مستشارينا.',
       agencyHotelBtn: 'الانتقال إلى خرائط جوجل والحجز'
     },
     tours: {
       badge: 'الجولات والأنشطة السياحية · شركاء رسميون',
       title: 'استكشف الجولات والأنشطة حول العالم',
       subtitle:
-        'اختر وجهتك المفضلة ثم انتقل مباشرة إلى شركائنا Klook أو KKday لتصفح الجولات والتذاكر المتاحة.',
+        'تصفح العروض المباشرة من شركائنا Klook و Tiqets و WeGoTrip أو انتقل إلى منصتي Klook و KKday.',
       destinationLabel: 'الوجهة المرغوبة',
       destinationPlaceholder: 'مثال: مراكش، إسطنبول، دبي، باريس، سويسرا...',
       quickDestinationsLabel: 'وجهات شائعة',
       selectedDestinationLabel: 'الوجهة المختارة:',
-      transparencyNote:
-        'تفتح الأزرار منصتي Klook و KKday في علامة تبويب جديدة ولا تقوم بتصفية مخزون داخلي دون ربط API.',
+      transparencyNote: 'تُعرض الأنشطة التالية مباشرة عبر الأدوات الرسمية لكل شريك.',
+      widgetsHeader: 'عروض وتجارب الشركاء المباشرة',
+      widgetsSubtitle: 'قارن التذاكر، الجولات الثقافية والأدلة الصوتية عبر مزوّدين عالميين.',
+      widgetLoadingLabel: 'جاري تحميل أداة الشريك…',
+      widgetLoadErrorFallback: 'تعذر تحميل هذه الأداة حالياً. استخدم روابط الشركاء المباشرة أدناه.',
+      widgets: {
+        'tours-klook-dynamic': {
+          badge: 'Klook · التذاكر والأنشطة',
+          title: 'تجارب وجولات مختارة عبر Klook',
+          subtitle: 'أبرز الأنشطة وتذاكر المعالم والرحلات الحضرية من Klook.'
+        },
+        'tours-tiqets-discovery': {
+          badge: 'Tiqets · المتاحف والمعالم',
+          title: 'تذاكر المتاحف والمعالم السياحية',
+          subtitle: 'بطاقات دخول مباشرة وجولات ثقافية عبر Tiqets.'
+        },
+        'tours-wegotrip-audio': {
+          badge: 'WeGoTrip · الجولات الصوتية',
+          title: 'جولات صوتية إرشادية وتذاكر',
+          subtitle: 'استكشف أشهر المعالم مع أدلة صوتية عبر WeGoTrip.'
+        }
+      },
       klookTitle: 'Klook · التذاكر والأنشطة السياحية',
       klookDesc: 'تذاكر المعالم، الجولات الإرشادية وتجارب المدن حول العالم.',
       klookCta: 'استكشف الأنشطة مع Klook',
@@ -502,7 +664,62 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       kkdayDesc: 'رحلات يومية منظمة وتجارب ثقافية وسياحية مختارة.',
       kkdayCta: 'استكشف الجولات مع KKday',
       customTourBtn: 'طلب جولة خاصة عبر واتساب',
-      architectureNote: 'بنية جاهزة لإضافة أدوات بحث الموردين مستقبلاً.'
+      architectureNote: 'هل تبحث عن برنامج جولات خاص انطلاقاً من سلا أو الرباط؟'
+    },
+    carTransfers: {
+      badge: 'التنقل والنقل الخاص · شركاء رسميون',
+      title: 'تأجير السيارات والنقل من المطار',
+      subtitle:
+        'اختر بين استئجار السيارات من شركات عالمية ومحلية موثوقة أو حجز خدمة الاستقبال والنقل من المطار.',
+      tabSelectorLabel: 'اختر خدمة التنقل',
+      tabs: {
+        car_rentals: { label: 'تأجير السيارات', sub: '4 شركاء' },
+        airport_transfers: { label: 'النقل من المطار', sub: 'شريكان' }
+      },
+      carRentalsTitle: 'محركات تأجير السيارات المعتمدة',
+      carRentalsSubtitle:
+        'قارن واحجز سيارتك مباشرة عبر Localrent و GetRentacar و EconomyBookings و AutoEurope.',
+      transfersTitle: 'خدمات النقل والاستقبال من المطار',
+      transfersSubtitle:
+        'احجز سيارة خاصة أو خدمة توصيل مريحة عند الوصول عبر Intui.travel أو Kiwitaxi.',
+      loadingLabel: 'جاري تحميل أداة الشريك…',
+      loadErrorFallback: 'تعذر عرض الأداة حالياً. تواصل معنا عبر واتساب لتنظيم تنقلك.',
+      transparencyNote: 'تُعرض الأسعار والتوافر والشروط مباشرة من كل شريك أدناه.',
+      widgets: {
+        'car-localrent': {
+          badge: 'Localrent',
+          title: 'تأجير سيارات من مزوّدين محليين',
+          subtitle: 'سيارات مختارة بشروط واضحة وعربون مناسب عبر Localrent.'
+        },
+        'car-getrentacar': {
+          badge: 'GetRentacar',
+          title: 'مقارنة عروض السيارات المباشرة',
+          subtitle: 'استكشف خيارات الاستئجار المتاحة مباشرة عبر GetRentacar.'
+        },
+        'car-economybookings-banner': {
+          badge: 'EconomyBookings',
+          title: 'بحث سريع عن أفضل الأسعار',
+          subtitle: 'ابحث عبر شبكة واسعة من شركات التأجير العالمية مع EconomyBookings.'
+        },
+        'car-autoeurope': {
+          badge: 'AutoEurope',
+          title: 'تأجير السيارات في أكثر من 24,000 محطة',
+          subtitle: 'محرك البحث العالمي لتأجير السيارات من AutoEurope.'
+        },
+        'transfer-intui': {
+          badge: 'Intui.travel',
+          title: 'النقل من المطار في الوجهات العالمية',
+          subtitle: 'استكشف أبرز مسارات التوصيل من المطارات عبر Intui.travel.'
+        },
+        'transfer-kiwitaxi': {
+          badge: 'Kiwitaxi',
+          title: 'خدمة سائق خاص واستقبال بالمطار',
+          subtitle: 'احجز توصيلك الخاص من المطار إلى الفندق مباشرة عبر Kiwitaxi.'
+        }
+      },
+      conciergeTitle: 'مساعدة النقل من جولدن جروب:',
+      conciergeDesc: 'هل تحتاج إلى سيارة عائلية أو استقبال خاص في سلا أو الرباط أو الدار البيضاء؟',
+      conciergeCta: 'تواصل عبر واتساب'
     },
     umrah: {
       badge: 'العمرة والحج · جولدن جروب',
@@ -590,14 +807,18 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     hubEyebrow: 'Travel Search Engine · Golden Group Travels',
     hubTitle: 'Search & Plan Your Next Journey',
     hubSubtitle:
-      'Choose a travel category below to display only the relevant search or inquiry tools: Flights, Expedia Hotels, Umrah, Holiday Packages, or Tours.',
+      'Choose a travel category below to display only the relevant search or inquiry tools: Flights, Expedia Hotels, Umrah, Holidays, Tours, or Car Rentals & Transfers.',
+    servicesHubEyebrow: 'Complete Travel Booking Hub · Golden Group Travels',
+    servicesHubTitle: 'Explore Our Travel Services',
+    servicesHubSubtitle: 'Everything you need for your next journey, all in one place.',
     openDedicatedPage: 'Open Full Service Page',
     categories: {
-      flights: { tabLabel: 'Flights', shortSub: 'Global Airfare' },
-      hotels: { tabLabel: 'Hotels', shortSub: 'Expedia France' },
+      flights: { tabLabel: 'Flights', shortSub: 'Aviasales & Kiwi' },
+      hotels: { tabLabel: 'Hotels', shortSub: 'Expedia Stays' },
       umrah: { tabLabel: 'El Omra / Makkah', shortSub: 'Sacred Journeys' },
       holidays: { tabLabel: 'Holidays', shortSub: 'Bespoke Stays' },
-      tours: { tabLabel: 'Tours', shortSub: 'Klook & KKday' }
+      tours: { tabLabel: 'Tours & Activities', shortSub: 'Klook, Tiqets & WeGoTrip' },
+      'car-transfers': { tabLabel: 'Car Rentals & Airport Transfers', shortSub: 'Cars & Chauffeurs' }
     },
     flights: {
       providerSelectorLabel: 'Flight Search Provider',
@@ -618,9 +839,15 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       loadingLabel: 'Loading official Aviasales flight widget…',
       loadErrorFallback:
         'The embedded widget could not load here. Continue directly to Aviasales search:',
+      offersBadge: 'Flight Search & Route Offers · Kiwi.com',
+      offersTitle: 'Additional Flight Search & Featured Route Offers via Kiwi.com',
+      offersSubtitle:
+        'Compare additional airfare options and up to 4 live flight route offers powered by Kiwi.com.',
+      offersLoadingLabel: 'Loading official Kiwi.com flight offers widget…',
+      offersLoadErrorFallback:
+        'The Kiwi.com widget could not load here right now. Try again shortly or message our desk on WhatsApp.',
       conciergeTitle: 'Golden Group Concierge Desk:',
-      conciergeDesc:
-        'Need multi-city routing or personal assistance from our Salé office?',
+      conciergeDesc: 'Need multi-city routing or personal assistance from our Salé office?',
       tripRoundTrip: 'Round-trip',
       tripOneWay: 'One-way',
       originLabel: 'Origin airport or city',
@@ -670,11 +897,11 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       }
     },
     hotels: {
-      badge: 'Official Hotel Search · Expedia France',
+      badge: 'Official Hotel Search · Expedia Stays',
       title: 'Search Live Hotels Directly with Expedia',
       subtitle:
-        'Use the official Expedia widget controls (destination, check-in, check-out, rooms, adults, children, search) for live Expedia.fr hotel searches.',
-      includesLabel: 'Included inside the official Expedia search controls',
+        'Use the official Expedia stays widget controls (destination, check-in, check-out, rooms, adults, children, search) for live Expedia hotel searches.',
+      includesLabel: 'Included inside the official Expedia Hotels controls',
       includesItems: [
         'Destination city or property search',
         'Check-in & check-out calendar dates',
@@ -692,13 +919,36 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       badge: 'Tours & Activities · Official Partners',
       title: 'Explore Tours & Activities Worldwide',
       subtitle:
-        'Choose your destination of interest, then continue to our partners Klook or KKday to browse available experiences.',
+        'Browse live curated activities from Klook, Tiqets, and WeGoTrip below, or open partner portals for full global catalogs.',
       destinationLabel: 'Destination of interest',
       destinationPlaceholder: 'e.g. Marrakech, Istanbul, Dubai, Paris, Swiss Alps...',
       quickDestinationsLabel: 'Popular destinations',
       selectedDestinationLabel: 'Noted destination:',
       transparencyNote:
-        'These actions open general partner portals on Klook and KKday in a new tab and do not claim live filtered inventory without a connected supplier API.',
+        'Live experiences and prices below are served directly inside each partner’s official widget.',
+      widgetsHeader: 'Live Partner Experiences',
+      widgetsSubtitle:
+        'Browse attractions, skip-the-line museum passes, and audio tours across trusted providers.',
+      widgetLoadingLabel: 'Loading official partner widget…',
+      widgetLoadErrorFallback:
+        'This partner widget could not load right now. You can use the direct partner portals below.',
+      widgets: {
+        'tours-klook-dynamic': {
+          badge: 'Klook · Activities & Passes',
+          title: 'Featured Tours & Day Activities',
+          subtitle: 'Handpicked attraction tickets and city experiences powered by Klook.'
+        },
+        'tours-tiqets-discovery': {
+          badge: 'Tiqets · Museums & Landmarks',
+          title: 'Cultural Landmarks & Museum Entry',
+          subtitle: 'Instant-entry tickets and curated cultural highlights powered by Tiqets.'
+        },
+        'tours-wegotrip-audio': {
+          badge: 'WeGoTrip · Audio Tours',
+          title: 'Self-Guided Audio Tours & Tickets',
+          subtitle: 'Curated self-guided audio routes and attraction tickets by WeGoTrip.'
+        }
+      },
       klookTitle: 'Klook · Activities, Tickets & Day Trips',
       klookDesc: 'Attraction passes, guided tours, transfers, and city experiences worldwide.',
       klookCta: 'Explore activities with Klook',
@@ -706,8 +956,65 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       kkdayDesc: 'Curated sightseeing tours, day excursions, and local activity bookings.',
       kkdayCta: 'Explore tours with KKday',
       customTourBtn: 'Request Custom Tour via WhatsApp',
-      architectureNote:
-        'Modular partner container ready for future supplier-specific widgets or APIs.'
+      architectureNote: 'Looking for a custom private excursion or group itinerary from Morocco?'
+    },
+    carTransfers: {
+      badge: 'Mobility & Chauffeurs · Official Partners',
+      title: 'Car Rentals & Airport Transfers',
+      subtitle:
+        'Switch between trusted car rental providers and door-to-door airport transfer bookings in one organized space.',
+      tabSelectorLabel: 'Select mobility service',
+      tabs: {
+        car_rentals: { label: 'Car Rentals', sub: '4 Providers' },
+        airport_transfers: { label: 'Airport Transfers', sub: '2 Providers' }
+      },
+      carRentalsTitle: 'Official Car Rental Search Partners',
+      carRentalsSubtitle:
+        'Compare rental vehicles across Localrent, GetRentacar, EconomyBookings, and AutoEurope.',
+      transfersTitle: 'Private Airport Transfers & Shuttles',
+      transfersSubtitle:
+        'Book door-to-door airport pickups and private transfers with Intui.travel or Kiwitaxi.',
+      loadingLabel: 'Loading official partner widget…',
+      loadErrorFallback:
+        'This partner widget could not load right now. Contact our Salé desk on WhatsApp for direct arrangements.',
+      transparencyNote:
+        'All vehicle availability, deposits, and transfer rates come directly from the official partner widgets below.',
+      widgets: {
+        'car-localrent': {
+          badge: 'Localrent',
+          title: 'Verified Local Car Rentals',
+          subtitle: 'Transparent local fleet bookings with clear terms powered by Localrent.'
+        },
+        'car-getrentacar': {
+          badge: 'GetRentacar',
+          title: 'Global Rental Marketplace',
+          subtitle: 'Search direct rental offers and driver options through GetRentacar.'
+        },
+        'car-economybookings-banner': {
+          badge: 'EconomyBookings',
+          title: 'Multi-Supplier Rate Search',
+          subtitle: 'Quick access to global car hire comparison powered by EconomyBookings.'
+        },
+        'car-autoeurope': {
+          badge: 'AutoEurope',
+          title: 'Worldwide Rental Network',
+          subtitle: 'Compare rental locations across 24,000+ pickup points via AutoEurope.'
+        },
+        'transfer-intui': {
+          badge: 'Intui.travel',
+          title: 'Worldwide Airport Transfer Routes',
+          subtitle: 'Browse popular airport shuttle and private car transfers on Intui.travel.'
+        },
+        'transfer-kiwitaxi': {
+          badge: 'Kiwitaxi',
+          title: 'Private Meet & Greet Transfers',
+          subtitle: 'Search door-to-door private airport transfers with Kiwitaxi.'
+        }
+      },
+      conciergeTitle: 'Golden Group Mobility Assistance:',
+      conciergeDesc:
+        'Need a private chauffeur, family van, or executive pickup in Salé, Rabat, or Casablanca?',
+      conciergeCta: 'Message on WhatsApp'
     },
     umrah: {
       badge: 'Sacred Pilgrimages · Golden Group Concierge',
@@ -797,14 +1104,18 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     hubEyebrow: 'Buscador de Viajes · Golden Group Travels',
     hubTitle: 'Busca y Planifica Tu Próximo Viaje',
     hubSubtitle:
-      'Elige una categoría para mostrar solo los campos necesarios: Vuelos, Hoteles Expedia, El Omra, Paquetes Vacacionales o Tours.',
+      'Elige una categoría para mostrar solo los campos necesarios: Vuelos, Hoteles Expedia, El Omra, Vacaciones, Tours o Alquiler de Coches.',
+    servicesHubEyebrow: 'Centro Integral de Reservas · Golden Group Travels',
+    servicesHubTitle: 'Explora Nuestros Servicios de Viaje',
+    servicesHubSubtitle: 'Todo lo que necesitas para tu próximo viaje, en un solo lugar.',
     openDedicatedPage: 'Abrir Página Completa',
     categories: {
-      flights: { tabLabel: 'Vuelos', shortSub: 'Billetes Aéreos' },
-      hotels: { tabLabel: 'Hoteles', shortSub: 'Expedia France' },
+      flights: { tabLabel: 'Vuelos', shortSub: 'Aviasales y Kiwi' },
+      hotels: { tabLabel: 'Hoteles', shortSub: 'Expedia Stays' },
       umrah: { tabLabel: 'El Omra / La Meca', shortSub: 'Viajes Sagrados' },
       holidays: { tabLabel: 'Vacaciones', shortSub: 'Paquetes a Medida' },
-      tours: { tabLabel: 'Tours', shortSub: 'Klook y KKday' }
+      tours: { tabLabel: 'Tours y Actividades', shortSub: 'Klook, Tiqets y WeGoTrip' },
+      'car-transfers': { tabLabel: 'Coches y Traslados Aeropuerto', shortSub: 'Alquiler y Traslados' }
     },
     flights: {
       providerSelectorLabel: 'Proveedor de búsqueda de vuelos',
@@ -825,9 +1136,15 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       loadingLabel: 'Cargando el buscador oficial de Aviasales…',
       loadErrorFallback:
         'No se pudo cargar el widget aquí. Continúa directamente al buscador de Aviasales:',
+      offersBadge: 'Búsqueda y Ofertas de Vuelos · Kiwi.com',
+      offersTitle: 'Buscador Adicional y 4 Ofertas Destacadas con Kiwi.com',
+      offersSubtitle:
+        'Complementa tu comparación con el buscador de Kiwi.com y hasta 4 propuestas de rutas.',
+      offersLoadingLabel: 'Cargando el módulo oficial de Kiwi.com…',
+      offersLoadErrorFallback:
+        'No se pudo cargar el widget de Kiwi.com ahora. Puedes intentarlo de nuevo o escribirnos por WhatsApp.',
       conciergeTitle: 'Asistencia Golden Group:',
-      conciergeDesc:
-        '¿Necesitas itinerarios multidestino o atención personalizada en Salé?',
+      conciergeDesc: '¿Necesitas itinerarios multidestino o atención personalizada en Salé?',
       tripRoundTrip: 'Ida y vuelta',
       tripOneWay: 'Solo ida',
       originLabel: 'Aeropuerto o ciudad de origen',
@@ -861,8 +1178,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       continueAviasalesBtn: 'Continuar a Aviasales',
       agencyFlightQuoteBtn: 'Solicitar cotización por WhatsApp',
       futureWidgetBadge: 'Arquitectura Preparada · Espacio Widget Aviasales',
-      futureWidgetNote:
-        'Contenedor modular listo para insertar el widget oficial de Aviasales.',
+      futureWidgetNote: 'Contenedor modular listo para insertar el widget oficial de Aviasales.',
       errors: {
         originRequired: 'Introduce una ciudad o aeropuerto de origen.',
         destinationRequired: 'Introduce una ciudad o aeropuerto de destino.',
@@ -877,10 +1193,10 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       }
     },
     hotels: {
-      badge: 'Buscador Oficial de Hoteles · Expedia France',
+      badge: 'Buscador Oficial de Hoteles · Expedia Stays',
       title: 'Buscar Hoteles en Vivo con Expedia',
       subtitle:
-        'Usa directamente los controles oficiales de Expedia (destino, entrada, salida, habitaciones, adultos y niños) para realizar búsquedas reales.',
+        'Usa directamente los controles oficiales de Expedia (destino, entrada, salida, habitaciones, adultos y niños) para realizar búsquedas reales de hoteles.',
       includesLabel: 'Controles oficiales incluidos en el widget de Expedia',
       includesItems: [
         'Ciudad o alojamiento de destino',
@@ -898,13 +1214,35 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       badge: 'Tours y Actividades · Socios Oficiales',
       title: 'Explorar Tours y Actividades en el Mundo',
       subtitle:
-        'Elige tu destino de interés y accede directamente a Klook o KKday para explorar experiencias disponibles.',
+        'Explora selecciones en directo de Klook, Tiqets y WeGoTrip o abre los portales de Klook y KKday.',
       destinationLabel: 'Destino de interés',
       destinationPlaceholder: 'Ej.: Marrakech, Estambul, Dubái, París, Suiza...',
       quickDestinationsLabel: 'Destinos populares',
       selectedDestinationLabel: 'Destino anotado:',
       transparencyNote:
-        'Estos enlaces abren los portales generales de Klook y KKday en una pestaña nueva sin simular inventario en directo.',
+        'Las actividades mostradas provienen directamente de los widgets oficiales de cada socio.',
+      widgetsHeader: 'Experiencias en Vivo de Socios',
+      widgetsSubtitle: 'Compara entradas, visitas culturales y audioguías en destinos de todo el mundo.',
+      widgetLoadingLabel: 'Cargando módulo del socio…',
+      widgetLoadErrorFallback:
+        'No se pudo cargar este módulo ahora. Utiliza los enlaces directos de abajo.',
+      widgets: {
+        'tours-klook-dynamic': {
+          badge: 'Klook · Actividades y Pases',
+          title: 'Actividades y Excursiones Destacadas',
+          subtitle: 'Entradas a atracciones y experiencias urbanas con Klook.'
+        },
+        'tours-tiqets-discovery': {
+          badge: 'Tiqets · Museos y Monumentos',
+          title: 'Cultura y Entradas Sin Colas',
+          subtitle: 'Selección de museos, monumentos y atracciones con Tiqets.'
+        },
+        'tours-wegotrip-audio': {
+          badge: 'WeGoTrip · Audioguías y Entradas',
+          title: 'Tours Autoguiados con Audio',
+          subtitle: 'Recorridos en audio y entradas seleccionadas por WeGoTrip.'
+        }
+      },
       klookTitle: 'Klook · Actividades, Entradas y Excursiones',
       klookDesc: 'Entradas a atracciones, visitas guiadas y traslados en todo el mundo.',
       klookCta: 'Explorar actividades con Klook',
@@ -912,7 +1250,65 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       kkdayDesc: 'Circuitos culturales y excursiones organizadas de día completo.',
       kkdayCta: 'Explorar tours con KKday',
       customTourBtn: 'Solicitar tour privado por WhatsApp',
-      architectureNote: 'Contenedor modular preparado para futuros widgets o APIs de proveedores.'
+      architectureNote: '¿Buscas una excursión privada o un circuito a medida desde Marruecos?'
+    },
+    carTransfers: {
+      badge: 'Movilidad y Traslados · Socios Oficiales',
+      title: 'Alquiler de Coches y Traslados al Aeropuerto',
+      subtitle:
+        'Elige entre comparadores oficiales de alquiler de vehículos o traslados privados puerta a puerta desde el aeropuerto.',
+      tabSelectorLabel: 'Seleccionar servicio de movilidad',
+      tabs: {
+        car_rentals: { label: 'Alquiler de Coches', sub: '4 Proveedores' },
+        airport_transfers: { label: 'Traslados Aeropuerto', sub: '2 Proveedores' }
+      },
+      carRentalsTitle: 'Buscadores Oficiales de Alquiler de Coches',
+      carRentalsSubtitle:
+        'Compara vehículos directamente con Localrent, GetRentacar, EconomyBookings y AutoEurope.',
+      transfersTitle: 'Traslados Privados y Lanzaderas de Aeropuerto',
+      transfersSubtitle:
+        'Reserva tu recogida privada en el aeropuerto con Intui.travel o Kiwitaxi.',
+      loadingLabel: 'Cargando módulo del socio…',
+      loadErrorFallback:
+        'No se pudo mostrar el módulo ahora. Escríbenos por WhatsApp para coordinar tu traslado.',
+      transparencyNote:
+        'Disponibilidad, depósitos y tarifas provienen directamente de cada proveedor oficial.',
+      widgets: {
+        'car-localrent': {
+          badge: 'Localrent',
+          title: 'Alquiler Local Verificado',
+          subtitle: 'Vehículos seleccionados con condiciones transparentes vía Localrent.'
+        },
+        'car-getrentacar': {
+          badge: 'GetRentacar',
+          title: 'Mercado Global de Vehículos',
+          subtitle: 'Explora opciones de alquiler directo y con conductor en GetRentacar.'
+        },
+        'car-economybookings-banner': {
+          badge: 'EconomyBookings',
+          title: 'Comparativa Rápida Multi-Flota',
+          subtitle: 'Acceso directo a ofertas de alquiler de coches con EconomyBookings.'
+        },
+        'car-autoeurope': {
+          badge: 'AutoEurope',
+          title: 'Red Mundial de Alquiler de Coches',
+          subtitle: 'Busca vehículos en más de 24 000 oficinas asociadas con AutoEurope.'
+        },
+        'transfer-intui': {
+          badge: 'Intui.travel',
+          title: 'Traslados Mundiales desde Aeropuerto',
+          subtitle: 'Descubre rutas populares de traslado en aeropuerto con Intui.travel.'
+        },
+        'transfer-kiwitaxi': {
+          badge: 'Kiwitaxi',
+          title: 'Chófer Privado a Tu Llegada',
+          subtitle: 'Reserva traslados privados puerta a puerta con Kiwitaxi.'
+        }
+      },
+      conciergeTitle: 'Asistencia de Movilidad Golden Group:',
+      conciergeDesc:
+        '¿Necesitas un traslado privado o furgoneta familiar en Salé, Rabat o Casablanca?',
+      conciergeCta: 'Escribir por WhatsApp'
     },
     umrah: {
       badge: 'Peregrinación Sagrada · Golden Group',

@@ -2,30 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import gsap from 'gsap';
-import { Compass, ArrowDown } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 import { createCommercialAirplane } from '../three/createAirplane';
 import { createTearingPaperStage } from '../three/createTearingPaper';
 import { createDestinationDiorama } from '../three/createDestinationDiorama';
-import {
-  HERO_CATEGORY_ORDER,
-  HeroCategoryId,
-  Language,
-  WORLD_CITY_SLIDES
-} from '../assets/destinations';
-import {
-  HERO_TO_SEARCH_CATEGORY,
-  SEARCH_CATEGORY_ORDER,
-  SEARCH_CATEGORY_TO_SERVICE,
-  SearchCategoryId
-} from '../config/travelSuppliers';
+import { Language, WORLD_CITY_SLIDES } from '../assets/destinations';
 import { translations } from '../i18n';
-import {
-  FlightServiceIcon,
-  HajjUmrahServiceIcon,
-  HolidayPackagesServiceIcon,
-  HotelServiceIcon
-} from './ServiceIcons';
-import { TravelSearchEngine } from './TravelSearchEngine';
 
 function detectSoftwareGl(): boolean {
   try {
@@ -44,39 +26,14 @@ function detectSoftwareGl(): boolean {
 
 interface CinematicPlaneStageProps {
   lang: Language;
-  isRtl: boolean;
   readyToAnimate?: boolean;
-  activeCategory: SearchCategoryId;
-  onCategoryChange: (category: SearchCategoryId) => void;
-  onSelectHeroCategory: (categoryId: HeroCategoryId) => void;
-  onSelectOmra: () => void;
-  onOpenServicePage: (serviceId: import('../assets/destinations').ServiceId) => void;
-  onJumpToPlanner: () => void;
   onExploreBelow: () => void;
-  whatsappInternational: string;
-  displayPhone: string;
 }
-
-const HERO_CATEGORY_ICONS: Record<HeroCategoryId, React.ComponentType<{ className?: string }>> = {
-  flights: FlightServiceIcon,
-  hotels: HotelServiceIcon,
-  holidays: HolidayPackagesServiceIcon,
-  tours: Compass
-};
 
 export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
   lang,
-  isRtl,
   readyToAnimate = true,
-  activeCategory,
-  onCategoryChange,
-  onSelectHeroCategory,
-  onSelectOmra,
-  onOpenServicePage,
-  onJumpToPlanner,
-  onExploreBelow,
-  whatsappInternational,
-  displayPhone
+  onExploreBelow
 }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const mountRef = useRef<HTMLDivElement>(null);
@@ -546,26 +503,12 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
   const isLandscapeDominant = progress > 0.62;
   const activeSlide = WORLD_CITY_SLIDES[activeCityIdx] || WORLD_CITY_SLIDES[0];
 
-  const handleHeroIconKeyDown = (
-    e: React.KeyboardEvent<HTMLButtonElement>,
-    currentSearchCat: SearchCategoryId
-  ) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    e.preventDefault();
-    const order: SearchCategoryId[] = ['flights', 'hotels', 'umrah', 'holidays', 'tours'];
-    const idx = order.indexOf(currentSearchCat);
-    if (idx === -1) return;
-    const step = e.key === 'ArrowRight' ? 1 : -1;
-    const nextCat = order[(idx + step + order.length) % order.length];
-    onCategoryChange(nextCat);
-  };
-
   return (
     <section
       ref={sectionRef}
       id="hero-stage"
       aria-label="Interactive 3D travel opening showcase"
-      className="relative w-full min-h-[100dvh] overflow-x-clip bg-[#f5ede0] flex flex-col"
+      className="relative w-full min-h-[100dvh] lg:h-[100dvh] overflow-x-clip bg-[#f5ede0] flex flex-col"
     >
       {/* Isolated WebGL Mount Container */}
       <div ref={mountRef} className="absolute inset-0 z-0" aria-hidden="true" />
@@ -583,256 +526,59 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
       {/* Adaptive Royal Navy Top Scrim ONLY once paper clears upper sky */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-80 z-[5] transition-opacity duration-700"
+        className="pointer-events-none absolute inset-x-0 top-0 h-72 z-[5] transition-opacity duration-700"
         style={{
           opacity: isLandscapeDominant ? 1 : 0,
           background:
-            'linear-gradient(180deg, rgba(11,29,58,0.74) 0%, rgba(11,29,58,0.36) 55%, rgba(11,29,58,0) 100%)'
+            'linear-gradient(180deg, rgba(11,29,58,0.72) 0%, rgba(11,29,58,0.34) 55%, rgba(11,29,58,0) 100%)'
         }}
       />
 
       {/* Bottom subtle legibility scrim once random cities start auto-cycling */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-44 z-[5] transition-opacity duration-700"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-48 z-[5] transition-opacity duration-700"
         style={{
           opacity: planeFinished ? 1 : 0,
           background:
-            'linear-gradient(0deg, rgba(7,20,41,0.72) 0%, rgba(7,20,41,0.28) 55%, rgba(7,20,41,0) 100%)'
+            'linear-gradient(0deg, rgba(7,20,41,0.76) 0%, rgba(7,20,41,0.32) 55%, rgba(7,20,41,0) 100%)'
         }}
       />
 
-      {/* Semantic Editorial Overlay: 1. Logo + 2. Five Icons in former headline slot + 3. Search Engine in middle + 4. Bottom Caption */}
-      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-3.5 sm:px-8 lg:px-10 pt-3 sm:pt-5 pb-4 sm:pb-7 flex flex-col justify-between gap-4 sm:gap-5 pointer-events-none">
-        {/* Top Row: Golden Logo + Micro-Tags + Moved-Up 5 Service Category Icons */}
-        <div className="w-full">
-          <div className="flex items-center justify-center lg:items-start lg:justify-between gap-4">
-            {/* Enlarged Official Golden Group Logo (Strict 1:1 Ratio across Mobile, Tablet & Desktop) */}
-            <a
-              href="#services"
-              onClick={(e) => {
-                e.preventDefault();
-                onExploreBelow();
-              }}
-              className="pointer-events-auto inline-block w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 aspect-square shrink-0 rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/75 shadow-[0_14px_34px_rgba(11,29,58,0.34)] focus-visible:outline-2 focus-visible:outline-[#d1a847] group transition-transform duration-300 hover:scale-105"
-              aria-label="Golden Group Travels"
-            >
-              <img
-                src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
-                alt="Golden Group - Travel Services & Events"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-contain"
-              />
-            </a>
-
-            {/* Side Micro-Tags */}
-            <div
-              className={`hidden lg:block text-[10px] tracking-[0.22em] uppercase leading-relaxed text-right rtl:text-left transition-colors duration-700 ${
-                isLandscapeDominant ? 'text-[#f5ede0]/85' : 'text-[#0b1d3a]/75'
-              }`}
-            >
-              {t.hero.discoverTags.map((tag, i) => (
-                <div key={i}>{tag}</div>
-              ))}
-            </div>
-          </div>
-
-          {/* 5 Service Icons Moved Upward into the Former Headline / Subtitle Position */}
-          <nav
-            aria-label="Travel Categories"
-            role="tablist"
-            dir="ltr"
-            className="mt-3 sm:mt-4 lg:-mt-28 xl:-mt-32 lg:px-40 w-full max-w-5xl mx-auto pointer-events-auto"
+      {/* Unobstructed Hero Overlay: Logo + Discover Tags top, 100vh Showcase middle, City Caption + Explore Journeys CTA bottom */}
+      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 pt-5 sm:pt-7 pb-6 sm:pb-9 flex flex-col justify-between pointer-events-none">
+        {/* Top Row: Official Golden Group 1:1 Logo & Micro-Tags */}
+        <div className="w-full flex items-center justify-between gap-4">
+          <a
+            href="#explore-travel-services"
+            onClick={(e) => {
+              e.preventDefault();
+              onExploreBelow();
+            }}
+            className="pointer-events-auto inline-block w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 aspect-square shrink-0 rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/75 shadow-[0_14px_34px_rgba(11,29,58,0.34)] focus-visible:outline-2 focus-visible:outline-[#d1a847] group transition-transform duration-300 hover:scale-105"
+            aria-label="Golden Group Travels"
           >
-            <div className="w-full overflow-x-auto sm:overflow-visible pb-1 sm:pb-0">
-              <div className="min-w-max sm:min-w-0 mx-auto w-fit sm:w-full flex items-center justify-center gap-2 sm:gap-5 md:gap-7 px-3 sm:px-5 py-2 rounded-2xl transition-colors duration-500">
-                {/* Left Pair: Flights & Hotels */}
-                <div className="flex items-center gap-2 sm:gap-5 md:gap-7">
-                  {HERO_CATEGORY_ORDER.slice(0, 2).map((catId, idx) => {
-                    const Icon = HERO_CATEGORY_ICONS[catId];
-                    const catLabel = t.hero.categories[catId];
-                    const searchCat = HERO_TO_SEARCH_CATEGORY[catId];
-                    const isCatActive = activeCategory === searchCat;
-                    return (
-                      <React.Fragment key={catId}>
-                        <button
-                          type="button"
-                          role="tab"
-                          aria-selected={isCatActive}
-                          aria-controls="hero-search-hub"
-                          onClick={() => onSelectHeroCategory(catId)}
-                          onKeyDown={(e) => handleHeroIconKeyDown(e, searchCat)}
-                          className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[54px] sm:min-w-[64px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847]"
-                        >
-                          <span
-                            className={`w-11 h-11 sm:w-12 sm:h-12 md:w-[54px] md:h-[54px] rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${
-                              isCatActive
-                                ? 'bg-[#d1a847] border-[#fceda2] text-[#0b1d3a] ring-2 ring-[#fceda2]/75 scale-105 shadow-[0_10px_24px_rgba(209,168,71,0.42)]'
-                                : isLandscapeDominant
-                                ? 'bg-[#0b1d3a]/90 border-[#fceda2]/65 text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
-                                : 'bg-[#ede1ce]/95 border-[#c59b38]/65 text-[#0b1d3a] group-hover:bg-[#0b1d3a] group-hover:text-[#fceda2]'
-                            }`}
-                          >
-                            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </span>
-                          <span
-                            className={`text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.06em] sm:tracking-[0.14em] whitespace-nowrap transition-colors duration-500 ${
-                              isCatActive
-                                ? isLandscapeDominant
-                                  ? 'text-[#fceda2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.95)]'
-                                  : 'text-[#0b1d3a] underline decoration-[#d1a847] underline-offset-4'
-                                : isLandscapeDominant
-                                ? 'text-[#fcf9f2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)] group-hover:text-[#fceda2]'
-                                : 'text-[#0b1d3a] group-hover:text-[#9a7220]'
-                            }`}
-                          >
-                            {catLabel}
-                          </span>
-                        </button>
-                        {idx === 0 && (
-                          <span
-                            aria-hidden="true"
-                            className={`hidden md:block h-9 w-px transition-colors duration-700 ${
-                              isLandscapeDominant ? 'bg-[#f5ede0]/30' : 'bg-[#0b1d3a]/20'
-                            }`}
-                          />
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
+            <img
+              src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+              alt="Golden Group - Travel Services & Events"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-contain"
+            />
+          </a>
 
-                <span
-                  aria-hidden="true"
-                  className={`hidden sm:block h-10 w-px transition-colors duration-700 ${
-                    isLandscapeDominant ? 'bg-[#d1a847]/60' : 'bg-[#c59b38]/55'
-                  }`}
-                />
-
-                {/* Exact Center: El Omra · Makkah Icon directly in the middle between the 4 other icons */}
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeCategory === 'umrah'}
-                  aria-controls="hero-search-hub"
-                  onClick={onSelectOmra}
-                  onKeyDown={(e) => handleHeroIconKeyDown(e, 'umrah')}
-                  className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[68px] sm:min-w-[80px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847] shrink-0"
-                >
-                  <span
-                    className={`w-12 h-12 sm:w-14 sm:h-14 md:w-[60px] md:h-[60px] rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 shadow-[0_8px_24px_rgba(11,29,58,0.28)] ${
-                      activeCategory === 'umrah'
-                        ? 'bg-[#d1a847] border-[#fceda2] text-[#0b1d3a] ring-2 ring-[#fceda2]/75 scale-105 shadow-[0_10px_28px_rgba(209,168,71,0.48)]'
-                        : isLandscapeDominant
-                        ? 'bg-[#0b1d3a]/95 border-[#fceda2] text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
-                        : 'bg-[#0b1d3a] border-[#d1a847] text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
-                    }`}
-                  >
-                    <HajjUmrahServiceIcon className="w-5 h-5 sm:w-7 sm:h-7" />
-                  </span>
-                  <span
-                    className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.06em] sm:tracking-[0.14em] whitespace-nowrap transition-colors duration-500 ${
-                      activeCategory === 'umrah'
-                        ? isLandscapeDominant
-                          ? 'text-[#fceda2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.95)]'
-                          : 'text-[#0b1d3a] underline decoration-[#d1a847] underline-offset-4'
-                        : isLandscapeDominant
-                        ? 'text-[#fceda2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.95)]'
-                        : 'text-[#0b1d3a] group-hover:text-[#9a7220]'
-                    }`}
-                  >
-                    {t.hero.omraBottomLabel}
-                  </span>
-                </button>
-
-                <span
-                  aria-hidden="true"
-                  className={`hidden sm:block h-10 w-px transition-colors duration-700 ${
-                    isLandscapeDominant ? 'bg-[#d1a847]/60' : 'bg-[#c59b38]/55'
-                  }`}
-                />
-
-                {/* Right Pair: Holidays & Tours */}
-                <div className="flex items-center gap-2 sm:gap-5 md:gap-7">
-                  {HERO_CATEGORY_ORDER.slice(2, 4).map((catId, idx) => {
-                    const Icon = HERO_CATEGORY_ICONS[catId];
-                    const catLabel = t.hero.categories[catId];
-                    const searchCat = HERO_TO_SEARCH_CATEGORY[catId];
-                    const isCatActive = activeCategory === searchCat;
-                    return (
-                      <React.Fragment key={catId}>
-                        <button
-                          type="button"
-                          role="tab"
-                          aria-selected={isCatActive}
-                          aria-controls="hero-search-hub"
-                          onClick={() => onSelectHeroCategory(catId)}
-                          onKeyDown={(e) => handleHeroIconKeyDown(e, searchCat)}
-                          className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[54px] sm:min-w-[64px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847]"
-                        >
-                          <span
-                            className={`w-11 h-11 sm:w-12 sm:h-12 md:w-[54px] md:h-[54px] rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${
-                              isCatActive
-                                ? 'bg-[#d1a847] border-[#fceda2] text-[#0b1d3a] ring-2 ring-[#fceda2]/75 scale-105 shadow-[0_10px_24px_rgba(209,168,71,0.42)]'
-                                : isLandscapeDominant
-                                ? 'bg-[#0b1d3a]/90 border-[#fceda2]/65 text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
-                                : 'bg-[#ede1ce]/95 border-[#c59b38]/65 text-[#0b1d3a] group-hover:bg-[#0b1d3a] group-hover:text-[#fceda2]'
-                            }`}
-                          >
-                            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </span>
-                          <span
-                            className={`text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.06em] sm:tracking-[0.14em] whitespace-nowrap transition-colors duration-500 ${
-                              isCatActive
-                                ? isLandscapeDominant
-                                  ? 'text-[#fceda2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.95)]'
-                                  : 'text-[#0b1d3a] underline decoration-[#d1a847] underline-offset-4'
-                                : isLandscapeDominant
-                                ? 'text-[#fcf9f2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)] group-hover:text-[#fceda2]'
-                                : 'text-[#0b1d3a] group-hover:text-[#9a7220]'
-                            }`}
-                          >
-                            {catLabel}
-                          </span>
-                        </button>
-                        {idx === 0 && (
-                          <span
-                            aria-hidden="true"
-                            className={`hidden md:block h-9 w-px transition-colors duration-700 ${
-                              isLandscapeDominant ? 'bg-[#f5ede0]/30' : 'bg-[#0b1d3a]/20'
-                            }`}
-                          />
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </nav>
+          <div
+            className={`hidden sm:block text-[10px] sm:text-[11px] tracking-[0.22em] uppercase leading-relaxed text-right rtl:text-left transition-colors duration-700 ${
+              isLandscapeDominant ? 'text-[#f5ede0]/90' : 'text-[#0b1d3a]/80'
+            }`}
+          >
+            {t.hero.discoverTags.map((tag, i) => (
+              <div key={i}>{tag}</div>
+            ))}
+          </div>
         </div>
 
-        {/* Center Hero Search Engine Placed in the Former Category-Icons Area */}
-        <div
-          id="search-hub"
-          className="w-full max-w-5xl mx-auto my-auto pointer-events-auto"
-        >
-          <TravelSearchEngine
-            lang={lang}
-            isRtl={isRtl}
-            activeCategory={activeCategory}
-            onCategoryChange={onCategoryChange}
-            onOpenServicePage={onOpenServicePage}
-            onJumpToPlanner={onJumpToPlanner}
-            whatsappInternational={whatsappInternational}
-            displayPhone={displayPhone}
-            visibleCategories={SEARCH_CATEGORY_ORDER}
-            embeddedInHero
-          />
-        </div>
-
-        {/* Bottom Center: Auto World City Caption + Explore */}
-        <div className="flex flex-col items-center gap-2 pb-1 pointer-events-auto">
+        {/* Bottom Center: Auto World City Caption + Explore Journeys CTA */}
+        <div className="flex flex-col items-center gap-2.5 pb-1 pointer-events-auto">
           <div
             className="text-center transition-all duration-700"
             style={{
@@ -841,11 +587,11 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             }}
           >
             {planeFinished ? (
-              <div className="space-y-0.5">
-                <div className="font-serif-crest text-sm sm:text-base tracking-[0.18em] uppercase text-[#fceda2] drop-shadow-[0_1px_8px_rgba(7,20,41,0.95)]">
+              <div className="space-y-1">
+                <div className="font-serif-crest text-base sm:text-lg tracking-[0.18em] uppercase text-[#fceda2] drop-shadow-[0_1px_8px_rgba(7,20,41,0.95)]">
                   {activeSlide.title[lang]}
                 </div>
-                <p className="text-xs text-[#fcf9f2]/90 tracking-wide drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)]">
+                <p className="text-xs sm:text-sm text-[#fcf9f2]/95 tracking-wide drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)]">
                   {activeSlide.subtitle[lang]}
                 </p>
               </div>
@@ -858,7 +604,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             <button
               type="button"
               onClick={onExploreBelow}
-              className="mt-2 inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]/70 text-xs font-medium tracking-wider uppercase hover:bg-[#132d56] transition-colors cursor-pointer whitespace-nowrap"
+              className="mt-3 inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]/80 text-xs font-semibold tracking-wider uppercase hover:bg-[#132d56] shadow-[0_10px_28px_rgba(7,20,41,0.45)] transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
             >
               <span>{t.hero.exploreCta}</span>
               <ArrowDown className="w-3.5 h-3.5 text-[#d1a847]" />

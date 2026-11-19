@@ -4,6 +4,7 @@ import { Language } from '../assets/destinations';
 import { SEARCH_ENGINE_PACKS } from '../assets/searchEngineData';
 import { EXPEDIA_WIDGET_COPY } from '../assets/servicePagesData';
 import { EXPEDIA_HOTELS_WIDGET_CONFIG } from '../config/travelSuppliers';
+import { ensureExpediaScript, ensureExpediaStylesheet } from '../utils/expediaLoader';
 
 declare global {
   interface Window {
@@ -30,15 +31,6 @@ function isCleanEmpty(value: string | null): boolean {
 function getCleanAttr(element: HTMLElement, attr: string): string | null {
   const val = element.getAttribute(attr);
   return typeof val === 'string' ? val.replace(/^\s*(\S*)\s*$/, '$1') : val;
-}
-
-function ensureExpediaStylesheet(): void {
-  if (document.querySelector('link.eg-widgets-style')) return;
-  const link = document.createElement('link');
-  link.className = 'eg-widgets-style';
-  link.rel = 'stylesheet';
-  link.href = EXPEDIA_HOTELS_WIDGET_CONFIG.styleSrc;
-  document.head.appendChild(link);
 }
 
 export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
@@ -152,7 +144,7 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
 
     window.addEventListener('message', handleResizeMessage);
 
-    const scriptEl = document.querySelector<HTMLScriptElement>('script.eg-widgets-script');
+    const scriptEl = ensureExpediaScript();
     let onScriptLoad: (() => void) | null = null;
     let fallbackTimer: number | null = null;
 
@@ -165,7 +157,7 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
       scriptEl.addEventListener('load', onScriptLoad, { once: true });
       fallbackTimer = window.setTimeout(() => {
         hydrateWidgetElement();
-      }, 250);
+      }, 450);
     }
 
     return () => {
@@ -184,6 +176,7 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
       if (staleFrame) {
         staleFrame.remove();
       }
+      element.removeAttribute('data-instance');
     };
   }, [pageCopy.hotels.iframeTitle]);
 

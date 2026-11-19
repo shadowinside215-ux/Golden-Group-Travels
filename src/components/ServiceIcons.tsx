@@ -229,6 +229,71 @@ export const InsuranceServiceIcon: React.FC<ServiceIconProps> = ({ className = '
   </svg>
 );
 
+/**
+ * Icon 7 — Tours & Activities
+ * Compass rose & curated route pin matching Golden Group gold line-art aesthetic.
+ */
+export const ToursActivitiesServiceIcon: React.FC<ServiceIconProps> = ({
+  className = 'w-6 h-6'
+}) => (
+  <svg
+    viewBox="0 0 64 64"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden="true"
+  >
+    <circle cx="32" cy="32" r="22" />
+    <path d="M32 10v4M32 50v4M10 32h4M50 32h4" strokeWidth="2.4" />
+    <path
+      d="M40.5 23.5l-5 12-12 5 5-12 12-5z"
+      fill="currentColor"
+      fillOpacity="0.16"
+    />
+    <circle cx="32" cy="32" r="2.2" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+/**
+ * Icon 8 — Car Rentals & Airport Transfers
+ * Luxury touring sedan profile with cabin glass, wheels, and clean horizon baseline.
+ */
+export const CarRentalServiceIcon: React.FC<ServiceIconProps> = ({ className = 'w-6 h-6' }) => (
+  <svg
+    viewBox="0 0 64 64"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden="true"
+  >
+    {/* Roofline & Windshield Cabin */}
+    <path d="M16 30l5.5-11a5 5 0 0 1 4.5-2.8h13.5a5 5 0 0 1 4.3 2.4L49.5 30" />
+    <path d="M31.5 16.5V30" strokeWidth="2.2" />
+    {/* Sculpted Sedan Body */}
+    <path
+      d="M8.5 38.5V33a4.5 4.5 0 0 1 4.5-4.5h37.5a6.5 6.5 0 0 1 6.5 6.5v3.5a3 3 0 0 1-3 3h-3.2M13.2 41.5H11a2.5 2.5 0 0 1-2.5-2.5"
+      fill="currentColor"
+      fillOpacity="0.12"
+    />
+    <path d="M23.8 41.5h16.4" />
+    {/* Headlight Accent */}
+    <path d="M51 34.5h4" strokeWidth="2.4" />
+    {/* Twin Wheels */}
+    <circle cx="18.5" cy="42.5" r="5.3" />
+    <circle cx="18.5" cy="42.5" r="1.6" fill="currentColor" stroke="none" />
+    <circle cx="45.5" cy="42.5" r="5.3" />
+    <circle cx="45.5" cy="42.5" r="1.6" fill="currentColor" stroke="none" />
+    {/* Road Horizon Line */}
+    <path d="M8 52h48" strokeWidth="2.2" />
+  </svg>
+);
+
 export const SERVICE_ICONS: Record<ServiceId, React.ComponentType<ServiceIconProps>> = {
   'flight-bookings': FlightServiceIcon,
   'hotel-reservations': HotelServiceIcon,

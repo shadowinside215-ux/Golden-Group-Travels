@@ -16,14 +16,13 @@ import { AnimatedServiceMedia } from './components/AnimatedServiceMedia';
 import { SERVICE_ICONS } from './components/ServiceIcons';
 import { ServiceDetailPage } from './components/ServiceDetailPage';
 import { TravelPlannerMapSection } from './components/TravelPlannerMapSection';
+import { TravelSearchEngine } from './components/TravelSearchEngine';
 import {
-  HERO_TO_SEARCH_CATEGORY,
   SEARCH_CATEGORY_TO_SERVICE,
   SearchCategoryId,
   SERVICE_TO_SEARCH_CATEGORY
 } from './config/travelSuppliers';
 import {
-  HeroCategoryId,
   Language,
   SERVICE_ORDER,
   SERVICE_THEME_MEDIA,
@@ -189,20 +188,6 @@ export default function App() {
     }
   };
 
-  const handleHeroCategoryClick = (categoryId: HeroCategoryId) => {
-    const nextSearchCat = HERO_TO_SEARCH_CATEGORY[categoryId];
-    setActiveSearchCategory(nextSearchCat);
-    setActiveService(SEARCH_CATEGORY_TO_SERVICE[nextSearchCat]);
-  };
-
-  const handleHeroOmraClick = () => {
-    setActiveSearchCategory('umrah');
-    setActiveService('hajj-umrah');
-    if (!destinationLocation.trim()) {
-      setDestinationLocation(t.horizonsSection.destinations.makkah.title);
-    }
-  };
-
   return (
     <div
       dir={t.dir}
@@ -235,24 +220,12 @@ export default function App() {
         </div>
       )}
 
-      {/* Primary Full-Viewport 3D GSAP Paper-Cutting Plane Cinema Stage with Integrated Multi-Widget Search Hub */}
+      {/* Clean Full-Viewport 3D GSAP Paper-Cutting Plane Opening Hero */}
       {activePage === 'home' && (
         <CinematicPlaneStage
           lang={lang}
-          isRtl={isRtl}
           readyToAnimate={heroAnimationReady}
-          activeCategory={activeSearchCategory}
-          onCategoryChange={(cat) => {
-            setActiveSearchCategory(cat);
-            setActiveService(SEARCH_CATEGORY_TO_SERVICE[cat]);
-          }}
-          onSelectHeroCategory={handleHeroCategoryClick}
-          onSelectOmra={handleHeroOmraClick}
-          onOpenServicePage={(srvId) => openPage(srvId)}
-          onJumpToPlanner={() => scrollToId('planner')}
-          onExploreBelow={() => scrollToId('services')}
-          whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
-          displayPhone={DISPLAY_PHONE}
+          onExploreBelow={() => scrollToId('explore-travel-services')}
         />
       )}
 
@@ -517,6 +490,21 @@ export default function App() {
           />
         ) : (
           <>
+            {/* Dedicated Travel Services Search & Widget Hub Below Hero */}
+            <TravelSearchEngine
+              lang={lang}
+              isRtl={isRtl}
+              activeCategory={activeSearchCategory}
+              onCategoryChange={(cat) => {
+                setActiveSearchCategory(cat);
+                setActiveService(SEARCH_CATEGORY_TO_SERVICE[cat]);
+              }}
+              onOpenServicePage={(srvId) => openPage(srvId)}
+              onJumpToPlanner={() => scrollToId('planner')}
+              whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+              displayPhone={DISPLAY_PHONE}
+            />
+
             {/* Dedicated Services Overview — Animated Photography Cards Opening Each Service's Full Page */}
             <section id="services" className="py-20 md:py-28 max-w-7xl mx-auto px-5 sm:px-8">
               <div className="max-w-3xl mx-auto text-center mb-16 reveal-init">
