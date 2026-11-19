@@ -30,7 +30,7 @@ import {
 } from './assets/destinations';
 import { SERVICE_PAGE_CHROME } from './assets/servicePagesData';
 import { LANGUAGES, translations } from './i18n';
-import { trackPageView } from './utils/analytics';
+import { ServiceSelectionEventName, trackPageView, trackServiceSelection } from './utils/analytics';
 
 const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
 const DISPLAY_PHONE = '0666-484815';
@@ -188,6 +188,25 @@ export default function App() {
     }
   };
 
+  const HERO_CATEGORY_EVENTS: Record<SearchCategoryId, ServiceSelectionEventName> = {
+    flights: 'flights_selected',
+    hotels: 'hotels_selected',
+    umrah: 'umrah_selected',
+    holidays: 'holidays_selected',
+    tours: 'tours_selected',
+    'car-transfers': 'car_rentals_selected'
+  };
+
+  const handleHeroIconSelect = (category: SearchCategoryId) => {
+    setActiveSearchCategory(category);
+    setActiveService(SEARCH_CATEGORY_TO_SERVICE[category]);
+    if (category === 'umrah' && !destinationLocation.trim()) {
+      setDestinationLocation(t.horizonsSection.destinations.makkah.title);
+    }
+    trackServiceSelection(HERO_CATEGORY_EVENTS[category]);
+    scrollToId('explore-travel-services');
+  };
+
   return (
     <div
       dir={t.dir}
@@ -220,11 +239,13 @@ export default function App() {
         </div>
       )}
 
-      {/* Clean Full-Viewport 3D GSAP Paper-Cutting Plane Opening Hero */}
+      {/* Full-Viewport 3D GSAP Paper-Cutting Plane Opening Hero with Service Category Icons Only */}
       {activePage === 'home' && (
         <CinematicPlaneStage
           lang={lang}
           readyToAnimate={heroAnimationReady}
+          activeCategory={activeSearchCategory}
+          onSelectCategory={handleHeroIconSelect}
           onExploreBelow={() => scrollToId('explore-travel-services')}
         />
       )}

@@ -7,7 +7,29 @@ import { createCommercialAirplane } from '../three/createAirplane';
 import { createTearingPaperStage } from '../three/createTearingPaper';
 import { createDestinationDiorama } from '../three/createDestinationDiorama';
 import { Language, WORLD_CITY_SLIDES } from '../assets/destinations';
+import { SEARCH_ENGINE_PACKS } from '../assets/searchEngineData';
+import { SEARCH_CATEGORY_ORDER, SearchCategoryId } from '../config/travelSuppliers';
 import { translations } from '../i18n';
+import {
+  CarRentalServiceIcon,
+  FlightServiceIcon,
+  HajjUmrahServiceIcon,
+  HolidayPackagesServiceIcon,
+  HotelServiceIcon,
+  ToursActivitiesServiceIcon
+} from './ServiceIcons';
+
+const HERO_CATEGORY_ICONS: Record<
+  SearchCategoryId,
+  React.ComponentType<{ className?: string }>
+> = {
+  flights: FlightServiceIcon,
+  hotels: HotelServiceIcon,
+  umrah: HajjUmrahServiceIcon,
+  holidays: HolidayPackagesServiceIcon,
+  tours: ToursActivitiesServiceIcon,
+  'car-transfers': CarRentalServiceIcon
+};
 
 function detectSoftwareGl(): boolean {
   try {
@@ -27,12 +49,16 @@ function detectSoftwareGl(): boolean {
 interface CinematicPlaneStageProps {
   lang: Language;
   readyToAnimate?: boolean;
+  activeCategory: SearchCategoryId;
+  onSelectCategory: (category: SearchCategoryId) => void;
   onExploreBelow: () => void;
 }
 
 export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
   lang,
   readyToAnimate = true,
+  activeCategory,
+  onSelectCategory,
   onExploreBelow
 }) => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -502,6 +528,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
 
   const isLandscapeDominant = progress > 0.62;
   const activeSlide = WORLD_CITY_SLIDES[activeCityIdx] || WORLD_CITY_SLIDES[0];
+  const categoryLabels = SEARCH_ENGINE_PACKS[lang].categories;
 
   return (
     <section
@@ -545,8 +572,8 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
         }}
       />
 
-      {/* Unobstructed Hero Overlay: Logo + Discover Tags top, 100vh Showcase middle, City Caption + Explore Journeys CTA bottom */}
-      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 pt-5 sm:pt-7 pb-6 sm:pb-9 flex flex-col justify-between pointer-events-none">
+      {/* Hero Overlay: Logo + Discover Tags top, Circular Service Icons only, City Caption + Explore Journeys CTA bottom */}
+      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 pt-5 sm:pt-7 pb-6 sm:pb-9 flex flex-col justify-between gap-6 pointer-events-none">
         {/* Top Row: Official Golden Group 1:1 Logo & Micro-Tags */}
         <div className="w-full flex items-center justify-between gap-4">
           <a
@@ -576,6 +603,51 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             ))}
           </div>
         </div>
+
+        {/* Hero Service Category Icons Only (No Forms, No Affiliate Widgets) */}
+        <nav
+          aria-label="Hero Travel Service Icons"
+          className="pointer-events-auto w-full max-w-5xl mx-auto"
+        >
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-x-3 gap-y-4 sm:gap-5 justify-items-center">
+            {SEARCH_CATEGORY_ORDER.map((catId) => {
+              const Icon = HERO_CATEGORY_ICONS[catId];
+              const isSelected = activeCategory === catId;
+              const label = categoryLabels[catId].tabLabel;
+
+              return (
+                <button
+                  key={catId}
+                  type="button"
+                  onClick={() => onSelectCategory(catId)}
+                  aria-pressed={isSelected}
+                  className="group flex flex-col items-center text-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#fceda2] rounded-2xl cursor-pointer"
+                >
+                  <span
+                    className={`w-16 h-16 sm:w-[76px] sm:h-[76px] lg:w-[88px] lg:h-[88px] rounded-full flex items-center justify-center border-2 transition-all duration-300 backdrop-blur-md ${
+                      isSelected
+                        ? 'bg-[#132d56]/92 border-[#fceda2] text-[#fceda2] ring-4 ring-[#d1a847]/35 shadow-[0_14px_34px_rgba(7,20,41,0.55)] scale-105'
+                        : 'bg-[#071429]/82 border-[#d1a847]/70 text-[#d1a847] group-hover:border-[#fceda2] group-hover:text-[#fceda2] group-hover:bg-[#0b1d3a]/92 group-hover:-translate-y-1 shadow-[0_10px_26px_rgba(7,20,41,0.42)]'
+                    }`}
+                  >
+                    <Icon className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9" />
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.08em] leading-tight transition-colors ${
+                      isSelected
+                        ? 'bg-[#071429]/85 text-[#fceda2]'
+                        : isLandscapeDominant
+                        ? 'bg-[#071429]/60 text-[#fcf9f2] group-hover:text-[#fceda2]'
+                        : 'bg-[#071429]/80 text-[#fcf9f2] group-hover:text-[#fceda2]'
+                    }`}
+                  >
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
 
         {/* Bottom Center: Auto World City Caption + Explore Journeys CTA */}
         <div className="flex flex-col items-center gap-2.5 pb-1 pointer-events-auto">
