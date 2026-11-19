@@ -12,6 +12,7 @@ import {
   Language,
   WORLD_CITY_SLIDES
 } from '../assets/destinations';
+import { HERO_TO_SEARCH_CATEGORY, SearchCategoryId } from '../config/travelSuppliers';
 import { translations } from '../i18n';
 import {
   FlightServiceIcon,
@@ -38,6 +39,7 @@ function detectSoftwareGl(): boolean {
 interface CinematicPlaneStageProps {
   lang: Language;
   readyToAnimate?: boolean;
+  activeCategory?: SearchCategoryId;
   onSelectHeroCategory: (categoryId: HeroCategoryId) => void;
   onSelectOmra: () => void;
   onExploreBelow: () => void;
@@ -53,6 +55,7 @@ const HERO_CATEGORY_ICONS: Record<HeroCategoryId, React.ComponentType<{ classNam
 export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
   lang,
   readyToAnimate = true,
+  activeCategory,
   onSelectHeroCategory,
   onSelectOmra,
   onExploreBelow
@@ -649,16 +652,20 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
               {HERO_CATEGORY_ORDER.slice(0, 2).map((catId, idx) => {
                 const Icon = HERO_CATEGORY_ICONS[catId];
                 const catLabel = t.hero.categories[catId];
+                const isCatActive = activeCategory === HERO_TO_SEARCH_CATEGORY[catId];
                 return (
                   <React.Fragment key={catId}>
                     <button
                       type="button"
                       onClick={() => onSelectHeroCategory(catId)}
+                      aria-pressed={isCatActive}
                       className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[44px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847]"
                     >
                       <span
                         className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${
-                          isLandscapeDominant
+                          isCatActive
+                            ? 'bg-[#d1a847] border-[#fceda2] text-[#0b1d3a] ring-2 ring-[#fceda2]/60 scale-105'
+                            : isLandscapeDominant
                             ? 'bg-[#0b1d3a]/90 border-[#fceda2]/65 text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
                             : 'bg-[#ede1ce]/95 border-[#c59b38]/65 text-[#0b1d3a] group-hover:bg-[#0b1d3a] group-hover:text-[#fceda2]'
                         }`}
@@ -699,11 +706,14 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             <button
               type="button"
               onClick={onSelectOmra}
+              aria-pressed={activeCategory === 'umrah'}
               className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[44px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847] shrink-0"
             >
               <span
                 className={`w-11 h-11 sm:w-14 sm:h-14 rounded-full flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110 shadow-[0_8px_24px_rgba(11,29,58,0.28)] ${
-                  isLandscapeDominant
+                  activeCategory === 'umrah'
+                    ? 'bg-[#d1a847] border-[#fceda2] text-[#0b1d3a] ring-2 ring-[#fceda2]/60 scale-105'
+                    : isLandscapeDominant
                     ? 'bg-[#0b1d3a]/95 border-[#fceda2] text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
                     : 'bg-[#0b1d3a] border-[#d1a847] text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
                 }`}
@@ -733,16 +743,20 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
               {HERO_CATEGORY_ORDER.slice(2, 4).map((catId, idx) => {
                 const Icon = HERO_CATEGORY_ICONS[catId];
                 const catLabel = t.hero.categories[catId];
+                const isCatActive = activeCategory === HERO_TO_SEARCH_CATEGORY[catId];
                 return (
                   <React.Fragment key={catId}>
                     <button
                       type="button"
                       onClick={() => onSelectHeroCategory(catId)}
+                      aria-pressed={isCatActive}
                       className="group flex flex-col items-center gap-1 sm:gap-1.5 min-w-[44px] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d1a847]"
                     >
                       <span
                         className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border transition-all duration-300 group-hover:scale-110 ${
-                          isLandscapeDominant
+                          isCatActive
+                            ? 'bg-[#d1a847] border-[#fceda2] text-[#0b1d3a] ring-2 ring-[#fceda2]/60 scale-105'
+                            : isLandscapeDominant
                             ? 'bg-[#0b1d3a]/90 border-[#fceda2]/65 text-[#fceda2] group-hover:bg-[#d1a847] group-hover:text-[#0b1d3a]'
                             : 'bg-[#ede1ce]/95 border-[#c59b38]/65 text-[#0b1d3a] group-hover:bg-[#0b1d3a] group-hover:text-[#fceda2]'
                         }`}

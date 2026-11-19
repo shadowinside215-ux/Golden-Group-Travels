@@ -16,6 +16,13 @@ import { AnimatedServiceMedia } from './components/AnimatedServiceMedia';
 import { SERVICE_ICONS } from './components/ServiceIcons';
 import { ServiceDetailPage } from './components/ServiceDetailPage';
 import { TravelPlannerMapSection } from './components/TravelPlannerMapSection';
+import { TravelSearchEngine } from './components/TravelSearchEngine';
+import {
+  HERO_TO_SEARCH_CATEGORY,
+  SEARCH_CATEGORY_TO_SERVICE,
+  SearchCategoryId,
+  SERVICE_TO_SEARCH_CATEGORY
+} from './config/travelSuppliers';
 import {
   HeroCategoryId,
   Language,
@@ -58,6 +65,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [activePage, setActivePage] = useState<'home' | ServiceId>('home');
+  const [activeSearchCategory, setActiveSearchCategory] = useState<SearchCategoryId>('flights');
   const [activeService, setActiveService] = useState<ServiceId>('hotel-reservations');
   const [destinationLocation, setDestinationLocation] = useState('');
   const [hotelName, setHotelName] = useState('');
@@ -155,6 +163,10 @@ export default function App() {
       }
     } else {
       setActiveService(page);
+      const mappedCategory = SERVICE_TO_SEARCH_CATEGORY[page];
+      if (mappedCategory) {
+        setActiveSearchCategory(mappedCategory);
+      }
       setMapFocusCoords(SERVICE_THEME_MEDIA[page].defaultCoordinates);
       if (page === 'hajj-umrah' && !destinationLocation.trim()) {
         setDestinationLocation(t.horizonsSection.destinations.makkah.title);
@@ -169,17 +181,19 @@ export default function App() {
   };
 
   const handleHeroCategoryClick = (categoryId: HeroCategoryId) => {
-    if (categoryId === 'flights') {
-      openPage('flight-bookings');
-    } else if (categoryId === 'hotels') {
-      openPage('hotel-reservations');
-    } else {
-      openPage('holiday-packages');
-    }
+    const nextSearchCat = HERO_TO_SEARCH_CATEGORY[categoryId];
+    setActiveSearchCategory(nextSearchCat);
+    setActiveService(SEARCH_CATEGORY_TO_SERVICE[nextSearchCat]);
+    scrollToId('search-hub');
   };
 
   const handleHeroOmraClick = () => {
-    openPage('hajj-umrah');
+    setActiveSearchCategory('umrah');
+    setActiveService('hajj-umrah');
+    if (!destinationLocation.trim()) {
+      setDestinationLocation(t.horizonsSection.destinations.makkah.title);
+    }
+    scrollToId('search-hub');
   };
 
   return (
@@ -219,9 +233,10 @@ export default function App() {
         <CinematicPlaneStage
           lang={lang}
           readyToAnimate={heroAnimationReady}
+          activeCategory={activeSearchCategory}
           onSelectHeroCategory={handleHeroCategoryClick}
           onSelectOmra={handleHeroOmraClick}
-          onExploreBelow={() => scrollToId('services')}
+          onExploreBelow={() => scrollToId('search-hub')}
         />
       )}
 
@@ -486,6 +501,26 @@ export default function App() {
           />
         ) : (
           <>
+            {/* Wego-Style 5-Category Functional Travel Search Hub */}
+            <TravelSearchEngine
+              lang={lang}
+              isRtl={isRtl}
+              activeCategory={activeSearchCategory}
+              onCategoryChange={(cat) => {
+                setActiveSearchCategory(cat);
+                setActiveService(SEARCH_CATEGORY_TO_SERVICE[cat]);
+              }}
+              onOpenServicePage={(srvId) => openPage(srvId)}
+              onJumpToPlanner={() => scrollToId('planner')}
+              whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+              displayPhone={DISPLAY_PHONE}
+            />
+
+            {/* Hairline Gold Divider */}
+            <div className="max-w-5xl mx-auto px-8">
+              <div className="h-px bg-gradient-to-r from-transparent via-[#c59b38]/50 to-transparent" />
+            </div>
+
             {/* Dedicated Services Overview — Animated Photography Cards Opening Each Service's Full Page */}
             <section id="services" className="py-20 md:py-28 max-w-7xl mx-auto px-5 sm:px-8">
               <div className="max-w-3xl mx-auto text-center mb-16 reveal-init">

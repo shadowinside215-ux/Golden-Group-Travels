@@ -216,6 +216,21 @@
   animation: splashBarFill 1.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+@keyframes searchPanelIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-search-panel-in {
+  animation: searchPanelIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -236,7 +251,8 @@
   .animate-kenburns-alt,
   .animate-gold-sheen,
   .animate-splash-crest,
-  .animate-splash-bar {
+  .animate-splash-bar,
+  .animate-search-panel-in {
     animation: none !important;
     transform: none !important;
   }

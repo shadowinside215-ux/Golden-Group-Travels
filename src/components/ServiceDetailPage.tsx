@@ -7,10 +7,13 @@ import {
   ServiceId
 } from '../assets/destinations';
 import { SERVICE_PAGE_CHROME, SERVICE_PAGE_DETAILS } from '../assets/servicePagesData';
+import { SearchCategoryId } from '../config/travelSuppliers';
 import { TranslationPack } from '../i18n';
 import { AnimatedServiceMedia } from './AnimatedServiceMedia';
+import { ExpediaSearchWidget } from './ExpediaSearchWidget';
 import { SERVICE_ICONS } from './ServiceIcons';
 import { TravelPlannerMapSection } from './TravelPlannerMapSection';
+import { TravelSearchEngine } from './TravelSearchEngine';
 
 interface ServiceDetailPageProps {
   serviceId: ServiceId;
@@ -48,9 +51,13 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
   agencyMapsUrl
 }) => {
   const [showOmraCalligraphy, setShowOmraCalligraphy] = useState(serviceId === 'hajj-umrah');
+  const [holidayOrToursTab, setHolidayOrToursTab] = useState<'holidays' | 'tours'>('holidays');
 
   useEffect(() => {
     setShowOmraCalligraphy(serviceId === 'hajj-umrah');
+    if (serviceId === 'holiday-packages') {
+      setHolidayOrToursTab('holidays');
+    }
   }, [serviceId]);
 
   const chrome = SERVICE_PAGE_CHROME[lang];
@@ -225,6 +232,62 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
             </button>
           </div>
         </section>
+
+        {/* Category-Specific Search & Inquiry Experience per Dedicated Service Page */}
+        {serviceId === 'hotel-reservations' && (
+          <ExpediaSearchWidget
+            key="expedia-hotel-reservations"
+            lang={lang}
+            variant="page"
+            onJumpToPlanner={scrollToPlanner}
+          />
+        )}
+
+        {serviceId === 'flight-bookings' && (
+          <TravelSearchEngine
+            lang={lang}
+            isRtl={isRtl}
+            activeCategory="flights"
+            onCategoryChange={() => {}}
+            onJumpToPlanner={scrollToPlanner}
+            whatsappInternational={whatsappInternational}
+            displayPhone={displayPhone}
+            visibleCategories={['flights']}
+            embeddedOnServicePage
+          />
+        )}
+
+        {serviceId === 'hajj-umrah' && (
+          <TravelSearchEngine
+            lang={lang}
+            isRtl={isRtl}
+            activeCategory="umrah"
+            onCategoryChange={() => {}}
+            onJumpToPlanner={scrollToPlanner}
+            whatsappInternational={whatsappInternational}
+            displayPhone={displayPhone}
+            visibleCategories={['umrah']}
+            embeddedOnServicePage
+          />
+        )}
+
+        {serviceId === 'holiday-packages' && (
+          <TravelSearchEngine
+            lang={lang}
+            isRtl={isRtl}
+            activeCategory={holidayOrToursTab}
+            onCategoryChange={(cat: SearchCategoryId) => {
+              if (cat === 'holidays' || cat === 'tours') {
+                setHolidayOrToursTab(cat);
+              }
+            }}
+            onJumpToPlanner={scrollToPlanner}
+            whatsappInternational={whatsappInternational}
+            displayPhone={displayPhone}
+            visibleCategories={['holidays', 'tours']}
+            embeddedOnServicePage
+          />
+        )}
 
         {/* Detailed Highlights 2x2 Grid */}
         <section className="space-y-8">

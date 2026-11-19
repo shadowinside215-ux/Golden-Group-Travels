@@ -1145,3 +1145,104 @@ export const SERVICE_PAGE_DETAILS: Record<
     }
   }
 };
+
+export interface ExpediaWidgetCopy {
+  eyebrow: string;
+  partnerNote: string;
+  redirectHint: string;
+  conciergeFallback: string;
+  loadingLabel: string;
+  flights: {
+    title: string;
+    description: string;
+    iframeTitle: string;
+  };
+  hotels: {
+    title: string;
+    description: string;
+    iframeTitle: string;
+  };
+}
+
+export const EXPEDIA_WIDGET_COPY: Record<Language, ExpediaWidgetCopy> = {
+  fr: {
+    eyebrow: 'Recherche en Direct · Partenaire Expedia Group',
+    partnerNote:
+      'Comparez les tarifs et disponibilités en temps réel via notre moteur partenaire Expedia Group.',
+    redirectHint: 'Ouverture sécurisée des résultats sur Expedia dans un nouvel onglet',
+    conciergeFallback: 'Ou demandez un devis personnalisé à notre agence de Salé',
+    loadingLabel: 'Chargement du module de recherche Expedia…',
+    flights: {
+      title: 'Rechercher Vos Vols en Direct',
+      description:
+        'Explorez immédiatement les itinéraires, horaires et tarifs disponibles pour votre prochain départ, ou confiez votre billet à nos conseillers ci-dessous.',
+      iframeTitle: 'Recherche de vols et séjours Expedia Group'
+    },
+    hotels: {
+      title: 'Rechercher Votre Hôtel en Direct',
+      description:
+        'Consultez les disponibilités hôtelières en temps réel dans le monde entier via Expedia, puis complétez avec notre équipe locale si besoin.',
+      iframeTitle: 'Recherche d’hôtels et vols Expedia Group'
+    }
+  },
+  ar: {
+    eyebrow: 'بحث مباشر · شريك Expedia Group',
+    partnerNote:
+      'قارن الأسعار والتوافر الفوري عبر محرك البحث الشريك لمجموعة Expedia Group.',
+    redirectHint: 'تُفتح نتائج البحث عبر موقع Expedia في علامة تبويب جديدة',
+    conciergeFallback: 'أو اطلب عرض سعر مخصص من وكالتنا بسلا',
+    loadingLabel: 'جاري تحميل أداة البحث من Expedia…',
+    flights: {
+      title: 'ابحث عن رحلات الطيران مباشرة',
+      description:
+        'استعرض مسارات الطيران والتواريخ والأسعار المتاحة فوراً، أو أرسل طلبك لفريقنا في الأسفل لحجز مخصص.',
+      iframeTitle: 'أداة البحث عن الطيران والفنادق من Expedia Group'
+    },
+    hotels: {
+      title: 'ابحث عن فندقك مباشرة',
+      description:
+        'تحقق من توافر الفنادق وأسعارها حول العالم مباشرة عبر Expedia، أو نسّق حجزك عبر مستشاري وكالتنا.',
+      iframeTitle: 'أداة البحث عن الفنادق والطيران من Expedia Group'
+    }
+  },
+  en: {
+    eyebrow: 'Live Availability · Expedia Group Partner',
+    partnerNote:
+      'Compare live schedules, fares, and stays through our official Expedia Group search widget.',
+    redirectHint: 'Results open securely on Expedia in a new tab',
+    conciergeFallback: 'Or request personalized booking assistance from our Salé desk',
+    loadingLabel: 'Loading Expedia search widget…',
+    flights: {
+      title: 'Search Live Flight Options',
+      description:
+        'Check real-time routes, departure dates, and fares directly below, or let our ticketing desk arrange custom multi-city itineraries.',
+      iframeTitle: 'Expedia Group Flights & Stays Search'
+    },
+    hotels: {
+      title: 'Search Live Hotel Availability',
+      description:
+        'Browse real-time hotel availability worldwide through Expedia, or verify locations with our agency concierge and Google Maps planner below.',
+      iframeTitle: 'Expedia Group Hotels & Flights Search'
+    }
+  },
+  es: {
+    eyebrow: 'Búsqueda en Tiempo Real · Socio Expedia Group',
+    partnerNote:
+      'Compara disponibilidad y tarifas en directo mediante nuestro buscador asociado de Expedia Group.',
+    redirectHint: 'Los resultados se abren de forma segura en Expedia en una nueva pestaña',
+    conciergeFallback: 'O solicita asistencia personalizada a nuestro equipo en Salé',
+    loadingLabel: 'Cargando el buscador de Expedia…',
+    flights: {
+      title: 'Buscar Vuelos en Tiempo Real',
+      description:
+        'Explora rutas, horarios y tarifas disponibles al instante, o solicita a nuestro equipo un itinerario a medida más abajo.',
+      iframeTitle: 'Buscador de vuelos y hoteles de Expedia Group'
+    },
+    hotels: {
+      title: 'Buscar Hoteles en Tiempo Real',
+      description:
+        'Consulta la disponibilidad hotelera mundial directamente con Expedia o coordina tu estancia con nuestra agencia.',
+      iframeTitle: 'Buscador de hoteles y vuelos de Expedia Group'
+    }
+  }
+};
