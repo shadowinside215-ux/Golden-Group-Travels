@@ -127,11 +127,13 @@ export interface SearchEngineLocalePack {
     subtitle: string;
     tabSelectorLabel: string;
     tabs: {
+      all: { label: string; sub: string };
       car_rentals: { label: string; sub: string };
       airport_transfers: { label: string; sub: string };
     };
     carRentalsTitle: string;
     carRentalsSubtitle: string;
+    promoBannerEyebrow: string;
     transfersTitle: string;
     transfersSubtitle: string;
     loadingLabel: string;
@@ -378,14 +380,16 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       title: 'Location de Voitures & Transferts Aéroport',
       subtitle:
         'Choisissez entre la location de véhicules auprès de loueurs internationaux et les transferts privés depuis votre aéroport d’arrivée.',
-      tabSelectorLabel: 'Choisir le service de mobilité',
+      tabSelectorLabel: 'Filtrer l’espace mobilité',
       tabs: {
-        car_rentals: { label: 'Location de Voitures', sub: '4 Partenaires' },
+        all: { label: 'Tous les Services', sub: 'Voitures & Transferts' },
+        car_rentals: { label: 'Location de Voitures', sub: '3 Moteurs + Offre' },
         airport_transfers: { label: 'Transferts Aéroport', sub: '2 Partenaires' }
       },
-      carRentalsTitle: 'Comparateurs & Loueurs Partenaires',
+      carRentalsTitle: 'Moteurs de Recherche · Location de Voitures',
       carRentalsSubtitle:
-        'Recherchez et comparez votre véhicule directement sur Localrent, GetRentacar, EconomyBookings et AutoEurope.',
+        'Recherchez et comparez votre véhicule directement sur AutoEurope, Localrent et GetRentacar.',
+      promoBannerEyebrow: 'Offre Partenaire Mise en Avant',
       transfersTitle: 'Transferts Aéroport Privés & Navettes',
       transfersSubtitle:
         'Réservez votre accueil aéroport avec Intui.travel ou Kiwitaxi vers votre hôtel ou domicile.',
@@ -406,9 +410,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
           subtitle: 'Comparez les offres disponibles directement sur GetRentacar.'
         },
         'car-economybookings-banner': {
-          badge: 'EconomyBookings',
-          title: 'Recherche Rapide Multi-Loueurs',
-          subtitle: 'Accès direct aux offres de location internationale via EconomyBookings.'
+          badge: 'Bannière Promotionnelle Partenaire · EconomyBookings',
+          title: 'Offre Partenaire EconomyBookings',
+          subtitle: 'Bannière promotionnelle officielle donnant accès aux offres de location EconomyBookings.'
         },
         'car-autoeurope': {
           badge: 'AutoEurope',
@@ -671,14 +675,16 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       title: 'تأجير السيارات والنقل من المطار',
       subtitle:
         'اختر بين استئجار السيارات من شركات عالمية ومحلية موثوقة أو حجز خدمة الاستقبال والنقل من المطار.',
-      tabSelectorLabel: 'اختر خدمة التنقل',
+      tabSelectorLabel: 'تصفية خدمات التنقل',
       tabs: {
-        car_rentals: { label: 'تأجير السيارات', sub: '4 شركاء' },
+        all: { label: 'جميع الخدمات', sub: 'سيارات ونقل' },
+        car_rentals: { label: 'تأجير السيارات', sub: '3 محركات + عرض' },
         airport_transfers: { label: 'النقل من المطار', sub: 'شريكان' }
       },
-      carRentalsTitle: 'محركات تأجير السيارات المعتمدة',
+      carRentalsTitle: 'محركات البحث · تأجير السيارات',
       carRentalsSubtitle:
-        'قارن واحجز سيارتك مباشرة عبر Localrent و GetRentacar و EconomyBookings و AutoEurope.',
+        'قارن واحجز سيارتك مباشرة عبر AutoEurope و Localrent و GetRentacar.',
+      promoBannerEyebrow: 'عرض ترويجي لشريك معتمد',
       transfersTitle: 'خدمات النقل والاستقبال من المطار',
       transfersSubtitle:
         'احجز سيارة خاصة أو خدمة توصيل مريحة عند الوصول عبر Intui.travel أو Kiwitaxi.',
@@ -697,9 +703,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
           subtitle: 'استكشف خيارات الاستئجار المتاحة مباشرة عبر GetRentacar.'
         },
         'car-economybookings-banner': {
-          badge: 'EconomyBookings',
-          title: 'بحث سريع عن أفضل الأسعار',
-          subtitle: 'ابحث عبر شبكة واسعة من شركات التأجير العالمية مع EconomyBookings.'
+          badge: 'لافتة ترويجية للشريك · EconomyBookings',
+          title: 'عرض الشريك EconomyBookings',
+          subtitle: 'لافتة ترويجية رسمية تتيح الوصول إلى عروض EconomyBookings لتأجير السيارات.'
         },
         'car-autoeurope': {
           badge: 'AutoEurope',
@@ -963,14 +969,16 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       title: 'Car Rentals & Airport Transfers',
       subtitle:
         'Switch between trusted car rental providers and door-to-door airport transfer bookings in one organized space.',
-      tabSelectorLabel: 'Select mobility service',
+      tabSelectorLabel: 'Filter mobility section',
       tabs: {
-        car_rentals: { label: 'Car Rentals', sub: '4 Providers' },
+        all: { label: 'All Services', sub: 'Cars & Transfers' },
+        car_rentals: { label: 'Car Rentals', sub: '3 Search Tools + Promo' },
         airport_transfers: { label: 'Airport Transfers', sub: '2 Providers' }
       },
-      carRentalsTitle: 'Official Car Rental Search Partners',
+      carRentalsTitle: 'Car Rental Search Engines',
       carRentalsSubtitle:
-        'Compare rental vehicles across Localrent, GetRentacar, EconomyBookings, and AutoEurope.',
+        'Search and compare rental vehicles across AutoEurope, Localrent, and GetRentacar.',
+      promoBannerEyebrow: 'Featured Partner Promotion',
       transfersTitle: 'Private Airport Transfers & Shuttles',
       transfersSubtitle:
         'Book door-to-door airport pickups and private transfers with Intui.travel or Kiwitaxi.',
@@ -991,9 +999,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
           subtitle: 'Search direct rental offers and driver options through GetRentacar.'
         },
         'car-economybookings-banner': {
-          badge: 'EconomyBookings',
-          title: 'Multi-Supplier Rate Search',
-          subtitle: 'Quick access to global car hire comparison powered by EconomyBookings.'
+          badge: 'Featured Partner Banner · EconomyBookings',
+          title: 'EconomyBookings Partner Offer',
+          subtitle: 'Official promotional partner banner linking to EconomyBookings global car hire deals.'
         },
         'car-autoeurope': {
           badge: 'AutoEurope',
@@ -1257,14 +1265,16 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       title: 'Alquiler de Coches y Traslados al Aeropuerto',
       subtitle:
         'Elige entre comparadores oficiales de alquiler de vehículos o traslados privados puerta a puerta desde el aeropuerto.',
-      tabSelectorLabel: 'Seleccionar servicio de movilidad',
+      tabSelectorLabel: 'Filtrar sección de movilidad',
       tabs: {
-        car_rentals: { label: 'Alquiler de Coches', sub: '4 Proveedores' },
+        all: { label: 'Todos los Servicios', sub: 'Coches y Traslados' },
+        car_rentals: { label: 'Alquiler de Coches', sub: '3 Buscadores + Promo' },
         airport_transfers: { label: 'Traslados Aeropuerto', sub: '2 Proveedores' }
       },
-      carRentalsTitle: 'Buscadores Oficiales de Alquiler de Coches',
+      carRentalsTitle: 'Buscadores de Alquiler de Coches',
       carRentalsSubtitle:
-        'Compara vehículos directamente con Localrent, GetRentacar, EconomyBookings y AutoEurope.',
+        'Busca y compara vehículos directamente con AutoEurope, Localrent y GetRentacar.',
+      promoBannerEyebrow: 'Promoción Destacada de Socio',
       transfersTitle: 'Traslados Privados y Lanzaderas de Aeropuerto',
       transfersSubtitle:
         'Reserva tu recogida privada en el aeropuerto con Intui.travel o Kiwitaxi.',
@@ -1285,9 +1295,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
           subtitle: 'Explora opciones de alquiler directo y con conductor en GetRentacar.'
         },
         'car-economybookings-banner': {
-          badge: 'EconomyBookings',
-          title: 'Comparativa Rápida Multi-Flota',
-          subtitle: 'Acceso directo a ofertas de alquiler de coches con EconomyBookings.'
+          badge: 'Banner Promocional de Socio · EconomyBookings',
+          title: 'Oferta de Socio EconomyBookings',
+          subtitle: 'Banner promocional oficial con acceso a las ofertas internacionales de EconomyBookings.'
         },
         'car-autoeurope': {
           badge: 'AutoEurope',

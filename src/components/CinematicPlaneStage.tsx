@@ -330,15 +330,21 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
       setPlaneFinished(true);
     }
 
+    const isCoarsePointer =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(pointer: coarse)').matches;
+
     const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
     const onPointerMove = (e: PointerEvent) => {
-      if (reduced) return;
+      if (reduced || isCoarsePointer) return;
       const nx = (e.clientX / Math.max(1, window.innerWidth)) * 2 - 1;
       const ny = (e.clientY / Math.max(1, window.innerHeight)) * 2 - 1;
       pointer.tx = nx;
       pointer.ty = ny;
     };
-    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    if (!isCoarsePointer) {
+      window.addEventListener('pointermove', onPointerMove, { passive: true });
+    }
 
     const onResize = () => {
       if (!mount) return;
@@ -353,7 +359,11 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
     };
     onResize();
     window.addEventListener('resize', onResize);
-    const resizeObserver = new ResizeObserver(() => onResize());
+    let resizeRaf = 0;
+    const resizeObserver = new ResizeObserver(() => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(onResize);
+    });
     resizeObserver.observe(section);
 
     let isVisible = true;
@@ -504,12 +514,15 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
     return () => {
       disposed = true;
       cancelAnimationFrame(frameId);
+      cancelAnimationFrame(resizeRaf);
       clearTimeout(frameId);
       tl.kill();
       io.disconnect();
       resizeObserver.disconnect();
       window.removeEventListener('resize', onResize);
-      window.removeEventListener('pointermove', onPointerMove);
+      if (!isCoarsePointer) {
+        window.removeEventListener('pointermove', onPointerMove);
+      }
       renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
       renderer.domElement.removeEventListener('webglcontextrestored', onContextRestored);
 
@@ -535,7 +548,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
       ref={sectionRef}
       id="hero-stage"
       aria-label="Interactive 3D travel opening showcase"
-      className="relative w-full min-h-[100dvh] lg:h-[100dvh] overflow-x-clip bg-[#f5ede0] flex flex-col"
+      className="relative w-full min-h-[100svh] lg:h-[100dvh] overflow-x-clip bg-[#f5ede0] flex flex-col"
     >
       {/* Isolated WebGL Mount Container */}
       <div ref={mountRef} className="absolute inset-0 z-0" aria-hidden="true" />
@@ -573,7 +586,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
       />
 
       {/* Hero Overlay: Logo + Discover Tags top, Circular Service Icons only, City Caption + Explore Journeys CTA bottom */}
-      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 pt-5 sm:pt-7 pb-6 sm:pb-9 flex flex-col justify-between gap-6 pointer-events-none">
+      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-3 sm:px-8 lg:px-10 pt-3.5 sm:pt-7 pb-5 sm:pb-9 flex flex-col justify-between gap-3 sm:gap-5 pointer-events-none">
         {/* Top Row: Official Golden Group 1:1 Logo & Micro-Tags */}
         <div className="w-full flex items-center justify-between gap-4">
           <a
@@ -582,7 +595,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
               e.preventDefault();
               onExploreBelow();
             }}
-            className="pointer-events-auto inline-block w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 aspect-square shrink-0 rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/75 shadow-[0_14px_34px_rgba(11,29,58,0.34)] focus-visible:outline-2 focus-visible:outline-[#d1a847] group transition-transform duration-300 hover:scale-105"
+            className="pointer-events-auto inline-block w-16 h-16 min-[380px]:w-20 min-[380px]:h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 aspect-square shrink-0 rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/75 shadow-[0_14px_34px_rgba(11,29,58,0.34)] focus-visible:outline-2 focus-visible:outline-[#d1a847] group transition-transform duration-300 hover:scale-105"
             aria-label="Golden Group Travels"
           >
             <img
@@ -604,55 +617,87 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
           </div>
         </div>
 
-        {/* Hero Service Category Icons Only (No Forms, No Affiliate Widgets) */}
-        <nav
-          aria-label="Hero Travel Service Icons"
-          className="pointer-events-auto w-full max-w-5xl mx-auto"
-        >
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-x-3 gap-y-4 sm:gap-5 justify-items-center">
-            {SEARCH_CATEGORY_ORDER.map((catId) => {
-              const Icon = HERO_CATEGORY_ICONS[catId];
-              const isSelected = activeCategory === catId;
-              const label = categoryLabels[catId].tabLabel;
-
-              return (
-                <button
-                  key={catId}
-                  type="button"
-                  onClick={() => onSelectCategory(catId)}
-                  aria-pressed={isSelected}
-                  className="group flex flex-col items-center text-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#fceda2] rounded-2xl cursor-pointer"
-                >
-                  <span
-                    className={`w-16 h-16 sm:w-[76px] sm:h-[76px] lg:w-[88px] lg:h-[88px] rounded-full flex items-center justify-center border-2 transition-all duration-300 backdrop-blur-md ${
-                      isSelected
-                        ? 'bg-[#132d56]/92 border-[#fceda2] text-[#fceda2] ring-4 ring-[#d1a847]/35 shadow-[0_14px_34px_rgba(7,20,41,0.55)] scale-105'
-                        : 'bg-[#071429]/82 border-[#d1a847]/70 text-[#d1a847] group-hover:border-[#fceda2] group-hover:text-[#fceda2] group-hover:bg-[#0b1d3a]/92 group-hover:-translate-y-1 shadow-[0_10px_26px_rgba(7,20,41,0.42)]'
-                    }`}
-                  >
-                    <Icon className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9" />
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.08em] leading-tight transition-colors ${
-                      isSelected
-                        ? 'bg-[#071429]/85 text-[#fceda2]'
-                        : isLandscapeDominant
-                        ? 'bg-[#071429]/60 text-[#fcf9f2] group-hover:text-[#fceda2]'
-                        : 'bg-[#071429]/80 text-[#fcf9f2] group-hover:text-[#fceda2]'
-                    }`}
-                  >
-                    {label}
-                  </span>
-                </button>
-              );
-            })}
+        {/* Hero Center: French Brand Slogan & Service Category Icons Only (No Forms, No Affiliate Widgets) */}
+        <div className="w-full max-w-5xl mx-auto flex flex-col items-center gap-4 sm:gap-7">
+          <div
+            className="text-center px-2 sm:px-3 transition-all duration-1000 ease-out"
+            style={{
+              opacity: progress > 0.35 ? 1 : 0,
+              transform: progress > 0.35 ? 'translateY(0)' : 'translateY(14px)'
+            }}
+          >
+            <h1
+              lang={lang}
+              dir={t.dir}
+              className={`${
+                lang === 'ar' ? 'font-arabic-calligraphy' : 'font-serif-display italic'
+              } font-semibold tracking-[0.03em] text-[clamp(1.5rem,4vw,3.15rem)] leading-[1.2] [text-wrap:balance] transition-colors duration-700 ${
+                isLandscapeDominant
+                  ? 'text-[#fceda2] drop-shadow-[0_4px_20px_rgba(7,20,41,0.92)]'
+                  : 'text-[#9a7220] drop-shadow-[0_2px_12px_rgba(245,237,224,0.85)]'
+              }`}
+            >
+              {t.hero.heroSlogan}
+            </h1>
+            <div
+              aria-hidden="true"
+              className={`mx-auto mt-2 sm:mt-3 h-[1.5px] w-36 sm:w-56 md:w-64 transition-all duration-700 ${
+                isLandscapeDominant
+                  ? 'bg-gradient-to-r from-transparent via-[#fceda2] to-transparent shadow-[0_0_12px_rgba(252,237,162,0.55)]'
+                  : 'bg-gradient-to-r from-transparent via-[#c59b38] to-transparent'
+              }`}
+            />
           </div>
-        </nav>
+
+          <nav
+            aria-label="Hero Travel Service Icons"
+            className="pointer-events-auto w-full"
+          >
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-x-2 min-[380px]:gap-x-3 gap-y-3 sm:gap-5 justify-items-center perspective-1200">
+              {SEARCH_CATEGORY_ORDER.map((catId) => {
+                const Icon = HERO_CATEGORY_ICONS[catId];
+                const isSelected = activeCategory === catId;
+                const label = categoryLabels[catId].tabLabel;
+
+                return (
+                  <button
+                    key={catId}
+                    type="button"
+                    onClick={() => onSelectCategory(catId)}
+                    aria-pressed={isSelected}
+                    className="group flex flex-col items-center text-center gap-1.5 sm:gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#fceda2] rounded-2xl cursor-pointer active:scale-95 transition-transform duration-150 min-w-0"
+                  >
+                    <span
+                      className={`w-14 h-14 min-[380px]:w-16 min-[380px]:h-16 sm:w-[76px] sm:h-[76px] lg:w-[88px] lg:h-[88px] rounded-full flex items-center justify-center border-2 transition-all duration-300 backdrop-blur-md will-change-transform ${
+                        isSelected
+                          ? 'bg-[#132d56]/92 border-[#fceda2] text-[#fceda2] ring-4 ring-[#d1a847]/35 shadow-[0_16px_38px_rgba(209,168,71,0.42)] scale-105 -translate-y-0.5'
+                          : 'bg-[#071429]/82 border-[#d1a847]/70 text-[#d1a847] group-hover:border-[#fceda2] group-hover:text-[#fceda2] group-hover:bg-[#0b1d3a]/94 group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-[0_18px_36px_rgba(209,168,71,0.38)] shadow-[0_10px_26px_rgba(7,20,41,0.42)]'
+                      }`}
+                    >
+                      <Icon className="w-6 h-6 min-[380px]:w-7 min-[380px]:h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 transition-transform duration-300 group-hover:scale-105" />
+                    </span>
+                    <span
+                      className={`max-w-[104px] sm:max-w-[136px] px-1.5 sm:px-2 py-0.5 rounded-md text-[9.5px] min-[380px]:text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.06em] sm:tracking-[0.08em] leading-tight transition-colors [text-wrap:balance] ${
+                        isSelected
+                          ? 'bg-[#071429]/85 text-[#fceda2]'
+                          : isLandscapeDominant
+                          ? 'bg-[#071429]/65 text-[#fcf9f2] group-hover:text-[#fceda2]'
+                          : 'bg-[#071429]/82 text-[#fcf9f2] group-hover:text-[#fceda2]'
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+        </div>
 
         {/* Bottom Center: Auto World City Caption + Explore Journeys CTA */}
-        <div className="flex flex-col items-center gap-2.5 pb-1 pointer-events-auto">
+        <div className="flex flex-col items-center gap-2 pb-1 pointer-events-auto">
           <div
-            className="text-center transition-all duration-700"
+            className="text-center transition-all duration-700 max-w-full"
             style={{
               opacity: progress > 0.78 ? 1 : 0,
               transform: progress > 0.78 ? 'translateY(0)' : 'translateY(10px)'
@@ -660,7 +705,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
           >
             {planeFinished ? (
               <div className="space-y-1">
-                <div className="font-serif-crest text-base sm:text-lg tracking-[0.18em] uppercase text-[#fceda2] drop-shadow-[0_1px_8px_rgba(7,20,41,0.95)]">
+                <div className="font-serif-crest text-sm min-[380px]:text-base sm:text-lg tracking-[0.18em] uppercase text-[#fceda2] drop-shadow-[0_1px_8px_rgba(7,20,41,0.95)]">
                   {activeSlide.title[lang]}
                 </div>
                 <p className="text-xs sm:text-sm text-[#fcf9f2]/95 tracking-wide drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)]">
@@ -676,10 +721,10 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             <button
               type="button"
               onClick={onExploreBelow}
-              className="mt-3 inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]/80 text-xs font-semibold tracking-wider uppercase hover:bg-[#132d56] shadow-[0_10px_28px_rgba(7,20,41,0.45)] transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+              className="mt-2.5 sm:mt-3 max-w-full inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]/80 text-xs font-semibold tracking-wider uppercase hover:bg-[#132d56] shadow-[0_10px_28px_rgba(7,20,41,0.45)] transition-all hover:scale-105 cursor-pointer whitespace-normal sm:whitespace-nowrap text-center"
             >
               <span>{t.hero.exploreCta}</span>
-              <ArrowDown className="w-3.5 h-3.5 text-[#d1a847]" />
+              <ArrowDown className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
             </button>
           </div>
         </div>

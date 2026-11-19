@@ -71,16 +71,24 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
 
   const scrollToPlanner = () => {
     const el = document.getElementById('planner');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    if (!el) return;
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const headerEl = document.querySelector('header');
+    const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 108;
+    const targetTop = Math.max(
+      0,
+      el.getBoundingClientRect().top + window.scrollY - headerHeight - 16
+    );
+    window.scrollTo({ top: targetTop, behavior: reduced ? 'auto' : 'smooth' });
   };
 
   return (
     <div className="bg-cream-paper min-h-screen">
       {/* Top Service Navigation & Back Bar */}
       <div className="bg-[#ede1ce]/90 border-b border-[#d1a847]/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => onSelectPage('home')}
@@ -148,33 +156,33 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
           )}
 
           {/* Bottom-Aligned Hero Headline, Gold Icon Medallion & Action */}
-          <div className="absolute inset-x-0 bottom-0 z-20 max-w-7xl mx-auto px-5 sm:px-8 pb-10 sm:pb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="flex items-start gap-4 sm:gap-5 max-w-3xl">
-              <span className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#0b1d3a]/95 border-2 border-[#d1a847] text-[#d1a847] flex items-center justify-center shadow-[0_14px_34px_rgba(7,20,41,0.55)] shrink-0">
-                <Icon className="w-9 h-9 sm:w-11 sm:h-11" />
+          <div className="absolute inset-x-0 bottom-0 z-20 max-w-7xl mx-auto px-3.5 sm:px-8 pb-7 sm:pb-12 flex flex-col md:flex-row md:items-end justify-between gap-5 sm:gap-6">
+            <div className="flex items-start gap-3.5 sm:gap-5 max-w-3xl">
+              <span className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#0b1d3a]/95 border-2 border-[#d1a847] text-[#d1a847] flex items-center justify-center shadow-[0_14px_34px_rgba(7,20,41,0.55)] shrink-0">
+                <Icon className="w-8 h-8 sm:w-11 sm:h-11" />
               </span>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2 min-w-0">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-[#fceda2] font-semibold">
                   <span className="tabular-nums">{indexTag}</span>
                   <span aria-hidden="true">·</span>
                   <span>{t.servicesSection.provisionTag}</span>
                 </div>
-                <h1 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#fcf9f2] tracking-wide [text-wrap:balance]">
+                <h1 className="font-serif-crest text-2xl sm:text-4xl md:text-5xl font-semibold text-[#fcf9f2] tracking-wide [text-wrap:balance]">
                   {serviceMeta.label}
                 </h1>
-                <p className="text-sm sm:text-base text-[#f5ede0]/90 font-serif-display italic leading-relaxed">
+                <p className="text-xs sm:text-base text-[#f5ede0]/90 font-serif-display italic leading-relaxed">
                   {detail.tagline}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto shrink-0">
               {isOmra && (
                 <button
                   type="button"
                   onClick={() => setShowOmraCalligraphy((prev) => !prev)}
-                  className="px-4 py-3 rounded-xl bg-[#0b1d3a]/90 hover:bg-[#132d56] border border-[#d1a847]/70 text-[#fceda2] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap"
+                  className="w-full sm:w-auto justify-center text-center px-4 py-2.5 sm:py-3 rounded-xl bg-[#0b1d3a]/90 hover:bg-[#132d56] border border-[#d1a847]/70 text-[#fceda2] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer sm:whitespace-nowrap"
                 >
                   {chrome.omraToggleHint}
                 </button>
@@ -183,7 +191,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
               <button
                 type="button"
                 onClick={scrollToPlanner}
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.15em] shadow-lg transition-colors cursor-pointer whitespace-nowrap"
+                className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.15em] shadow-lg transition-colors cursor-pointer sm:whitespace-nowrap"
               >
                 <MapPin className="w-4 h-4 shrink-0" />
                 <span>{chrome.bookNowCta}</span>
@@ -194,7 +202,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
       </section>
 
       {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-20 space-y-16 sm:space-y-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-20 space-y-12 sm:space-y-20">
         {/* Editorial Narrative + Included Quick Checklist */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           <div className="lg:col-span-7 space-y-4">

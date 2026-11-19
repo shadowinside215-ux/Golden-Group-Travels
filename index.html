@@ -3,6 +3,112 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        var origWarn = console.warn;
+        console.warn = function () {
+          var first = arguments.length ? String(arguments[0]) : '';
+          if (
+            first.indexOf('iframeResizer(Parent)') !== -1 &&
+            first.indexOf('GPLv3 License Version') !== -1
+          ) {
+            return;
+          }
+          return origWarn.apply(console, arguments);
+        };
+
+        window.addEventListener(
+          'error',
+          function (ev) {
+            var msg = ev && ev.message ? String(ev.message) : '';
+            var file = ev && ev.filename ? String(ev.filename) : '';
+            var isFromOwnOrigin =
+              file &&
+              typeof window !== 'undefined' &&
+              window.location &&
+              file.indexOf(window.location.origin) === 0;
+            var isResizeObserverNoise = msg.indexOf('ResizeObserver loop') !== -1;
+            var isOpaqueCrossOriginScriptError =
+              msg === 'Script error.' &&
+              !file &&
+              !ev.lineno &&
+              !ev.colno &&
+              ev.error == null;
+            var isThirdPartyTimeout =
+              /request timed out/i.test(msg) && (!file || !isFromOwnOrigin);
+
+            if (isResizeObserverNoise || isOpaqueCrossOriginScriptError || isThirdPartyTimeout) {
+              ev.stopImmediatePropagation();
+              ev.preventDefault();
+            }
+          },
+          true
+        );
+
+        window.addEventListener(
+          'unhandledrejection',
+          function (ev) {
+            var reason = ev && ev.reason;
+            var msg =
+              reason && typeof reason === 'object' && 'message' in reason
+                ? String(reason.message)
+                : String(reason || '');
+            var stack =
+              reason && typeof reason === 'object' && 'stack' in reason
+                ? String(reason.stack)
+                : '';
+            var ownOrigin =
+              typeof window !== 'undefined' && window.location ? window.location.origin : '';
+            var isThirdPartyStack =
+              /tpemb|tpembars|localrent|getrentacar|expedia|klook|tiqets|wegotrip|kiwitaxi|intui|googletagmanager|google-analytics|maps\.googleapis/i.test(
+                stack
+              );
+            var isOwnOriginOnly = Boolean(
+              ownOrigin && stack && stack.indexOf(ownOrigin) !== -1 && !isThirdPartyStack
+            );
+            var isTimeoutNoise = /request timed out/i.test(msg) && !isOwnOriginOnly;
+
+            if (isTimeoutNoise || (isThirdPartyStack && /timeout|timed out|abort|network/i.test(msg))) {
+              ev.stopImmediatePropagation();
+              ev.preventDefault();
+            }
+          },
+          true
+        );
+
+        if (typeof window !== 'undefined' && typeof window.ResizeObserver === 'function') {
+          var NativeRO = window.ResizeObserver;
+          var PatchedRO = function ResizeObserver(callback) {
+            var active = true;
+            var rafId = 0;
+            var instance = new NativeRO(function (entries, observer) {
+              if (!active) return;
+              if (rafId) window.cancelAnimationFrame(rafId);
+              rafId = window.requestAnimationFrame(function () {
+                rafId = 0;
+                if (active) {
+                  try {
+                    callback(entries, observer);
+                  } catch (e) {}
+                }
+              });
+            });
+            var origDisconnect = instance.disconnect.bind(instance);
+            instance.disconnect = function () {
+              active = false;
+              if (rafId) {
+                window.cancelAnimationFrame(rafId);
+                rafId = 0;
+              }
+              return origDisconnect();
+            };
+            return instance;
+          };
+          PatchedRO.prototype = NativeRO.prototype;
+          window.ResizeObserver = PatchedRO;
+        }
+      })();
+    </script>
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -84,6 +190,7 @@
   script.async = 1;
   script.setAttribute("data-cmp-ab", "2");
   script.src = "https://tpembars.com/NjAzMTc2.js?t=603176";
+  script.onerror = function () {};
   document.head.appendChild(script);
 })();
     </script>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { MapPin, ShieldCheck } from 'lucide-react';
 import { Language } from '../assets/destinations';
 import { SEARCH_ENGINE_PACKS } from '../assets/searchEngineData';
@@ -23,7 +23,7 @@ function getCleanAttr(element: HTMLElement, attr: string): string | null {
   return typeof val === 'string' ? val.replace(/^\s*(\S*)\s*$/, '$1') : val;
 }
 
-export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
+export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = memo(({
   lang,
   onJumpToPlanner,
   whatsappInternational,
@@ -32,6 +32,7 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [frameReady, setFrameReady] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const flightsPack = SEARCH_ENGINE_PACKS[lang].flights;
   const expediaCopy = EXPEDIA_WIDGET_COPY[lang];
@@ -43,6 +44,7 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
     let cancelled = false;
     let instanceId = element.getAttribute('data-instance') || '';
     setFrameReady(false);
+    setLoadFailed(false);
 
     const hydrateWidgetElement = () => {
       if (cancelled || !containerRef.current) return;
@@ -102,12 +104,23 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
 
       const frame = document.createElement('iframe');
       frame.className = `eg-widget-frame eg-${widget}-widget-frame`;
-      frame.title = expediaCopy.flights.iframeTitle;
+      frame.title = titleRef.current;
       frame.src = `${widgetsUrl}/${widget}-widget${queryString ? `?${queryString}` : ''}`;
       frame.style.width = '100%';
-      frame.style.height = '0';
+      frame.style.height = '320px';
+      frame.style.minHeight = '280px';
       frame.style.margin = 'auto';
       frame.style.border = 'none';
+      frame.addEventListener(
+        'load',
+        () => {
+          if (!cancelled) setFrameReady(true);
+        },
+        { once: true }
+      );
+      frame.addEventListener('error', () => {
+        if (!cancelled) setLoadFailed(true);
+      });
 
       el.appendChild(frame);
       window.eg.widgets.elements[instanceId] = el;
@@ -130,8 +143,12 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
       const nextStyle = data.payload?.frame?.style;
       if (frame && nextStyle) {
         if (nextStyle.width) frame.style.width = nextStyle.width;
-        if (nextStyle.height) frame.style.height = nextStyle.height;
+        if (nextStyle.height) {
+          frame.style.height = nextStyle.height;
+          frame.style.minHeight = '0';
+        }
         setFrameReady(true);
+        setLoadFailed(false);
       }
     };
 
@@ -139,7 +156,9 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
 
     const scriptEl = ensureExpediaScript();
     let onScriptLoad: (() => void) | null = null;
+    let onScriptError: (() => void) | null = null;
     let fallbackTimer: number | null = null;
+    let timeoutTimer: number | null = null;
 
     if (window.eg?.widgets?.initialized || !scriptEl) {
       hydrateWidgetElement();
@@ -147,21 +166,32 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
       onScriptLoad = () => {
         hydrateWidgetElement();
       };
+      onScriptError = () => {
+        if (!cancelled) setLoadFailed(true);
+      };
       scriptEl.addEventListener('load', onScriptLoad, { once: true });
+      scriptEl.addEventListener('error', onScriptError, { once: true });
       fallbackTimer = window.setTimeout(() => {
         hydrateWidgetElement();
       }, 450);
     }
 
+    timeoutTimer = window.setTimeout(() => {
+      if (!cancelled) {
+        setFrameReady((curr) => {
+          if (!curr) setLoadFailed(true);
+          return curr;
+        });
+      }
+    }, 14000);
+
     return () => {
       cancelled = true;
-      if (fallbackTimer !== null) {
-        window.clearTimeout(fallbackTimer);
-      }
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
+      if (timeoutTimer !== null) window.clearTimeout(timeoutTimer);
       window.removeEventListener('message', handleResizeMessage);
-      if (onScriptLoad && scriptEl) {
-        scriptEl.removeEventListener('load', onScriptLoad);
-      }
+      if (onScriptLoad && scriptEl) scriptEl.removeEventListener('load', onScriptLoad);
+      if (onScriptError && scriptEl) scriptEl.removeEventListener('error', onScriptError);
       if (instanceId && window.eg?.widgets?.elements) {
         delete window.eg.widgets.elements[instanceId];
       }
@@ -171,6 +201,15 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
       }
       element.removeAttribute('data-instance');
     };
+  }, []);
+
+  const titleRef = useRef(expediaCopy.flights.iframeTitle);
+  titleRef.current = expediaCopy.flights.iframeTitle;
+  useEffect(() => {
+    const frame = containerRef.current?.querySelector<HTMLIFrameElement>('.eg-widget-frame');
+    if (frame) {
+      frame.title = expediaCopy.flights.iframeTitle;
+    }
   }, [expediaCopy.flights.iframeTitle]);
 
   const buildDirectFlightQuoteUrl = () => {
@@ -204,23 +243,33 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
 
       {/* Official Expedia Flights-Only Widget Host (data-lobs="flights") */}
       <div
-        className={`rounded-2xl bg-[#f5ede0]/75 border border-[#d1a847]/50 shadow-inner overflow-x-auto ${
-          compact ? 'px-2.5 py-3 sm:p-4' : 'p-3 sm:p-5 lg:p-6'
+        className={`relative rounded-2xl bg-[#f5ede0]/75 border border-[#d1a847]/50 shadow-inner overflow-x-clip widget-stability-shell ${
+          compact ? 'px-2 py-2.5 sm:p-4' : 'p-2 sm:p-5 lg:p-6'
         }`}
       >
         <div
-          className={`w-full max-w-[600px] mx-auto flex flex-col justify-center ${
-            frameReady ? '' : compact ? 'min-h-[180px]' : 'min-h-[220px]'
+          className={`relative w-full max-w-[600px] mx-auto flex flex-col justify-center ${
+            compact ? 'min-h-[280px]' : 'min-h-[300px]'
           }`}
         >
-          {!frameReady && (
-            <div className="text-center py-5 text-xs text-[#2c405e]/80 tracking-wide">
-              {expediaCopy.loadingLabel}
+          {!frameReady && !loadFailed && (
+            <div className="pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center px-3">
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#fcf9f2]/95 border border-[#d1a847]/45 text-[11px] text-[#2c405e]/85 tracking-wide shadow-sm">
+                {expediaCopy.loadingLabel}
+              </span>
+            </div>
+          )}
+          {loadFailed && !frameReady && (
+            <div
+              role="status"
+              className="mb-3 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/60 p-3 text-center text-xs text-[#0b1d3a]"
+            >
+              {flightsPack.expediaNote}
             </div>
           )}
           <div
             ref={containerRef}
-            className="eg-widget"
+            className="eg-widget w-full"
             data-widget={EXPEDIA_FLIGHTS_WIDGET_CONFIG.widget}
             data-program={EXPEDIA_FLIGHTS_WIDGET_CONFIG.program}
             data-lobs={EXPEDIA_FLIGHTS_WIDGET_CONFIG.lobs}
@@ -232,7 +281,7 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
       </div>
 
       {/* Agency Concierge Complementary Assistance Bar */}
-      <div className="rounded-xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/55 px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div className="rounded-xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/55 px-3.5 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div className="text-xs text-slate-200 leading-relaxed">
           <span className="font-semibold text-[#fceda2]">{flightsPack.conciergeTitle}</span>{' '}
           <span className="text-slate-300">{flightsPack.conciergeDesc}</span>
@@ -243,7 +292,7 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
             href={buildDirectFlightQuoteUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors whitespace-nowrap"
+            className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors sm:whitespace-nowrap"
           >
             <span>
               {flightsPack.agencyFlightQuoteBtn} ({displayPhone})
@@ -254,7 +303,7 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
             <button
               type="button"
               onClick={onJumpToPlanner}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#071429] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#071429] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap"
             >
               <MapPin className="w-3.5 h-3.5 text-[#d1a847]" />
               <span>Google Maps</span>
@@ -264,4 +313,4 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = ({
       </div>
     </div>
   );
-};
+});

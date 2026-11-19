@@ -258,3 +258,9 @@
   }
 }
 
+/* Prevent browser scroll-anchoring jumps when asynchronous partner iframes/shadow widgets resize */
+.widget-stability-shell {
+  overflow-anchor: none;
+}
+
+

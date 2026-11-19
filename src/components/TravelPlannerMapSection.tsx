@@ -580,8 +580,8 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
     apiStatus !== APILoadingStatus.AUTH_FAILURE;
 
   return (
-    <section id="planner" className="py-20 md:py-28 max-w-7xl mx-auto px-5 sm:px-8">
-      <div className="text-center max-w-3xl mx-auto mb-12 reveal-init">
+    <section id="planner" className="py-14 sm:py-20 md:py-28 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 reveal-init">
         <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
           {t.plannerSection.eyebrow}
         </p>
@@ -592,13 +592,13 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
       </div>
 
       {/* Main Dynamic Service-Aware Form + Google Maps Connected Layout */}
-      <div className="bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-6 sm:p-9 lg:p-10 shadow-[0_22px_54px_rgba(11,29,58,0.1)] reveal-init">
+      <div className="bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-4 sm:p-8 lg:p-10 shadow-[0_22px_54px_rgba(11,29,58,0.1)] reveal-init">
         {/* Service Selector Row (6 Official Services Matching User Banner Icons) */}
-        <div className="mb-8">
+        <div className="mb-7 sm:mb-8">
           <label className="block text-xs font-semibold uppercase tracking-[0.18em] text-[#0b1d3a] mb-3">
             {t.plannerSection.serviceLabel}
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5">
             {SERVICE_ORDER.map((srvId) => {
               const srv = t.servicesSection.services[srvId];
               const Icon = SERVICE_ICONS[srvId];
@@ -611,7 +611,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     onSelectService(srvId);
                     setItineraryBuilt(false);
                   }}
-                  className={`py-3 px-3 rounded-xl border text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  className={`min-w-0 py-2.5 sm:py-3 px-2.5 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
                     active
                       ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847] shadow-md'
                       : 'bg-[#f5ede0] text-[#0b1d3a] border-[#d1a847]/40 hover:border-[#0b1d3a]'
@@ -695,9 +695,9 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     href={buildWhatsAppMessageUrl()}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="flex-1 inline-flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 shadow-[0_6px_20px_rgba(16,185,129,0.28)] transition-all"
+                    className="flex-1 inline-flex items-center justify-center text-center gap-2.5 py-3.5 px-4 sm:px-6 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 shadow-[0_6px_20px_rgba(16,185,129,0.28)] transition-all"
                   >
-                    <WhatsAppIcon className="w-4 h-4 fill-current" />
+                    <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
                     <span>
                       {t.plannerSection.sendWhatsapp} ({displayPhone})
                     </span>
@@ -770,7 +770,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                             setShowVisaDropdown(true);
                           }}
                           placeholder={t.plannerSection.visaCenterPlaceholder}
-                          className="flex-1 bg-[#fcf9f2] border border-[#d1a847]/65 rounded-lg px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
+                          className="flex-1 min-w-0 bg-[#fcf9f2] border border-[#d1a847]/65 rounded-lg px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
                         />
                         <button
                           type="button"
@@ -834,7 +834,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                           setShowHotelDropdown(true);
                         }}
                         placeholder={t.plannerSection.hotelPlaceholder}
-                        className="flex-1 bg-[#fcf9f2] border border-[#d1a847]/65 rounded-lg px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
+                        className="flex-1 min-w-0 bg-[#fcf9f2] border border-[#d1a847]/65 rounded-lg px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
                       />
                       <button
                         type="button"
@@ -912,7 +912,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                         setShowCityDropdown(true);
                       }}
                       placeholder={t.plannerSection.destPlaceholder}
-                      className="flex-1 bg-[#f8f2e7] border border-[#d1a847]/50 rounded-lg px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
+                      className="flex-1 min-w-0 bg-[#f8f2e7] border border-[#d1a847]/50 rounded-lg px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
                     />
                     {!isHotelService && (
                       <button
@@ -1187,7 +1187,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
               </p>
             </div>
 
-            <div className="relative w-full h-[320px] sm:h-[360px] lg:flex-1 lg:min-h-[340px] rounded-xl overflow-hidden border border-[#d1a847]/55 shadow-inner bg-[#ede1ce]">
+            <div className="relative w-full h-[280px] sm:h-[360px] lg:flex-1 lg:min-h-[340px] rounded-xl overflow-hidden border border-[#d1a847]/55 shadow-inner bg-[#ede1ce]">
               {mapHealthy ? (
                 <GoogleMap
                   mapId="DEMO_MAP_ID"
@@ -1319,7 +1319,7 @@ export const TravelPlannerMapSection: React.FC<TravelPlannerMapSectionProps> = (
     <APIProvider
       apiKey={GOOGLE_MAPS_API_KEY}
       libraries={['places', 'marker', 'core']}
-      language={props.lang}
+      onError={(err) => dispatchQuotaWarningIfNeeded(err)}
     >
       <PlannerMapInner {...props} mapsEnabled={true} />
     </APIProvider>

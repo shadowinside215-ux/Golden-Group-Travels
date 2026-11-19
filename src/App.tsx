@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   ArrowRight,
   Check,
@@ -19,9 +21,12 @@ import { TravelPlannerMapSection } from './components/TravelPlannerMapSection';
 import { TravelSearchEngine } from './components/TravelSearchEngine';
 import {
   SEARCH_CATEGORY_TO_SERVICE,
+  SERVICE_SECTION_IDS,
   SearchCategoryId,
   SERVICE_TO_SEARCH_CATEGORY
 } from './config/travelSuppliers';
+
+gsap.registerPlugin(ScrollTrigger);
 import {
   Language,
   SERVICE_ORDER,
@@ -148,13 +153,77 @@ export default function App() {
   }, [activePage]);
 
   const scrollToId = (id: string) => {
-    window.setTimeout(() => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 40);
+    setMobileMenuOpen(false);
+    window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const reduced =
+          typeof window !== 'undefined' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const headerEl = document.querySelector('header');
+        const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 108;
+        const targetTop = Math.max(
+          0,
+          el.getBoundingClientRect().top + window.scrollY - headerHeight - 16
+        );
+        window.scrollTo({
+          top: targetTop,
+          behavior: reduced ? 'auto' : 'smooth'
+        });
+      }, 45);
+    });
   };
+
+  useEffect(() => {
+    if (activePage !== 'home') return;
+    const servicesEl = document.getElementById('services');
+    if (!servicesEl) return;
+
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    const isMobileViewport =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 767px)').matches;
+
+    const ctx = gsap.context(() => {
+      const cards = servicesEl.querySelectorAll<HTMLElement>('.gsap-service-card-3d');
+      cards.forEach((card, idx) => {
+        gsap.fromTo(
+          card,
+          isMobileViewport
+            ? { opacity: 0, y: 18 }
+            : {
+                opacity: 0,
+                y: 26,
+                scale: 0.97,
+                rotateX: 4,
+                transformPerspective: 1100
+              },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotateX: 0,
+            duration: isMobileViewport ? 0.55 : 0.72,
+            delay: isMobileViewport ? 0 : (idx % 3) * 0.06,
+            ease: 'power2.out',
+            clearProps: 'all',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 88%',
+              once: true
+            }
+          }
+        );
+      });
+    }, servicesEl);
+
+    return () => ctx.revert();
+  }, [activePage]);
 
   const openPage = (page: 'home' | ServiceId, sectionIdAfter?: string) => {
     setActivePage(page);
@@ -204,7 +273,7 @@ export default function App() {
       setDestinationLocation(t.horizonsSection.destinations.makkah.title);
     }
     trackServiceSelection(HERO_CATEGORY_EVENTS[category]);
-    scrollToId('explore-travel-services');
+    scrollToId(SERVICE_SECTION_IDS[category]);
   };
 
   return (
@@ -253,9 +322,9 @@ export default function App() {
       {/* Sticky Top Strip + Navigation Bar (Official Logo ONLY + 4 Languages + Verified Info) */}
       <header className="sticky top-0 z-30 bg-[#fbf7ee]/96 border-y border-[#d1a847]/40 shadow-[0_8px_28px_rgba(11,29,58,0.07)]">
         {/* Compact Navy & Gold Contact Strip */}
-        <div className="bg-[#0b1d3a] text-[#f5ede0] text-[11px] sm:text-xs border-b border-[#d1a847]/35">
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 h-7 sm:h-8 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
+        <div className="bg-[#0b1d3a] text-[#f5ede0] text-[10px] sm:text-xs border-b border-[#d1a847]/35">
+          <div className="max-w-7xl mx-auto px-3 sm:px-8 h-7 sm:h-8 flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               <div className="flex items-center gap-2 shrink-0">
                 <a
                   href={FACEBOOK_URL}
@@ -302,7 +371,7 @@ export default function App() {
         </div>
 
         {/* Main Header Bar: Bigger 1:1 Logo ONLY + Navigation Links + 4 Languages Switcher + CTA */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 h-[72px] sm:h-24 flex items-center justify-between gap-4 lg:gap-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-8 h-[68px] sm:h-24 flex items-center justify-between gap-3 sm:gap-4 lg:gap-6">
           <button
             type="button"
             onClick={() => openPage('home')}
@@ -443,25 +512,25 @@ export default function App() {
               </div>
             </div>
 
-            <nav className="flex flex-col space-y-2.5 text-xs font-semibold uppercase tracking-wider text-[#0b1d3a]">
+            <nav className="flex flex-col space-y-1.5 text-xs font-semibold uppercase tracking-wider text-[#0b1d3a]">
               <button
                 type="button"
                 onClick={() => openPage('home')}
-                className="py-1 text-left rtl:text-right cursor-pointer"
+                className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {chrome.homeNavLabel}
               </button>
               <button
                 type="button"
                 onClick={() => openPage('home', 'services')}
-                className="py-1 text-left rtl:text-right cursor-pointer"
+                className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.services}
               </button>
               <button
                 type="button"
                 onClick={() => openPage('hajj-umrah')}
-                className="py-1 text-left rtl:text-right cursor-pointer"
+                className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {t.servicesSection.services['hajj-umrah'].label}
               </button>
@@ -471,7 +540,7 @@ export default function App() {
                   setMobileMenuOpen(false);
                   scrollToId('planner');
                 }}
-                className="py-1 text-left rtl:text-right cursor-pointer"
+                className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.planner}
               </button>
@@ -481,7 +550,7 @@ export default function App() {
                   setMobileMenuOpen(false);
                   scrollToId('contact');
                 }}
-                className="py-1 text-left rtl:text-right cursor-pointer"
+                className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.contact}
               </button>
@@ -511,7 +580,7 @@ export default function App() {
           />
         ) : (
           <>
-            {/* Dedicated Travel Services Search & Widget Hub Below Hero */}
+            {/* Dedicated Travel Services Search & Widget Sections Below Hero */}
             <TravelSearchEngine
               lang={lang}
               isRtl={isRtl}
@@ -520,6 +589,7 @@ export default function App() {
                 setActiveSearchCategory(cat);
                 setActiveService(SEARCH_CATEGORY_TO_SERVICE[cat]);
               }}
+              onSelectHeroOrSection={(cat) => scrollToId(SERVICE_SECTION_IDS[cat])}
               onOpenServicePage={(srvId) => openPage(srvId)}
               onJumpToPlanner={() => scrollToId('planner')}
               whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
@@ -527,8 +597,8 @@ export default function App() {
             />
 
             {/* Dedicated Services Overview — Animated Photography Cards Opening Each Service's Full Page */}
-            <section id="services" className="py-20 md:py-28 max-w-7xl mx-auto px-5 sm:px-8">
-              <div className="max-w-3xl mx-auto text-center mb-16 reveal-init">
+            <section id="services" className="py-14 sm:py-20 md:py-28 max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+              <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-16 reveal-init">
                 <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
                   {t.servicesSection.eyebrow}
                 </p>
@@ -541,20 +611,19 @@ export default function App() {
                 <div className="w-20 h-px bg-[#c59b38]/70 mx-auto mt-6" />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
                 {SERVICE_ORDER.map((srvId, idx) => {
                   const srv = t.servicesSection.services[srvId];
                   const Icon = SERVICE_ICONS[srvId];
                   const media = SERVICE_THEME_MEDIA[srvId];
                   const isOmra = srvId === 'hajj-umrah';
                   const indexTag = `0${idx + 1}`;
-                  const stagger = `stagger-${(idx % 4) + 1}`;
 
                   return (
                     <article
                       key={srvId}
                       id={`service-${srvId}`}
-                      className={`reveal-init ${stagger} rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-all duration-300 hover:-translate-y-1 ${
+                      className={`gsap-service-card-3d rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-all duration-300 hover:-translate-y-1 ${
                         isOmra
                           ? 'border-2 border-[#d1a847] shadow-[0_22px_50px_rgba(11,29,58,0.16)]'
                           : 'border border-[#d1a847]/45 shadow-[0_16px_40px_rgba(11,29,58,0.09)] hover:border-[#c59b38]'
@@ -577,24 +646,24 @@ export default function App() {
                             aria-hidden="true"
                             className="absolute inset-0 bg-gradient-to-t from-[#071429]/90 via-[#0b1d3a]/25 to-transparent"
                           />
-                          <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between gap-3 text-[#fcf9f2]">
-                            <div>
+                          <div className="absolute bottom-3.5 sm:bottom-4 left-4 sm:left-5 right-4 sm:right-5 flex items-end justify-between gap-3 text-[#fcf9f2]">
+                            <div className="min-w-0">
                               <div className="text-[11px] uppercase tracking-[0.22em] text-[#fceda2] font-semibold tabular-nums">
                                 {indexTag} · {t.servicesSection.provisionTag}
                               </div>
-                              <h3 className="font-serif-crest text-xl sm:text-2xl font-semibold mt-0.5">
+                              <h3 className="font-serif-crest text-lg sm:text-2xl font-semibold mt-0.5">
                                 {srv.label}
                               </h3>
                             </div>
-                            <span className="w-11 h-11 rounded-xl bg-[#0b1d3a]/95 border border-[#d1a847] text-[#d1a847] flex items-center justify-center shrink-0 shadow-lg">
-                              <Icon className="w-6 h-6" />
+                            <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#0b1d3a]/95 border border-[#d1a847] text-[#d1a847] flex items-center justify-center shrink-0 shadow-lg">
+                              <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                             </span>
                           </div>
                         </AnimatedServiceMedia>
                       </button>
 
                       {/* Card Body & Open Full Page Action */}
-                      <div className="p-6 flex-1 flex flex-col justify-between gap-5">
+                      <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between gap-5">
                         <div className="space-y-3">
                           <div className="text-sm font-semibold text-[#0b1d3a]">
                             {srv.headline}
@@ -618,9 +687,9 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => openPage(srvId)}
-                          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.14em] transition-colors cursor-pointer"
+                          className="w-full inline-flex items-center justify-center text-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.12em] sm:tracking-[0.14em] transition-colors cursor-pointer"
                         >
-                          <span className="whitespace-nowrap">{chrome.openPageCta}</span>
+                          <span className="sm:whitespace-nowrap">{chrome.openPageCta}</span>
                           <ArrowRight
                             className={`w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
                               isRtl ? 'rotate-180' : ''
@@ -662,12 +731,12 @@ export default function App() {
       </main>
 
       {/* Restored Floating Bottom-Left (or Bottom-Right in RTL) 4-Language Switcher */}
-      <div className={`fixed bottom-5 z-40 ${isRtl ? 'right-5' : 'left-5'}`}>
+      <div className={`fixed bottom-3.5 sm:bottom-5 z-40 ${isRtl ? 'right-3.5 sm:right-5' : 'left-3.5 sm:left-5'}`}>
         <div className="relative">
           <button
             type="button"
             onClick={() => setFloatingLangOpen(!floatingLangOpen)}
-            className="bg-[#0b1d3a] text-white border border-[#d1a847]/65 shadow-[0_8px_28px_rgba(11,29,58,0.34)] hover:border-[#fceda2] px-3.5 py-2 rounded-lg flex items-center gap-2 text-xs sm:text-sm font-bold transition-all hover:scale-105 cursor-pointer"
+            className="bg-[#0b1d3a] text-white border border-[#d1a847]/65 shadow-[0_8px_28px_rgba(11,29,58,0.34)] hover:border-[#fceda2] px-3 sm:px-3.5 py-2 rounded-lg flex items-center gap-2 text-xs sm:text-sm font-bold transition-all hover:scale-105 cursor-pointer"
             aria-label="Select Language"
           >
             <span className="text-base">{LANGUAGES.find((l) => l.code === lang)?.flag}</span>
@@ -712,7 +781,7 @@ export default function App() {
       {/* Floating WhatsApp Direct Quick Action */}
       <aside
         aria-label="Direct WhatsApp contact"
-        className={`fixed bottom-5 z-40 ${isRtl ? 'left-5' : 'right-5'}`}
+        className={`fixed bottom-3.5 sm:bottom-5 z-40 ${isRtl ? 'left-3.5 sm:left-5' : 'right-3.5 sm:right-5'}`}
       >
         <a
           href={`https://wa.me/${WHATSAPP_PHONE_INTERNATIONAL}`}
@@ -729,9 +798,9 @@ export default function App() {
       {/* Royal Navy Blue & Gold Footer with Official Logo ONLY + Verified Agency Info */}
       <footer
         id="contact"
-        className="bg-[#0b1d3a] text-[#f5ede0] border-t-2 border-[#d1a847]/55 pt-16 pb-20"
+        className="bg-[#0b1d3a] text-[#f5ede0] border-t-2 border-[#d1a847]/55 pt-14 sm:pt-16 pb-24 sm:pb-20"
       >
-        <div className="max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
             {/* Brand Column: Enlarged Official 1:1 Logo ONLY */}
             <div className="space-y-4">

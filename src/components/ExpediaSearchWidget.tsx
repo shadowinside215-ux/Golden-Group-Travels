@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { Check, ExternalLink, MapPin, ShieldCheck } from 'lucide-react';
 import { Language } from '../assets/destinations';
 import { SEARCH_ENGINE_PACKS } from '../assets/searchEngineData';
@@ -33,13 +33,14 @@ function getCleanAttr(element: HTMLElement, attr: string): string | null {
   return typeof val === 'string' ? val.replace(/^\s*(\S*)\s*$/, '$1') : val;
 }
 
-export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
+export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = memo(({
   lang,
   variant = 'page',
   onJumpToPlanner
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [frameReady, setFrameReady] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const pageCopy = EXPEDIA_WIDGET_COPY[lang];
   const hotelsPack = SEARCH_ENGINE_PACKS[lang].hotels;
@@ -50,6 +51,8 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
 
     let cancelled = false;
     let instanceId = element.getAttribute('data-instance') || '';
+    setFrameReady(false);
+    setLoadFailed(false);
 
     const hydrateWidgetElement = () => {
       if (cancelled || !containerRef.current) return;
@@ -109,12 +112,23 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
 
       const frame = document.createElement('iframe');
       frame.className = `eg-widget-frame eg-${widget}-widget-frame`;
-      frame.title = pageCopy.hotels.iframeTitle;
+      frame.title = hotelTitleRef.current;
       frame.src = `${widgetsUrl}/${widget}-widget${queryString ? `?${queryString}` : ''}`;
       frame.style.width = '100%';
-      frame.style.height = '0';
+      frame.style.height = '340px';
+      frame.style.minHeight = '300px';
       frame.style.margin = 'auto';
       frame.style.border = 'none';
+      frame.addEventListener(
+        'load',
+        () => {
+          if (!cancelled) setFrameReady(true);
+        },
+        { once: true }
+      );
+      frame.addEventListener('error', () => {
+        if (!cancelled) setLoadFailed(true);
+      });
 
       el.appendChild(frame);
       window.eg.widgets.elements[instanceId] = el;
@@ -137,8 +151,12 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
       const nextStyle = data.payload?.frame?.style;
       if (frame && nextStyle) {
         if (nextStyle.width) frame.style.width = nextStyle.width;
-        if (nextStyle.height) frame.style.height = nextStyle.height;
+        if (nextStyle.height) {
+          frame.style.height = nextStyle.height;
+          frame.style.minHeight = '0';
+        }
         setFrameReady(true);
+        setLoadFailed(false);
       }
     };
 
@@ -146,7 +164,9 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
 
     const scriptEl = ensureExpediaScript();
     let onScriptLoad: (() => void) | null = null;
+    let onScriptError: (() => void) | null = null;
     let fallbackTimer: number | null = null;
+    let timeoutTimer: number | null = null;
 
     if (window.eg?.widgets?.initialized || !scriptEl) {
       hydrateWidgetElement();
@@ -154,21 +174,32 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
       onScriptLoad = () => {
         hydrateWidgetElement();
       };
+      onScriptError = () => {
+        if (!cancelled) setLoadFailed(true);
+      };
       scriptEl.addEventListener('load', onScriptLoad, { once: true });
+      scriptEl.addEventListener('error', onScriptError, { once: true });
       fallbackTimer = window.setTimeout(() => {
         hydrateWidgetElement();
       }, 450);
     }
 
+    timeoutTimer = window.setTimeout(() => {
+      if (!cancelled) {
+        setFrameReady((curr) => {
+          if (!curr) setLoadFailed(true);
+          return curr;
+        });
+      }
+    }, 14000);
+
     return () => {
       cancelled = true;
-      if (fallbackTimer !== null) {
-        window.clearTimeout(fallbackTimer);
-      }
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
+      if (timeoutTimer !== null) window.clearTimeout(timeoutTimer);
       window.removeEventListener('message', handleResizeMessage);
-      if (onScriptLoad && scriptEl) {
-        scriptEl.removeEventListener('load', onScriptLoad);
-      }
+      if (onScriptLoad && scriptEl) scriptEl.removeEventListener('load', onScriptLoad);
+      if (onScriptError && scriptEl) scriptEl.removeEventListener('error', onScriptError);
       if (instanceId && window.eg?.widgets?.elements) {
         delete window.eg.widgets.elements[instanceId];
       }
@@ -178,23 +209,38 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
       }
       element.removeAttribute('data-instance');
     };
+  }, []);
+
+  const hotelTitleRef = useRef(pageCopy.hotels.iframeTitle);
+  hotelTitleRef.current = pageCopy.hotels.iframeTitle;
+  useEffect(() => {
+    const frame = containerRef.current?.querySelector<HTMLIFrameElement>('.eg-widget-frame');
+    if (frame) {
+      frame.title = pageCopy.hotels.iframeTitle;
+    }
   }, [pageCopy.hotels.iframeTitle]);
 
   const widgetContainer = (
-    <div className="rounded-xl bg-[#f5ede0]/70 border border-[#d1a847]/45 px-2.5 py-4 sm:p-6 shadow-inner overflow-x-auto">
-      <div
-        className={`w-full max-w-[575px] mx-auto flex flex-col justify-center ${
-          frameReady ? '' : 'min-h-[240px]'
-        }`}
-      >
-        {!frameReady && (
-          <div className="text-center py-6 text-xs text-[#2c405e]/75 tracking-wide">
-            {pageCopy.loadingLabel}
+    <div className="relative rounded-xl bg-[#f5ede0]/70 border border-[#d1a847]/45 px-2 py-3 sm:p-6 shadow-inner overflow-x-clip widget-stability-shell">
+      <div className="relative w-full max-w-[575px] mx-auto flex flex-col justify-center min-h-[300px]">
+        {!frameReady && !loadFailed && (
+          <div className="pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center px-3">
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#fcf9f2]/95 border border-[#d1a847]/45 text-[11px] text-[#2c405e]/85 tracking-wide shadow-sm">
+              {pageCopy.loadingLabel}
+            </span>
+          </div>
+        )}
+        {loadFailed && !frameReady && (
+          <div
+            role="status"
+            className="mb-3 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/60 p-3 text-center text-xs text-[#0b1d3a]"
+          >
+            {hotelsPack.widgetNote}
           </div>
         )}
         <div
           ref={containerRef}
-          className="eg-widget"
+          className="eg-widget w-full"
           data-widget={EXPEDIA_HOTELS_WIDGET_CONFIG.widget}
           data-program={EXPEDIA_HOTELS_WIDGET_CONFIG.program}
           data-lobs={EXPEDIA_HOTELS_WIDGET_CONFIG.lobs}
@@ -312,4 +358,4 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = ({
       </div>
     </section>
   );
-};
+});

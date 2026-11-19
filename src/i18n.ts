@@ -29,6 +29,7 @@ export interface LocalizedDestination {
 export interface TranslationPack {
   dir: 'ltr' | 'rtl';
   hero: {
+    heroSlogan: string;
     headlineTop: string;
     headlineGold: string;
     subtitle: string;
@@ -137,6 +138,7 @@ export const translations: Record<Language, TranslationPack> = {
   fr: {
     dir: 'ltr',
     hero: {
+      heroSlogan: 'Une vision, plusieurs horizons',
       headlineTop: 'YOUR NEXT',
       headlineGold: 'JOURNEY STARTS HERE.',
       subtitle: 'Curated travel. Seamless planning. Unforgettable places.',
@@ -376,6 +378,7 @@ export const translations: Record<Language, TranslationPack> = {
   ar: {
     dir: 'rtl',
     hero: {
+      heroSlogan: 'رؤية واحدة، وآفاق متعددة',
       headlineTop: 'رحلتك القادمة',
       headlineGold: 'تبدأ من هنا.',
       subtitle: 'سفر مُصمَّم بعناية. تخطيط سلس. وجهات لا تُنسى.',
@@ -612,6 +615,7 @@ export const translations: Record<Language, TranslationPack> = {
   en: {
     dir: 'ltr',
     hero: {
+      heroSlogan: 'One vision, many horizons',
       headlineTop: 'YOUR NEXT',
       headlineGold: 'JOURNEY STARTS HERE.',
       subtitle: 'Curated travel. Seamless planning. Unforgettable places.',
@@ -851,6 +855,7 @@ export const translations: Record<Language, TranslationPack> = {
   es: {
     dir: 'ltr',
     hero: {
+      heroSlogan: 'Una visión, múltiples horizontes',
       headlineTop: 'YOUR NEXT',
       headlineGold: 'JOURNEY STARTS HERE.',
       subtitle: 'Viajes a medida. Planificación fluida. Lugares inolvidables.',

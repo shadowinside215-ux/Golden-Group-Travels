@@ -8,7 +8,7 @@ export type SearchCategoryId =
   | 'tours'
   | 'car-transfers';
 
-export type CarTransfersTabId = 'car_rentals' | 'airport_transfers';
+export type CarTransfersFilterId = 'all' | 'car_rentals' | 'airport_transfers';
 
 export const SEARCH_CATEGORY_ORDER: SearchCategoryId[] = [
   'flights',
@@ -18,6 +18,15 @@ export const SEARCH_CATEGORY_ORDER: SearchCategoryId[] = [
   'tours',
   'car-transfers'
 ];
+
+export const SERVICE_SECTION_IDS: Record<SearchCategoryId, string> = {
+  flights: 'section-flights',
+  hotels: 'section-hotels',
+  umrah: 'section-umrah',
+  holidays: 'section-holidays',
+  tours: 'section-tours',
+  'car-transfers': 'section-car-transfers'
+};
 
 export const HERO_TO_SEARCH_CATEGORY: Record<HeroCategoryId, SearchCategoryId> = {
   flights: 'flights',
@@ -42,8 +51,6 @@ export const SERVICE_TO_SEARCH_CATEGORY: Partial<Record<ServiceId, SearchCategor
   'holiday-packages': 'holidays'
 };
 
-export type FlightProviderId = 'aviasales' | 'expedia';
-
 export interface TravelpayoutsWidgetSpec {
   id: string;
   providerName: string;
@@ -52,7 +59,10 @@ export interface TravelpayoutsWidgetSpec {
   scriptSrc: string;
   layoutKind: 'search' | 'cards' | 'banner';
   minHeightClass?: string;
+  minHeightPx?: number;
+  isolatedFrame?: boolean;
   containerClassName?: string;
+  hostClassName?: string;
 }
 
 /**
@@ -80,7 +90,9 @@ export const FLIGHTS_OFFERS_WIDGET: TravelpayoutsWidgetSpec = {
   scriptSrc:
     'https://tpemb.com/content?currency=usd&trs=603176&shmarker=808002&locale=en&powered_by=true&limit=4&primary_color=00AE98&results_background_color=FFFFFF&form_background_color=FFFFFF&campaign_id=111&promo_id=3411',
   layoutKind: 'cards',
-  minHeightClass: 'min-h-[340px]'
+  minHeightClass: 'min-h-[340px]',
+  minHeightPx: 360,
+  isolatedFrame: true
 };
 
 export const EXPEDIA_FLIGHTS_WIDGET_CONFIG = {
@@ -141,11 +153,24 @@ export const TOURS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
     scriptSrc:
       'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&tours=3&powered_by=true&campaign_id=150&promo_id=4489',
     layoutKind: 'cards',
-    minHeightClass: 'min-h-[480px]'
+    minHeightClass: 'min-h-[480px]',
+    minHeightPx: 480,
+    isolatedFrame: true,
+    hostClassName: 'w-full min-w-0 [&_.js-wegotrip-widget]:!mx-0'
   }
 ] as const;
 
 export const CAR_RENTALS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
+  {
+    id: 'car-autoeurope',
+    providerName: 'AutoEurope',
+    campaignId: '143',
+    promoId: '4362',
+    scriptSrc:
+      'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&powered_by=true&border_radius=5&plain=true&show_logo=true&color_background=%230b2033&color_button=%23e8b917&promo_id=4362&campaign_id=143',
+    layoutKind: 'search',
+    minHeightClass: 'min-h-[240px]'
+  },
   {
     id: 'car-localrent',
     providerName: 'Localrent',
@@ -154,7 +179,7 @@ export const CAR_RENTALS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
     scriptSrc:
       'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&country=12&city=53741&powered_by=true&campaign_id=87&promo_id=2466',
     layoutKind: 'search',
-    minHeightClass: 'min-h-[560px]'
+    minHeightClass: 'min-h-[680px]'
   },
   {
     id: 'car-getrentacar',
@@ -164,41 +189,24 @@ export const CAR_RENTALS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
     scriptSrc:
       'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&powered_by=true&campaign_id=222&promo_id=8813',
     layoutKind: 'search',
-    minHeightClass: 'min-h-[560px]'
-  },
-  {
-    id: 'car-economybookings-banner',
-    providerName: 'EconomyBookings',
-    campaignId: '10',
-    promoId: '2082',
-    scriptSrc:
-      'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&width=100&height=100&powered_by=true&campaign_id=10&promo_id=2082',
-    layoutKind: 'banner',
-    containerClassName: 'w-full max-w-[600px] mx-auto h-[420px] sm:h-[460px]'
-  },
-  {
-    id: 'car-autoeurope',
-    providerName: 'AutoEurope',
-    campaignId: '143',
-    promoId: '4362',
-    scriptSrc:
-      'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&powered_by=true&border_radius=5&plain=true&show_logo=true&color_background=%230b2033&color_button=%23e8b917&promo_id=4362&campaign_id=143',
-    layoutKind: 'search',
-    minHeightClass: 'min-h-[260px]'
+    minHeightClass: 'min-h-[380px]'
   }
 ] as const;
 
+/** EconomyBookings (10/2082) renders a responsive promotional iframe banner rather than a multi-field search engine */
+export const CAR_RENTALS_PROMO_BANNER: TravelpayoutsWidgetSpec = {
+  id: 'car-economybookings-banner',
+  providerName: 'EconomyBookings',
+  campaignId: '10',
+  promoId: '2082',
+  scriptSrc:
+    'https://tpemb.com/content?trs=603176&shmarker=808002&locale=en&width=100&height=100&powered_by=true&campaign_id=10&promo_id=2082',
+  layoutKind: 'banner',
+  containerClassName: 'w-full max-w-[600px] mx-auto',
+  hostClassName: 'w-full min-w-0 h-[380px] sm:h-[420px]'
+};
+
 export const AIRPORT_TRANSFERS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
-  {
-    id: 'transfer-intui',
-    providerName: 'Intui.travel',
-    campaignId: '22',
-    promoId: '3507',
-    scriptSrc:
-      'https://tpemb.com/content?trs=603176&shmarker=808002&powered_by=true&locale=en&curr=USD&color=basic&pbi=0&ag=18&ap=34&rid=481&campaign_id=22&promo_id=3507',
-    layoutKind: 'cards',
-    minHeightClass: 'min-h-[400px]'
-  },
   {
     id: 'transfer-kiwitaxi',
     providerName: 'Kiwitaxi',
@@ -208,6 +216,18 @@ export const AIRPORT_TRANSFERS_WIDGETS: readonly TravelpayoutsWidgetSpec[] = [
       'https://tpemb.com/content?currency=USD&trs=603176&shmarker=808002&locale=en&powered_by=true&transfer_options_limit=10&transfer_options=MCR&disable_currency_selector=true&hide_form_extras=true&hide_external_links=true&campaign_id=1&promo_id=3879',
     layoutKind: 'search',
     minHeightClass: 'min-h-[340px]'
+  },
+  {
+    id: 'transfer-intui',
+    providerName: 'Intui.travel',
+    campaignId: '22',
+    promoId: '3507',
+    scriptSrc:
+      'https://tpemb.com/content?trs=603176&shmarker=808002&powered_by=true&locale=en&curr=USD&color=basic&pbi=0&ag=18&ap=34&rid=481&campaign_id=22&promo_id=3507',
+    layoutKind: 'cards',
+    minHeightClass: 'min-h-[400px]',
+    minHeightPx: 400,
+    isolatedFrame: true
   }
 ] as const;
 
