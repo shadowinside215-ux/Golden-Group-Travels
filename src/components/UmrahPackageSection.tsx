@@ -23,6 +23,12 @@ import {
   Users
 } from 'lucide-react';
 import { Language, istanbulBosphorusImg, makkahHaramImg } from '../assets/destinations';
+import {
+  pulseSelection3D,
+  switchTabWithTimeline,
+  useReplayable3DPanel,
+  useSlidingTabIndicator
+} from '../utils/tab3DMotion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -1065,6 +1071,13 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
   const rootRef = useRef<HTMLDivElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const formSectionRef = useRef<HTMLElement>(null);
+  const switcherTablistRef = useRef<HTMLDivElement>(null);
+  const switcherIndicatorRef = useRef<HTMLSpanElement>(null);
+  const packageStageRef = useRef<HTMLDivElement>(null);
+  const pkgSwitchTimelineRef = useRef<gsap.core.Tween | gsap.core.Timeline | null>(null);
+  const selectionSummaryRef = useRef<HTMLDivElement>(null);
+  const readyCardRef = useRef<HTMLDivElement>(null);
+  const selectionMountedRef = useRef(false);
 
   const [activePackage, setActivePackage] = useState<UmrahPackageId>('istanbul');
   const [selectedRoom, setSelectedRoom] = useState<RoomOccupancyId>('quintuple');
@@ -1084,6 +1097,40 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
     setErrors([]);
   }, [lang, activePackage]);
 
+  useSlidingTabIndicator(switcherTablistRef, switcherIndicatorRef, activePackage, [lang]);
+
+  useReplayable3DPanel(packageStageRef, activePackage, {
+    duration: 0.52,
+    staggerEach: 0.05,
+    yOffset: 16,
+    rotateXDeg: 4
+  });
+
+  useReplayable3DPanel(readyCardRef, ready, {
+    enabled: ready,
+    duration: 0.48,
+    staggerEach: 0.045,
+    yOffset: 14,
+    rotateXDeg: 4
+  });
+
+  useEffect(() => {
+    if (!selectionMountedRef.current) {
+      selectionMountedRef.current = true;
+      return;
+    }
+    pulseSelection3D(selectionSummaryRef.current);
+  }, [selectedRoom, selectedIstanbulHotel]);
+
+  useEffect(() => {
+    return () => {
+      if (pkgSwitchTimelineRef.current) {
+        pkgSwitchTimelineRef.current.kill();
+        pkgSwitchTimelineRef.current = null;
+      }
+    };
+  }, []);
+
   // Bidirectional ScrollTrigger animations on native HTML editorial blocks (zero once: true)
   useEffect(() => {
     const container = rootRef.current;
@@ -1101,12 +1148,13 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
         container.querySelectorAll<HTMLElement>('.ggt-umrah-reveal-left').forEach((el) => {
           gsap.fromTo(
             el,
-            { opacity: 0.25, x: isDesktop ? -26 : -10 },
+            { opacity: 0.45, x: isDesktop ? -18 : -8 },
             {
               opacity: 1,
               x: 0,
+              force3D: true,
               ease: 'none',
-              scrollTrigger: { trigger: el, start: 'top 93%', end: 'top 66%', scrub: 0.5 }
+              scrollTrigger: { trigger: el, start: 'top 96%', end: 'top 79%', scrub: 0.12 }
             }
           );
         });
@@ -1114,12 +1162,13 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
         container.querySelectorAll<HTMLElement>('.ggt-umrah-reveal-right').forEach((el) => {
           gsap.fromTo(
             el,
-            { opacity: 0.25, x: isDesktop ? 26 : 10 },
+            { opacity: 0.45, x: isDesktop ? 18 : 8 },
             {
               opacity: 1,
               x: 0,
+              force3D: true,
               ease: 'none',
-              scrollTrigger: { trigger: el, start: 'top 93%', end: 'top 66%', scrub: 0.5 }
+              scrollTrigger: { trigger: el, start: 'top 96%', end: 'top 79%', scrub: 0.12 }
             }
           );
         });
@@ -1128,15 +1177,16 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
           gsap.fromTo(
             card,
             isDesktop
-              ? { opacity: 0.35, y: 24, scale: 0.96, rotateX: 4, transformPerspective: 1100 }
-              : { opacity: 0.4, y: 14, scale: 0.98 },
+              ? { opacity: 0.45, y: 18, scale: 0.97, rotateX: 4, transformPerspective: 1100 }
+              : { opacity: 0.45, y: 12, scale: 0.98 },
             {
               opacity: 1,
               y: 0,
               scale: 1,
               rotateX: 0,
+              force3D: true,
               ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 94%', end: 'top 68%', scrub: 0.5 }
+              scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
             }
           );
         });
@@ -1158,10 +1208,23 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
     window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
   };
 
+  const switchActivePackageAnimated = (pkg: UmrahPackageId) => {
+    if (pkg === activePackage) return;
+    switchTabWithTimeline({
+      outgoingEl: packageStageRef.current,
+      timelineRef: pkgSwitchTimelineRef,
+      onSwap: () => {
+        setActivePackage(pkg);
+      }
+    });
+  };
+
   const openPackageDetails = (pkg: UmrahPackageId) => {
-    setActivePackage(pkg);
     setReady(false);
     setErrors([]);
+    if (pkg !== activePackage) {
+      switchActivePackageAnimated(pkg);
+    }
     window.requestAnimationFrame(() => scrollToElement(detailsRef.current));
   };
 
@@ -1170,7 +1233,9 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
     roomId?: RoomOccupancyId,
     hotelOptId?: IstanbulHotelOptionId
   ) => {
-    setActivePackage(pkg);
+    if (pkg !== activePackage) {
+      setActivePackage(pkg);
+    }
     if (roomId) setSelectedRoom(roomId);
     if (hotelOptId) setSelectedIstanbulHotel(hotelOptId);
     setReady(false);
@@ -1344,7 +1409,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => openPackageDetails('rajab')}
-                  className={`flex-1 min-w-[160px] inline-flex items-center justify-center gap-2 px-4 min-h-[46px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer ${
+                  className={`ggt-btn-3d-return flex-1 min-w-[160px] inline-flex items-center justify-center gap-2 px-4 min-h-[46px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer ${
                     activePackage === 'rajab'
                       ? 'bg-[#d1a847] text-[#0b1d3a] hover:bg-[#fceda2]'
                       : 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]/70 hover:bg-[#132d56]'
@@ -1358,10 +1423,10 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                   href={buildDirectWhatsappUrl('rajab')}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-4 min-h-[46px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-4 min-h-[46px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.12em] transition-colors"
                 >
                   <span>{copy.reserveRequestCta}</span>
-                  <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 shrink-0 ggt-forward-arrow" />
                 </a>
               </div>
             </div>
@@ -1452,7 +1517,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => openPackageDetails('istanbul')}
-                  className={`flex-1 min-w-[160px] inline-flex items-center justify-center gap-2 px-4 min-h-[46px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer ${
+                  className={`ggt-btn-3d-return flex-1 min-w-[160px] inline-flex items-center justify-center gap-2 px-4 min-h-[46px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer ${
                     activePackage === 'istanbul'
                       ? 'bg-[#d1a847] text-[#0b1d3a] hover:bg-[#fceda2]'
                       : 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]/70 hover:bg-[#132d56]'
@@ -1466,10 +1531,10 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                   href={buildDirectWhatsappUrl('istanbul')}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-4 min-h-[46px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-4 min-h-[46px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.12em] transition-colors"
                 >
                   <span>{copy.reserveRequestCta}</span>
-                  <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  <ExternalLink className="w-3.5 h-3.5 shrink-0 ggt-forward-arrow" />
                 </a>
               </div>
             </div>
@@ -1481,25 +1546,41 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
       <div id="umrah-package-details" ref={detailsRef} className="scroll-mt-28 space-y-12">
         {/* Clean Package View Switcher */}
         <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-[#ede1ce] border border-[#d1a847]/55">
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <div
+            ref={switcherTablistRef}
+            role="tablist"
+            aria-label={copy.topSectionTitle}
+            className="relative flex flex-wrap items-center gap-2 w-full sm:w-auto"
+          >
+            <span
+              ref={switcherIndicatorRef}
+              aria-hidden="true"
+              className="ggt-tab-indicator-pill pointer-events-none"
+            />
             <button
               type="button"
-              onClick={() => setActivePackage('rajab')}
-              className={`flex-1 sm:flex-initial px-5 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer ${
+              role="tab"
+              aria-selected={activePackage === 'rajab'}
+              data-tab-active={activePackage === 'rajab' ? 'true' : 'false'}
+              onClick={() => switchActivePackageAnimated('rajab')}
+              className={`ggt-tab-3d relative z-10 flex-1 sm:flex-initial px-5 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer ${
                 activePackage === 'rajab'
-                  ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847] shadow-sm'
-                  : 'text-[#0b1d3a] hover:bg-[#fcf9f2]'
+                  ? 'text-[#fceda2]'
+                  : 'text-[#0b1d3a] hover:text-[#0b1d3a]'
               }`}
             >
               {copy.rajab.startingPriceBanner}
             </button>
             <button
               type="button"
-              onClick={() => setActivePackage('istanbul')}
-              className={`flex-1 sm:flex-initial px-5 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer ${
+              role="tab"
+              aria-selected={activePackage === 'istanbul'}
+              data-tab-active={activePackage === 'istanbul' ? 'true' : 'false'}
+              onClick={() => switchActivePackageAnimated('istanbul')}
+              className={`ggt-tab-3d relative z-10 flex-1 sm:flex-initial px-5 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer ${
                 activePackage === 'istanbul'
-                  ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847] shadow-sm'
-                  : 'text-[#0b1d3a] hover:bg-[#fcf9f2]'
+                  ? 'text-[#fceda2]'
+                  : 'text-[#0b1d3a] hover:text-[#0b1d3a]'
               }`}
             >
               {copy.istanbul.startingPriceBanner}
@@ -1517,12 +1598,13 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
         </div>
 
         {/* ==================================================================== */}
-        {/* PACKAGE B DETAILS: OMRA ISTANBUL ONLY                                */}
+        {/* PACKAGE DETAILS STAGE (REPLAYABLE 3D ENTRANCE)                       */}
         {/* ==================================================================== */}
+        <div ref={packageStageRef} className="perspective-1200">
         {activePackage === 'istanbul' ? (
           <div key="pkg-istanbul" className="space-y-12">
             {/* Hero Detail Header for Omra Istanbul */}
-            <section className="rounded-3xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847]/70 overflow-hidden shadow-[0_22px_54px_rgba(4,12,28,0.28)]">
+            <section className="ggt-3d-stagger rounded-3xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847]/70 overflow-hidden shadow-[0_22px_54px_rgba(4,12,28,0.28)]">
               <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
                 <div className="lg:col-span-5 grid grid-cols-2 lg:grid-cols-1 gap-0.5 bg-[#0b1d3a] min-h-[240px]">
                   <div className="relative overflow-hidden min-h-[150px]">
@@ -1619,19 +1701,19 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                     <button
                       type="button"
                       onClick={() => selectPackageAndScrollToForm('istanbul')}
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer"
+                      className="ggt-btn-3d-return flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer"
                     >
                       <span>{copy.reserveRequestCta}</span>
-                      <ArrowRight className={`w-4 h-4 shrink-0 ${isRtl ? 'rotate-180' : ''}`} />
+                      <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
                     </button>
                     <a
                       href={buildDirectWhatsappUrl('istanbul')}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.14em] transition-colors"
+                      className="ggt-btn-3d-return flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.14em] transition-colors"
                     >
                       <span>WhatsApp · {displayPhone}</span>
-                      <ExternalLink className="w-4 h-4 shrink-0" />
+                      <ExternalLink className="w-4 h-4 shrink-0 ggt-forward-arrow" />
                     </a>
                   </div>
                 </div>
@@ -1712,7 +1794,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                                     setSelectedRoom(roomId);
                                     setSelectedIstanbulHotel(optId);
                                   }}
-                                  className={`w-full py-2.5 px-3 rounded-xl border transition-all cursor-pointer ${
+                                  className={`ggt-card-3d-select w-full py-2.5 px-3 rounded-xl border transition-all cursor-pointer ${
                                     isCellSelected
                                       ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847] shadow-sm font-bold'
                                       : 'bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border-[#d1a847]/45 font-semibold'
@@ -1772,7 +1854,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                               onClick={() =>
                                 selectPackageAndScrollToForm('istanbul', roomId, optId)
                               }
-                              className={`flex items-center justify-between gap-3 px-3.5 min-h-[46px] rounded-xl border text-start transition-colors cursor-pointer ${
+                              className={`ggt-card-3d-select flex items-center justify-between gap-3 px-3.5 min-h-[46px] rounded-xl border text-start transition-colors cursor-pointer ${
                                 isCellSelected
                                   ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847]'
                                   : 'bg-[#f5ede0]/75 text-[#0b1d3a] border-[#d1a847]/50'
@@ -1801,7 +1883,10 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
               </div>
 
               {/* Active Selection Summary Bar */}
-              <div className="rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/60 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div
+                ref={selectionSummaryRef}
+                className="rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/60 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
                 <div className="space-y-0.5 text-xs">
                   <div className="text-[10px] uppercase tracking-[0.16em] text-[#d1a847] font-semibold">
                     {copy.selectedPriceNote}
@@ -1818,10 +1903,10 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => selectPackageAndScrollToForm('istanbul')}
-                  className="inline-flex items-center justify-center gap-2 px-5 min-h-[44px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors shrink-0 cursor-pointer"
+                  className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-5 min-h-[44px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors shrink-0 cursor-pointer"
                 >
                   <span>{copy.reserveRequestCta}</span>
-                  <ArrowRight className={`w-4 h-4 ${isRtl ? 'rotate-180' : ''}`} />
+                  <ArrowRight className={`w-4 h-4 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
                 </button>
               </div>
             </section>
@@ -1985,7 +2070,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
           /* ================================================================== */
           <div key="pkg-rajab" className="space-y-12">
             {/* Hero Detail Header for Omra Rajab */}
-            <section className="rounded-3xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847]/70 overflow-hidden shadow-[0_22px_54px_rgba(4,12,28,0.28)]">
+            <section className="ggt-3d-stagger rounded-3xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847]/70 overflow-hidden shadow-[0_22px_54px_rgba(4,12,28,0.28)]">
               <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
                 <div className="lg:col-span-5 relative min-h-[250px] overflow-hidden">
                   <img
@@ -2071,19 +2156,19 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                     <button
                       type="button"
                       onClick={() => selectPackageAndScrollToForm('rajab')}
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer"
+                      className="ggt-btn-3d-return flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] transition-colors cursor-pointer"
                     >
                       <span>{copy.reserveRequestCta}</span>
-                      <ArrowRight className={`w-4 h-4 shrink-0 ${isRtl ? 'rotate-180' : ''}`} />
+                      <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
                     </button>
                     <a
                       href={buildDirectWhatsappUrl('rajab')}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.14em] transition-colors"
+                      className="ggt-btn-3d-return flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-[0.14em] transition-colors"
                     >
                       <span>WhatsApp · {displayPhone}</span>
-                      <ExternalLink className="w-4 h-4 shrink-0" />
+                      <ExternalLink className="w-4 h-4 shrink-0 ggt-forward-arrow" />
                     </a>
                   </div>
                 </div>
@@ -2154,7 +2239,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                             <button
                               type="button"
                               onClick={() => selectPackageAndScrollToForm('rajab', roomId)}
-                              className={`inline-flex items-center justify-center px-4 min-h-[40px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] cursor-pointer ${
+                              className={`ggt-card-3d-select inline-flex items-center justify-center px-4 min-h-[40px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] cursor-pointer ${
                                 isSelected
                                   ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]'
                                   : 'bg-[#f5ede0] text-[#0b1d3a] border border-[#d1a847]/65'
@@ -2197,7 +2282,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                       <button
                         type="button"
                         onClick={() => selectPackageAndScrollToForm('rajab', roomId)}
-                        className={`w-full min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] cursor-pointer ${
+                        className={`ggt-card-3d-select w-full min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-[0.12em] cursor-pointer ${
                           isSelected
                             ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]'
                             : 'bg-[#f5ede0] text-[#0b1d3a] border border-[#d1a847]/65'
@@ -2293,6 +2378,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
             </section>
           </div>
         )}
+        </div>
       </div>
 
       {/* 3. DIRECT AGENCY RESERVATION INQUIRY FORM (DYNAMIC TO ACTIVE PACKAGE ONLY) */}
@@ -2311,7 +2397,10 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           <div className="lg:col-span-8">
             {ready ? (
-              <div className="rounded-2xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847] p-6 sm:p-7 space-y-5">
+              <div
+                ref={readyCardRef}
+                className="rounded-2xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847] p-6 sm:p-7 space-y-5"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h4 className="font-serif-crest text-xl font-semibold text-[#fceda2]">
                     {copy.summaryTitle}
@@ -2326,13 +2415,13 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                  <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                     <div className="text-slate-400">{copy.selectedPackageLabel}</div>
                     <div className="font-semibold text-white mt-0.5">
                       {activePackage === 'istanbul' ? copy.istanbul.title : copy.rajab.title}
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                  <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                     <div className="text-slate-400">{copy.advertisedDatesLabel}</div>
                     <div className="font-semibold text-[#fceda2] mt-0.5">
                       {activePackage === 'istanbul'
@@ -2341,7 +2430,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                     </div>
                   </div>
                   {activePackage === 'istanbul' && (
-                    <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                       <div className="text-slate-400">{copy.hotelOptionLabel}</div>
                       <div className="font-semibold text-white mt-0.5">
                         {copy.istanbul.hotelOptions[selectedIstanbulHotel].label} ·{' '}
@@ -2349,17 +2438,17 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                       </div>
                     </div>
                   )}
-                  <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                  <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                     <div className="text-slate-400">{copy.roomPrefLabel}</div>
                     <div className="font-semibold text-white mt-0.5">
                       {copy.rooms[selectedRoom].label}
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                  <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                     <div className="text-slate-400">{copy.departureCityLabel}</div>
                     <div className="font-semibold text-white mt-0.5">{departureCity}</div>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                  <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                     <div className="text-slate-400">{copy.nameLabel}</div>
                     <div className="font-semibold text-white mt-0.5">
                       {fullName} · {phone}
@@ -2371,10 +2460,10 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
                   href={buildSubmittedWhatsappUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 min-h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg transition-colors"
+                  className="ggt-btn-3d-return inline-flex items-center justify-center gap-2.5 px-6 min-h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg transition-colors"
                 >
                   <span>{copy.whatsappSummaryBtn}</span>
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4 ggt-forward-arrow" />
                 </a>
               </div>
             ) : (

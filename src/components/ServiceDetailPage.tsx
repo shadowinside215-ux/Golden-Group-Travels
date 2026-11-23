@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 import { ArrowLeft, ArrowRight, Check, MapPin } from 'lucide-react';
 import {
   Language,
@@ -9,6 +10,11 @@ import {
 import { SERVICE_PAGE_CHROME, SERVICE_PAGE_DETAILS } from '../assets/servicePagesData';
 import { SearchCategoryId } from '../config/travelSuppliers';
 import { TranslationPack } from '../i18n';
+import {
+  prefersReducedMotion,
+  useReplayable3DPanel,
+  useSlidingTabIndicator
+} from '../utils/tab3DMotion';
 import { AnimatedServiceMedia } from './AnimatedServiceMedia';
 import { ExpediaSearchWidget } from './ExpediaSearchWidget';
 import { SERVICE_ICONS } from './ServiceIcons';
@@ -53,12 +59,49 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
   const [showOmraCalligraphy, setShowOmraCalligraphy] = useState(serviceId === 'hajj-umrah');
   const [holidayOrToursTab, setHolidayOrToursTab] = useState<'holidays' | 'tours'>('holidays');
 
+  const navRef = useRef<HTMLElement>(null);
+  const navIndicatorRef = useRef<HTMLSpanElement>(null);
+  const heroOverlayRef = useRef<HTMLDivElement>(null);
+  const contentSectionRef = useRef<HTMLDivElement>(null);
+  const calligraphyRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setShowOmraCalligraphy(serviceId === 'hajj-umrah');
     if (serviceId === 'holiday-packages') {
       setHolidayOrToursTab('holidays');
     }
   }, [serviceId]);
+
+  useSlidingTabIndicator(navRef, navIndicatorRef, serviceId, [lang, isRtl]);
+  useReplayable3DPanel(heroOverlayRef, serviceId, {
+    staggerSelector: '.ggt-detail-hero-stagger',
+    duration: 0.52,
+    staggerEach: 0.06,
+    yOffset: 16
+  });
+  useReplayable3DPanel(contentSectionRef, serviceId, {
+    staggerSelector: '.ggt-3d-stagger',
+    duration: 0.5,
+    staggerEach: 0.055,
+    yOffset: 16
+  });
+
+  useEffect(() => {
+    if (!showOmraCalligraphy || !calligraphyRef.current || prefersReducedMotion()) return;
+    gsap.fromTo(
+      calligraphyRef.current,
+      { opacity: 0, y: -12, scale: 0.94, rotateX: 6, transformPerspective: 1000 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        rotateX: 0,
+        duration: 0.52,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity'
+      }
+    );
+  }, [showOmraCalligraphy, serviceId]);
 
   const chrome = SERVICE_PAGE_CHROME[lang];
   const serviceMeta = t.servicesSection.services[serviceId];
@@ -92,17 +135,26 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
           <button
             type="button"
             onClick={() => onSelectPage('home')}
-            className="inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] shadow-sm cursor-pointer whitespace-nowrap shrink-0"
           >
-            <ArrowLeft className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+            <ArrowLeft
+              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+            />
             <span>{chrome.backToHome}</span>
           </button>
 
           {/* Direct Dedicated Page Switcher Tabs */}
           <nav
+            ref={navRef}
             aria-label="Dedicated Service Pages"
-            className="flex items-center gap-1.5 overflow-x-auto max-w-full py-0.5"
+            className="relative flex items-center gap-1.5 overflow-x-auto max-w-full py-1 px-1 rounded-xl bg-[#fcf9f2]/55 border border-[#d1a847]/30"
           >
+            <span
+              ref={navIndicatorRef}
+              aria-hidden="true"
+              className="ggt-tab-indicator-pill"
+              style={{ opacity: 0 }}
+            />
             {SERVICE_ORDER.map((srvId) => {
               const TabIcon = SERVICE_ICONS[srvId];
               const tabLabel = t.servicesSection.services[srvId].label;
@@ -112,13 +164,15 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                   key={srvId}
                   type="button"
                   onClick={() => onSelectPage(srvId)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                  aria-current={isCurrent ? 'page' : undefined}
+                  data-tab-active={isCurrent ? 'true' : undefined}
+                  className={`ggt-tab-3d relative z-10 inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[38px] rounded-lg text-[11px] font-semibold uppercase tracking-wider cursor-pointer whitespace-nowrap shrink-0 ${
                     isCurrent
-                      ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]'
-                      : 'text-[#0b1d3a]/80 hover:text-[#0b1d3a] hover:bg-[#fcf9f2]'
+                      ? 'text-[#fceda2]'
+                      : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a] hover:bg-[#fcf9f2]/80'
                   }`}
                 >
-                  <TabIcon className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
+                  <TabIcon className="ggt-tab-icon w-3.5 h-3.5 text-[#d1a847] shrink-0" />
                   <span>{tabLabel}</span>
                 </button>
               );
@@ -144,7 +198,10 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
 
           {/* Centered Interactive Gold Arabic Calligraphy for Dedicated Hajj & Umrah Page */}
           {isOmra && showOmraCalligraphy && (
-            <div className="absolute inset-x-4 top-8 sm:top-12 flex justify-center pointer-events-none z-10">
+            <div
+              ref={calligraphyRef}
+              className="absolute inset-x-4 top-8 sm:top-12 flex justify-center pointer-events-none z-10"
+            >
               <div
                 lang="ar"
                 dir="rtl"
@@ -156,13 +213,16 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
           )}
 
           {/* Bottom-Aligned Hero Headline, Gold Icon Medallion & Action */}
-          <div className="absolute inset-x-0 bottom-0 z-20 max-w-7xl mx-auto px-3.5 sm:px-8 pb-7 sm:pb-12 flex flex-col md:flex-row md:items-end justify-between gap-5 sm:gap-6">
+          <div
+            ref={heroOverlayRef}
+            className="absolute inset-x-0 bottom-0 z-20 max-w-7xl mx-auto px-3.5 sm:px-8 pb-7 sm:pb-12 flex flex-col md:flex-row md:items-end justify-between gap-5 sm:gap-6"
+          >
             <div className="flex items-start gap-3.5 sm:gap-5 max-w-3xl">
-              <span className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#0b1d3a]/95 border-2 border-[#d1a847] text-[#d1a847] flex items-center justify-center shadow-[0_14px_34px_rgba(7,20,41,0.55)] shrink-0">
+              <span className="ggt-detail-hero-stagger ggt-icon-medallion w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-[#0b1d3a]/95 border-2 border-[#d1a847] text-[#d1a847] flex items-center justify-center shadow-[0_14px_34px_rgba(7,20,41,0.55)] shrink-0">
                 <Icon className="w-8 h-8 sm:w-11 sm:h-11" />
               </span>
 
-              <div className="space-y-1.5 sm:space-y-2 min-w-0">
+              <div className="ggt-detail-hero-stagger space-y-1.5 sm:space-y-2 min-w-0">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-[#fceda2] font-semibold">
                   <span className="tabular-nums">{indexTag}</span>
                   <span aria-hidden="true">·</span>
@@ -177,12 +237,12 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto shrink-0">
+            <div className="ggt-detail-hero-stagger flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto shrink-0">
               {isOmra && (
                 <button
                   type="button"
                   onClick={() => setShowOmraCalligraphy((prev) => !prev)}
-                  className="w-full sm:w-auto justify-center text-center px-4 py-2.5 sm:py-3 rounded-xl bg-[#0b1d3a]/90 hover:bg-[#132d56] border border-[#d1a847]/70 text-[#fceda2] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer sm:whitespace-nowrap"
+                  className="ggt-tab-3d w-full sm:w-auto justify-center text-center px-4 py-2.5 sm:py-3 rounded-xl bg-[#0b1d3a]/90 hover:bg-[#132d56] border border-[#d1a847]/70 text-[#fceda2] text-xs font-semibold uppercase tracking-wider cursor-pointer sm:whitespace-nowrap"
                 >
                   {chrome.omraToggleHint}
                 </button>
@@ -191,7 +251,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
               <button
                 type="button"
                 onClick={scrollToPlanner}
-                className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.15em] shadow-lg transition-colors cursor-pointer sm:whitespace-nowrap"
+                className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center text-center gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.15em] shadow-lg cursor-pointer sm:whitespace-nowrap"
               >
                 <MapPin className="w-4 h-4 shrink-0" />
                 <span>{chrome.bookNowCta}</span>
@@ -202,10 +262,13 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
       </section>
 
       {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-20 space-y-12 sm:space-y-20">
+      <div
+        ref={contentSectionRef}
+        className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-12 sm:py-20 space-y-12 sm:space-y-20"
+      >
         {/* Editorial Narrative + Included Quick Checklist */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          <div className="lg:col-span-7 space-y-4">
+          <div className="ggt-3d-stagger lg:col-span-7 space-y-4">
             <h2 className="font-serif-crest text-2xl sm:text-3xl md:text-4xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
               {serviceMeta.headline}
             </h2>
@@ -215,7 +278,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
             </p>
           </div>
 
-          <div className="lg:col-span-5 bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-6 sm:p-8 shadow-[0_14px_34px_rgba(11,29,58,0.08)] space-y-4">
+          <div className="ggt-3d-stagger lg:col-span-5 bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-6 sm:p-8 shadow-[0_14px_34px_rgba(11,29,58,0.08)] space-y-4">
             <div className="text-xs uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
               {serviceMeta.label} · {t.servicesSection.provisionTag}
             </div>
@@ -233,10 +296,12 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
             <button
               type="button"
               onClick={scrollToPlanner}
-              className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-[0.16em] transition-colors cursor-pointer"
+              className="ggt-btn-3d-return w-full mt-2 inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-[0.16em] cursor-pointer"
             >
               <span>{chrome.bookNowCta}</span>
-              <ArrowRight className={`w-3.5 h-3.5 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+              <ArrowRight
+                className={`ggt-forward-arrow w-3.5 h-3.5 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+              />
             </button>
           </div>
         </section>
@@ -312,7 +377,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
             {detail.highlights.map((feat, idx) => (
               <div
                 key={idx}
-                className="bg-[#fcf9f2] border border-[#d1a847]/40 rounded-2xl p-6 sm:p-7 shadow-[0_10px_28px_rgba(11,29,58,0.06)] space-y-2"
+                className="ggt-3d-stagger ggt-card-3d-select bg-[#fcf9f2] border border-[#d1a847]/40 rounded-2xl p-6 sm:p-7 shadow-[0_10px_28px_rgba(11,29,58,0.06)] space-y-2"
               >
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[#9a7220] tabular-nums">
                   0{idx + 1}
@@ -327,7 +392,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
         </section>
 
         {/* 3-Step Journey Coordination Process */}
-        <section className="bg-[#0b1d3a] text-[#f5ede0] rounded-2xl p-7 sm:p-10 border border-[#d1a847]/55 shadow-[0_20px_48px_rgba(11,29,58,0.2)] space-y-8">
+        <section className="ggt-3d-stagger bg-[#0b1d3a] text-[#f5ede0] rounded-2xl p-7 sm:p-10 border border-[#d1a847]/55 shadow-[0_20px_48px_rgba(11,29,58,0.2)] space-y-8">
           <div className="space-y-2">
             <div className="text-xs uppercase tracking-[0.24em] text-[#d1a847] font-semibold">
               {serviceMeta.label}
@@ -341,7 +406,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
             {detail.steps.map((step, idx) => (
               <div
                 key={idx}
-                className="p-5 sm:p-6 rounded-xl bg-[#071429]/85 border border-[#d1a847]/35 space-y-2.5"
+                className="ggt-3d-stagger p-5 sm:p-6 rounded-xl bg-[#071429]/85 border border-[#d1a847]/35 space-y-2.5"
               >
                 <div className="font-serif-crest text-2xl font-semibold text-[#fceda2] tabular-nums">
                   0{idx + 1}
@@ -407,9 +472,11 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
         <button
           type="button"
           onClick={() => onSelectPage('home')}
-          className="inline-flex items-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors cursor-pointer"
+          className="ggt-btn-3d-return inline-flex items-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md cursor-pointer"
         >
-          <ArrowLeft className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+          <ArrowLeft
+            className={`ggt-return-arrow w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+          />
           <span>{chrome.backToHome}</span>
         </button>
       </div>

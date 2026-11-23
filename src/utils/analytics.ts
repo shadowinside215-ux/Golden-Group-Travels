@@ -11,6 +11,7 @@ export type TrackablePage =
   | '/sejours'
   | '/circuits-activites'
   | '/circuits-activites/le-pouls-charmant-du-caire'
+  | '/circuits-activites/epopee-egyptienne'
   | '/voitures-transferts'
   | '/visa'
   | '/assurance'
@@ -52,6 +53,8 @@ const ROUTE_CANONICAL_TITLES: Record<string, string> = {
   '/circuits-activites': 'Circuits & Activités | Golden Group Travels',
   '/circuits-activites/le-pouls-charmant-du-caire':
     'Le Pouls Charmant du Caire — Circuits Organisés | Golden Group Travels',
+  '/circuits-activites/epopee-egyptienne':
+    "L'Épopée Égyptienne : 12 Jours Inoubliables — Circuits Organisés | Golden Group Travels",
   '/voitures-transferts': 'Voitures & Transferts Aéroport | Golden Group Travels',
   '/visa': 'Accompagnement Visa | Golden Group Travels',
   '/assurance': 'Assurance Voyage | Golden Group Travels'

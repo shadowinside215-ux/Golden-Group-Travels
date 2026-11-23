@@ -39,6 +39,12 @@ import {
   evaluateCairoTravelDates
 } from '../data/cairoTourData';
 import { trackServiceSelection } from '../utils/analytics';
+import {
+  pulseSelection3D,
+  switchTabWithTimeline,
+  useReplayable3DPanel,
+  useSlidingTabIndicator
+} from '../utils/tab3DMotion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -71,6 +77,13 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
 }) => {
   const pageRootRef = useRef<HTMLDivElement>(null);
   const formSectionRef = useRef<HTMLElement>(null);
+  const periodTablistRef = useRef<HTMLDivElement>(null);
+  const periodIndicatorRef = useRef<HTMLSpanElement>(null);
+  const periodPanelRef = useRef<HTMLDivElement>(null);
+  const periodSwitchTimelineRef = useRef<gsap.core.Tween | gsap.core.Timeline | null>(null);
+  const estimateBoxRef = useRef<HTMLDivElement>(null);
+  const inquiryReadyCardRef = useRef<HTMLDivElement>(null);
+  const estimateMountedRef = useRef(false);
   const location = useLocation();
   const uid = useId();
   const copy = CAIRO_TOUR_COPY[lang];
@@ -118,6 +131,51 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
       setSelectedPeriodTab(dateEval.pricingPeriodToApply);
     }
   }, [dateEval.pricingPeriodToApply]);
+
+  useSlidingTabIndicator(periodTablistRef, periodIndicatorRef, selectedPeriodTab, [lang]);
+
+  useReplayable3DPanel(periodPanelRef, selectedPeriodTab, {
+    duration: 0.46,
+    staggerEach: 0.045,
+    yOffset: 12,
+    rotateXDeg: 3.5
+  });
+
+  useReplayable3DPanel(inquiryReadyCardRef, inquiryReady, {
+    enabled: inquiryReady,
+    duration: 0.48,
+    staggerEach: 0.045,
+    yOffset: 14,
+    rotateXDeg: 4
+  });
+
+  useEffect(() => {
+    if (!estimateMountedRef.current) {
+      estimateMountedRef.current = true;
+      return;
+    }
+    pulseSelection3D(estimateBoxRef.current);
+  }, [selectedHotelId, selectedOccupancy, includeSingleSupplement, selectedPeriodTab, travelersCount]);
+
+  useEffect(() => {
+    return () => {
+      if (periodSwitchTimelineRef.current) {
+        periodSwitchTimelineRef.current.kill();
+        periodSwitchTimelineRef.current = null;
+      }
+    };
+  }, []);
+
+  const handlePeriodSwitch = (period: CairoPricingPeriodId) => {
+    if (period === selectedPeriodTab) return;
+    switchTabWithTimeline({
+      outgoingEl: periodPanelRef.current,
+      timelineRef: periodSwitchTimelineRef,
+      onSwap: () => {
+        setSelectedPeriodTab(period);
+      }
+    });
+  };
 
   const selectedHotel = useMemo(
     () => CAIRO_HOTELS.find((h) => h.id === selectedHotelId) ?? CAIRO_HOTELS[0],
@@ -229,12 +287,13 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
         root.querySelectorAll<HTMLElement>('.ggt-cairo-divider').forEach((divider) => {
           gsap.fromTo(
             divider,
-            { scaleX: 0.14, opacity: 0.25, transformOrigin: 'center center' },
+            { scaleX: 0.2, opacity: 0.35, transformOrigin: 'center center' },
             {
               scaleX: 1,
               opacity: 1,
+              force3D: true,
               ease: 'none',
-              scrollTrigger: { trigger: divider, start: 'top 95%', end: 'top 66%', scrub: 0.5 }
+              scrollTrigger: { trigger: divider, start: 'top 96%', end: 'top 80%', scrub: 0.1 }
             }
           );
         });
@@ -243,15 +302,16 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
           gsap.fromTo(
             heading,
             isDesktop
-              ? { opacity: 0.25, y: 24, scale: 0.97, rotateX: 6, transformPerspective: 1100 }
-              : { opacity: 0.35, y: 14 },
+              ? { opacity: 0.45, y: 18, scale: 0.98, rotateX: 5, transformPerspective: 1100 }
+              : { opacity: 0.45, y: 10 },
             {
               opacity: 1,
               y: 0,
               scale: 1,
               rotateX: 0,
+              force3D: true,
               ease: 'none',
-              scrollTrigger: { trigger: heading, start: 'top 95%', end: 'top 64%', scrub: 0.55 }
+              scrollTrigger: { trigger: heading, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
             }
           );
         });
@@ -261,15 +321,16 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
           gsap.fromTo(
             card,
             isDesktop
-              ? { opacity: 0.3, y: 24, scale: 0.96, rotateY: rotY, transformPerspective: 1100 }
-              : { opacity: 0.35, y: 14, scale: 0.98 },
+              ? { opacity: 0.45, y: 18, scale: 0.97, rotateY: rotY, transformPerspective: 1100 }
+              : { opacity: 0.45, y: 12, scale: 0.98 },
             {
               opacity: 1,
               y: 0,
               scale: 1,
               rotateY: 0,
+              force3D: true,
               ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 94%', end: 'top 64%', scrub: 0.55 }
+              scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
             }
           );
         });
@@ -279,18 +340,19 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
           gsap.fromTo(
             heritageImg,
             isDesktop
-              ? { opacity: 0.35, scale: 0.94, rotateY: -5, transformPerspective: 1100 }
-              : { opacity: 0.4, scale: 0.97 },
+              ? { opacity: 0.45, scale: 0.96, rotateY: -4.5, transformPerspective: 1100 }
+              : { opacity: 0.45, scale: 0.98 },
             {
               opacity: 1,
               scale: 1,
               rotateY: 0,
+              force3D: true,
               ease: 'none',
               scrollTrigger: {
                 trigger: heritageImg,
-                start: 'top 94%',
-                end: 'top 60%',
-                scrub: 0.6
+                start: 'top 96%',
+                end: 'top 76%',
+                scrub: 0.14
               }
             }
           );
@@ -394,15 +456,15 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               to={CAIRO_TOUR_TOURS_ROUTE}
-              className="inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/75 text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors whitespace-nowrap"
+              className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/75 text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors whitespace-nowrap"
             >
-              <ArrowLeft className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+              <ArrowLeft className={`w-4 h-4 text-[#d1a847] ggt-return-arrow ${isRtl ? 'rotate-180' : ''}`} />
               <span>{copy.backToToursLabel}</span>
             </Link>
 
             <Link
               to="/"
-              className="inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors whitespace-nowrap"
+              className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors whitespace-nowrap"
             >
               <span>{copy.backToHomeLabel}</span>
             </Link>
@@ -491,10 +553,10 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                 onClick={() =>
                   formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
-                className="w-full inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors cursor-pointer"
+                className="ggt-btn-3d-return w-full inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors cursor-pointer"
               >
                 <span>{copy.requestReservationCta}</span>
-                <ArrowRight className={`w-4 h-4 shrink-0 ${isRtl ? 'rotate-180' : ''}`} />
+                <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
               </button>
             </div>
           </div>
@@ -573,18 +635,25 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
 
             {/* Interactive Period Switcher Tabs */}
             <div
+              ref={periodTablistRef}
               role="tablist"
               aria-label={copy.pricingTitle}
-              className="inline-flex flex-wrap items-center p-1.5 rounded-xl bg-[#ede1ce] border border-[#d1a847]/60 gap-1.5 self-start lg:self-auto"
+              className="relative inline-flex flex-wrap items-center p-1.5 rounded-xl bg-[#ede1ce] border border-[#d1a847]/60 gap-1.5 self-start lg:self-auto"
             >
+              <span
+                ref={periodIndicatorRef}
+                aria-hidden="true"
+                className="ggt-tab-indicator-pill pointer-events-none"
+              />
               <button
                 type="button"
                 role="tab"
                 aria-selected={selectedPeriodTab === 'regular'}
-                onClick={() => setSelectedPeriodTab('regular')}
-                className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-[0.08em] transition-colors cursor-pointer ${
+                data-tab-active={selectedPeriodTab === 'regular' ? 'true' : 'false'}
+                onClick={() => handlePeriodSwitch('regular')}
+                className={`ggt-tab-3d relative z-10 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-[0.08em] transition-colors cursor-pointer ${
                   selectedPeriodTab === 'regular'
-                    ? 'bg-[#0b1d3a] text-[#fceda2] shadow-sm'
+                    ? 'text-[#fceda2]'
                     : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a]'
                 }`}
               >
@@ -594,10 +663,11 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                 type="button"
                 role="tab"
                 aria-selected={selectedPeriodTab === 'special'}
-                onClick={() => setSelectedPeriodTab('special')}
-                className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-[0.08em] transition-colors cursor-pointer ${
+                data-tab-active={selectedPeriodTab === 'special' ? 'true' : 'false'}
+                onClick={() => handlePeriodSwitch('special')}
+                className={`ggt-tab-3d relative z-10 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-[0.08em] transition-colors cursor-pointer ${
                   selectedPeriodTab === 'special'
-                    ? 'bg-[#0b1d3a] text-[#fceda2] shadow-sm'
+                    ? 'text-[#fceda2]'
                     : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a]'
                 }`}
               >
@@ -606,8 +676,9 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
             </div>
           </div>
 
+          <div ref={periodPanelRef} className="space-y-6 perspective-1200">
           {/* Active Period Dates & Clarity Banner */}
-          <div className="rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/65 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="ggt-3d-stagger rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/65 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="space-y-1">
               <div className="text-xs font-bold uppercase tracking-[0.16em] text-[#d1a847]">
                 {selectedPeriodTab === 'regular' ? copy.periodRegularTab : copy.periodSpecialTab} ·{' '}
@@ -623,7 +694,7 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
           </div>
 
           {/* Responsive Desktop Pricing Table */}
-          <div className="hidden md:block rounded-2xl overflow-hidden bg-[#fcf9f2] border border-[#d1a847]/60 shadow-[0_18px_42px_rgba(11,29,58,0.08)]">
+          <div className="ggt-3d-stagger hidden md:block rounded-2xl overflow-hidden bg-[#fcf9f2] border border-[#d1a847]/60 shadow-[0_18px_42px_rgba(11,29,58,0.08)]">
             <table className="w-full text-left rtl:text-right border-collapse">
               <thead>
                 <tr className="bg-[#0b1d3a] text-[#fceda2] text-xs uppercase tracking-[0.12em]">
@@ -679,7 +750,7 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                         <button
                           type="button"
                           onClick={() => handleSelectHotelAndJump(hotel.id, selectedPeriodTab)}
-                          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                          className={`ggt-card-3d-select inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
                             isSelected
                               ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]'
                               : 'bg-[#ede1ce] hover:bg-[#0b1d3a] text-[#0b1d3a] hover:text-[#fceda2] border border-[#d1a847]/65'
@@ -696,7 +767,7 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
           </div>
 
           {/* Mobile Card Pricing Stack */}
-          <div className="grid grid-cols-1 gap-4 md:hidden">
+          <div className="ggt-3d-stagger grid grid-cols-1 gap-4 md:hidden">
             {CAIRO_HOTELS.map((hotel) => {
               const rates = hotel[selectedPeriodTab];
               const isSelected = selectedHotelId === hotel.id;
@@ -746,7 +817,7 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSelectHotelAndJump(hotel.id, selectedPeriodTab)}
-                    className={`w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer ${
+                    className={`ggt-card-3d-select w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer ${
                       isSelected
                         ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]'
                         : 'bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]'
@@ -757,6 +828,7 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                 </div>
               );
             })}
+          </div>
           </div>
 
           <div className="rounded-xl bg-[#ede1ce]/70 border border-[#d1a847]/45 px-4 py-3 flex items-start gap-2.5 text-xs text-[#0b1d3a]">
@@ -899,7 +971,10 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
             <div className="lg:col-span-8">
               {inquiryReady ? (
-                <div className="rounded-2xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847] p-6 sm:p-8 space-y-5 shadow-xl">
+                <div
+                  ref={inquiryReadyCardRef}
+                  className="rounded-2xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847] p-6 sm:p-8 space-y-5 shadow-xl"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h3 className="font-serif-crest text-2xl font-semibold text-[#fceda2]">
                       {copy.summaryReadyTitle}
@@ -914,18 +989,18 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-                    <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                       <div className="text-slate-400">{copy.departDateLabel}</div>
                       <div className="font-semibold text-white mt-0.5 tabular-nums">
                         {departDate}
                         {returnDate ? ` → ${returnDate}` : ''}
                       </div>
                     </div>
-                    <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                       <div className="text-slate-400">{copy.hotelChoiceLabel}</div>
                       <div className="font-semibold text-white mt-0.5">{selectedHotel.name[lang]}</div>
                     </div>
-                    <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                       <div className="text-slate-400">{copy.occupancyChoiceLabel}</div>
                       <div className="font-semibold text-white mt-0.5">
                         {selectedOccupancy === 'double'
@@ -934,7 +1009,7 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                         {includeSingleSupplement ? ` (+ ${copy.singleSuppColLabel})` : ''}
                       </div>
                     </div>
-                    <div className="p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
+                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
                       <div className="text-slate-400">{copy.indicativePerPersonLabel}</div>
                       <div className="font-semibold text-[#fceda2] mt-0.5 tabular-nums">
                         {rateCalculation.perPersonPublishedSubtotalUsd !== null
@@ -952,10 +1027,10 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                     href={buildWhatsappInquiryUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg transition-colors"
+                    className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg transition-colors"
                   >
                     <span>{copy.whatsappBtn}</span>
-                    <ExternalLink className="w-4 h-4 shrink-0" />
+                    <ExternalLink className="w-4 h-4 shrink-0 ggt-forward-arrow" />
                   </a>
                 </div>
               ) : (
@@ -1190,10 +1265,10 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
                   <div className="space-y-3 pt-1">
                     <button
                       type="submit"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.15em] shadow-md transition-colors cursor-pointer"
+                      className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.15em] shadow-md transition-colors cursor-pointer"
                     >
                       <span>{copy.submitBtn}</span>
-                      <ArrowRight className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+                      <ArrowRight className={`w-4 h-4 text-[#d1a847] ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
                     </button>
                     <p className="text-[11px] text-[#2c405e] leading-relaxed">
                       {copy.noAutoConfirmDisclaimer}
@@ -1206,7 +1281,10 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
             {/* Right Sidebar: Transparent Live Breakdown & Direct Salé Advisor */}
             <aside className="lg:col-span-4 space-y-5">
               {/* Published Rate Breakdown Box */}
-              <div className="rounded-2xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/65 p-5 sm:p-6 space-y-4 shadow-[0_18px_42px_rgba(4,12,28,0.25)]">
+              <div
+                ref={estimateBoxRef}
+                className="rounded-2xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/65 p-5 sm:p-6 space-y-4 shadow-[0_18px_42px_rgba(4,12,28,0.25)]"
+              >
                 <div className="space-y-1">
                   <div className="text-[11px] uppercase tracking-[0.2em] text-[#d1a847] font-semibold">
                     {selectedHotel.name[lang]}
@@ -1326,15 +1404,15 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4">
           <Link
             to={CAIRO_TOUR_TOURS_ROUTE}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors"
+            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors"
           >
-            <ArrowLeft className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+            <ArrowLeft className={`w-4 h-4 text-[#d1a847] ggt-return-arrow ${isRtl ? 'rotate-180' : ''}`} />
             <span>{copy.backToToursLabel}</span>
           </Link>
 
           <Link
             to="/"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors"
+            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors"
           >
             <span>{copy.backToHomeLabel}</span>
           </Link>

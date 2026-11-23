@@ -13,10 +13,12 @@ import {
   SearchCategoryId
 } from '../config/travelSuppliers';
 import { trackServiceSelection, ServiceSelectionEventName } from '../utils/analytics';
+import { prefersReducedMotion, useSlidingTabIndicator } from '../utils/tab3DMotion';
 import { HERO_CATEGORY_ICONS } from './ServiceIcons';
 import { TravelSearchEngine } from './TravelSearchEngine';
 import { UmrahPackageSection } from './UmrahPackageSection';
 import { CairoTourSection } from './CairoTourSection';
+import { IstanbulHolidaySection } from './IstanbulHolidaySection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -248,6 +250,8 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
   onJumpToHomePlanner
 }) => {
   const pageRootRef = useRef<HTMLDivElement>(null);
+  const serviceNavRef = useRef<HTMLElement>(null);
+  const serviceIndicatorRef = useRef<HTMLSpanElement>(null);
   const pack = SEARCH_ENGINE_PACKS[lang];
   const chrome = SERVICE_PAGE_CHROME[lang];
   const copy = ROUTE_COPY[lang];
@@ -256,11 +260,13 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
   const mappedServiceId = SEARCH_CATEGORY_TO_SERVICE[category];
   const themeMedia = SERVICE_THEME_MEDIA[mappedServiceId];
 
+  useSlidingTabIndicator(serviceNavRef, serviceIndicatorRef, category, [lang, isRtl]);
+
   useEffect(() => {
     trackServiceSelection(ROUTE_ANALYTICS_EVENTS[category]);
   }, [category]);
 
-  // Repeatable Bidirectional ScrollTrigger animations strictly on non-widget UI sections
+  // Repeatable Bidirectional ScrollTrigger + Coordinated 3D Route Hero Entrance strictly on non-widget UI sections
   useEffect(() => {
     const root = pageRootRef.current;
     if (!root) return;
@@ -274,43 +280,120 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
       (context) => {
         const isDesktop = Boolean(context.conditions?.isDesktop);
 
-        // Hero entrance (subtle, non-widget header)
-        const introHeader = root.querySelector<HTMLElement>('.ggt-route-hero-content');
-        if (introHeader) {
-          gsap.fromTo(
-            introHeader,
-            { opacity: 0, y: 18 },
-            { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', clearProps: 'transform,opacity' }
-          );
+        // Staggered 3D Hero Entrance on every route open/switch
+        if (!prefersReducedMotion()) {
+          const heroMedallion = root.querySelector<HTMLElement>('.ggt-route-hero-medallion');
+          const heroTextItems = root.querySelectorAll<HTMLElement>('.ggt-route-hero-text > *');
+          const heroTrust = root.querySelector<HTMLElement>('.ggt-route-hero-trust');
+
+          const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+          if (heroMedallion) {
+            heroTl.fromTo(
+              heroMedallion,
+              isDesktop
+                ? {
+                    opacity: 0,
+                    scale: 0.84,
+                    rotateY: -18,
+                    y: 12,
+                    transformPerspective: 1000
+                  }
+                : { opacity: 0, scale: 0.9, y: 10 },
+              {
+                opacity: 1,
+                scale: 1,
+                rotateY: 0,
+                y: 0,
+                duration: 0.54,
+                force3D: true,
+                clearProps: 'transform,opacity'
+              },
+              0
+            );
+          }
+
+          if (heroTextItems.length > 0) {
+            heroTl.fromTo(
+              heroTextItems,
+              isDesktop
+                ? {
+                    opacity: 0,
+                    y: 16,
+                    scale: 0.97,
+                    rotateX: 5,
+                    transformPerspective: 1100
+                  }
+                : { opacity: 0, y: 12, scale: 0.985 },
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                duration: 0.5,
+                stagger: 0.065,
+                force3D: true,
+                clearProps: 'transform,opacity'
+              },
+              0.05
+            );
+          }
+
+          if (heroTrust) {
+            heroTl.fromTo(
+              heroTrust,
+              isDesktop
+                ? {
+                    opacity: 0,
+                    y: 14,
+                    scale: 0.95,
+                    rotateX: 4,
+                    transformPerspective: 1100
+                  }
+                : { opacity: 0, y: 10, scale: 0.97 },
+              {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                duration: 0.48,
+                force3D: true,
+                clearProps: 'transform,opacity'
+              },
+              0.14
+            );
+          }
         }
 
         root.querySelectorAll<HTMLElement>('.ggt-route-divider').forEach((divider) => {
           gsap.fromTo(
             divider,
-            { scaleX: 0.14, opacity: 0.25, transformOrigin: 'center center' },
+            { scaleX: 0.2, opacity: 0.35, transformOrigin: 'center center' },
             {
               scaleX: 1,
               opacity: 1,
+              force3D: true,
               ease: 'none',
-              scrollTrigger: { trigger: divider, start: 'top 95%', end: 'top 66%', scrub: 0.5 }
+              scrollTrigger: { trigger: divider, start: 'top 96%', end: 'top 80%', scrub: 0.1 }
             }
           );
         });
 
         root.querySelectorAll<HTMLElement>('.ggt-route-card-3d').forEach((card, idx) => {
-          const rotY = isDesktop ? (idx % 2 === 0 ? 4.5 : -4.5) : 0;
+          const rotY = isDesktop ? (idx % 2 === 0 ? 4 : -4) : 0;
           gsap.fromTo(
             card,
             isDesktop
-              ? { opacity: 0.3, y: 26, scale: 0.96, rotateY: rotY, transformPerspective: 1100 }
-              : { opacity: 0.35, y: 16, scale: 0.98 },
+              ? { opacity: 0.45, y: 18, scale: 0.97, rotateY: rotY, transformPerspective: 1100 }
+              : { opacity: 0.45, y: 12, scale: 0.98 },
             {
               opacity: 1,
               y: 0,
               scale: 1,
               rotateY: 0,
+              force3D: true,
               ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 94%', end: 'top 65%', scrub: 0.55 }
+              scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
             }
           );
         });
@@ -331,16 +414,25 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors whitespace-nowrap shrink-0"
+            className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] shadow-sm whitespace-nowrap shrink-0"
           >
-            <ArrowLeft className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+            <ArrowLeft
+              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+            />
             <span>{copy.backToHome}</span>
           </Link>
 
           <nav
+            ref={serviceNavRef}
             aria-label="Navigation des services"
-            className="flex items-center gap-1.5 overflow-x-auto max-w-full py-0.5"
+            className="relative flex items-center gap-1.5 overflow-x-auto max-w-full py-1 px-1 rounded-xl bg-[#fcf9f2]/55 border border-[#d1a847]/30"
           >
+            <span
+              ref={serviceIndicatorRef}
+              aria-hidden="true"
+              className="ggt-tab-indicator-pill"
+              style={{ opacity: 0 }}
+            />
             {SEARCH_CATEGORY_ORDER.map((catId) => {
               const TabIcon = HERO_CATEGORY_ICONS[catId];
               const isCurrent = catId === category;
@@ -351,13 +443,14 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
                   key={catId}
                   to={routePath}
                   aria-current={isCurrent ? 'page' : undefined}
-                  className={`inline-flex items-center gap-1.5 px-3 py-2 min-h-[40px] rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors whitespace-nowrap shrink-0 ${
+                  data-tab-active={isCurrent ? 'true' : undefined}
+                  className={`ggt-tab-3d relative z-10 inline-flex items-center gap-1.5 px-3 py-2 min-h-[40px] rounded-lg text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap shrink-0 ${
                     isCurrent
-                      ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847] shadow-sm'
-                      : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a] hover:bg-[#fcf9f2] border border-transparent'
+                      ? 'text-[#fceda2]'
+                      : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a] hover:bg-[#fcf9f2]/80'
                   }`}
                 >
-                  <TabIcon className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
+                  <TabIcon className="ggt-tab-icon w-3.5 h-3.5 text-[#d1a847] shrink-0" />
                   <span>{tabLabel}</span>
                 </Link>
               );
@@ -382,11 +475,11 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
         <div className="ggt-route-hero-content relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-start gap-4 sm:gap-5 max-w-3xl">
-              <span className="ggt-icon-medallion w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#071429]/95 border-2 border-[#d1a847] text-[#fceda2] flex items-center justify-center shrink-0">
+              <span className="ggt-route-hero-medallion ggt-icon-medallion w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#071429]/95 border-2 border-[#d1a847] text-[#fceda2] flex items-center justify-center shrink-0">
                 <HeroIcon className="w-8 h-8 sm:w-10 sm:h-10" />
               </span>
 
-              <div className="space-y-2 min-w-0">
+              <div className="ggt-route-hero-text space-y-2 min-w-0">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-[#d1a847] font-semibold">
                   {copy.eyebrow}
                 </div>
@@ -399,7 +492,7 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-[#fceda2]/95 bg-[#0b1d3a]/90 border border-[#d1a847]/45 rounded-xl px-4 py-3 self-start md:self-auto shrink-0 max-w-xs">
+            <div className="ggt-route-hero-trust flex items-center gap-2 text-xs text-[#fceda2]/95 bg-[#0b1d3a]/90 border border-[#d1a847]/45 rounded-xl px-4 py-3 self-start md:self-auto shrink-0 max-w-xs shadow-[0_12px_28px_rgba(4,12,28,0.35)]">
               <ShieldCheck className="w-4 h-4 text-[#d1a847] shrink-0" />
               <span className="leading-snug">{copy.trustNote[category]}</span>
             </div>
@@ -437,6 +530,14 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
           <>
             <div className="ggt-route-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/65 to-transparent" />
             <CairoTourSection lang={lang} isRtl={isRtl} />
+          </>
+        )}
+
+        {/* Official Company-Operated Séjours Showcase for /sejours */}
+        {category === 'holidays' && (
+          <>
+            <div className="ggt-route-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/65 to-transparent" />
+            <IstanbulHolidaySection lang={lang} isRtl={isRtl} />
           </>
         )}
 
@@ -480,16 +581,18 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4">
           <Link
             to="/"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors"
+            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md"
           >
-            <ArrowLeft className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+            <ArrowLeft
+              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+            />
             <span>{chrome.backToHome}</span>
           </Link>
 
           <button
             type="button"
             onClick={onJumpToHomePlanner}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors cursor-pointer"
+            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] cursor-pointer"
           >
             <MapPin className="w-4 h-4 text-[#c59b38] shrink-0" />
             <span>{chrome.bookNowCta}</span>

@@ -29,6 +29,12 @@ import {
   TOURS_WIDGETS
 } from '../config/travelSuppliers';
 import { ServiceSelectionEventName, trackServiceSelection } from '../utils/analytics';
+import {
+  prefersReducedMotion,
+  switchTabWithTimeline,
+  useReplayable3DPanel,
+  useSlidingTabIndicator
+} from '../utils/tab3DMotion';
 import { AviasalesFlightWidget } from './AviasalesFlightWidget';
 import { ExpediaFlightWidget } from './ExpediaFlightWidget';
 import { ExpediaSearchWidget } from './ExpediaSearchWidget';
@@ -241,6 +247,25 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
   const panelFrameRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
 
+  // Sliding tab indicator & coordinated safe transition refs
+  const flightTablistRef = useRef<HTMLDivElement | null>(null);
+  const flightIndicatorRef = useRef<HTMLSpanElement | null>(null);
+  const flightStageRef = useRef<HTMLDivElement | null>(null);
+  const flightMetaRef = useRef<HTMLDivElement | null>(null);
+  const flightTabTlRef = useRef<gsap.core.Tween | gsap.core.Timeline | null>(null);
+
+  const mobilityTablistRef = useRef<HTMLDivElement | null>(null);
+  const mobilityIndicatorRef = useRef<HTMLSpanElement | null>(null);
+  const mobilityStageRef = useRef<HTMLDivElement | null>(null);
+  const mobilityTabTlRef = useRef<gsap.core.Tween | gsap.core.Timeline | null>(null);
+
+  const embeddedTablistRef = useRef<HTMLDivElement | null>(null);
+  const embeddedIndicatorRef = useRef<HTMLSpanElement | null>(null);
+  const embeddedStageRef = useRef<HTMLDivElement | null>(null);
+
+  const umrahReadyCardRef = useRef<HTMLDivElement | null>(null);
+  const holidayReadyCardRef = useRef<HTMLDivElement | null>(null);
+
   // ---------------- MOUNT-ON-FIRST-VISIBLE CACHE (ZERO WIDGETS ON INITIAL LOAD) ----------------
   // Each service & sub-tab mounts ONLY after it becomes visible (so third-party scripts never
   // initialize inside display:none containers) and stays parked in `hidden` afterwards so
@@ -292,6 +317,150 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
     setUmrahErrors([]);
     setHolidayErrors([]);
   }, [lang]);
+
+  useSlidingTabIndicator(flightTablistRef, flightIndicatorRef, flightEngineTab, [
+    lang,
+    isRtl,
+    activeCategory
+  ]);
+  useSlidingTabIndicator(mobilityTablistRef, mobilityIndicatorRef, mobilityTab, [
+    lang,
+    isRtl,
+    activeCategory
+  ]);
+  useSlidingTabIndicator(embeddedTablistRef, embeddedIndicatorRef, activeCategory, [
+    lang,
+    isRtl,
+    embeddedOnServicePage
+  ]);
+
+  useReplayable3DPanel(umrahReadyCardRef, umrahReady, {
+    enabled: umrahReady,
+    staggerSelector: '.ggt-3d-stagger',
+    duration: 0.46,
+    yOffset: 14
+  });
+
+  useReplayable3DPanel(holidayReadyCardRef, holidayReady, {
+    enabled: holidayReady,
+    staggerSelector: '.ggt-3d-stagger',
+    duration: 0.46,
+    yOffset: 14
+  });
+
+  // Incoming opacity-only transition on widget stage + 3D text update when switching Flight tabs
+  const didMountFlightTabRef = useRef(false);
+  useEffect(() => {
+    if (!didMountFlightTabRef.current) {
+      didMountFlightTabRef.current = true;
+      return;
+    }
+    if (prefersReducedMotion()) return;
+
+    if (flightStageRef.current) {
+      gsap.fromTo(
+        flightStageRef.current,
+        { opacity: 0.15 },
+        { opacity: 1, duration: 0.36, ease: 'power2.out', clearProps: 'opacity' }
+      );
+    }
+    if (flightMetaRef.current) {
+      gsap.fromTo(
+        flightMetaRef.current,
+        { opacity: 0, y: 8, rotateX: 4, transformPerspective: 900 },
+        {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          duration: 0.4,
+          ease: 'power3.out',
+          clearProps: 'transform,opacity'
+        }
+      );
+    }
+  }, [flightEngineTab]);
+
+  // Incoming opacity-only transition on widget stage + 3D header stagger when switching Mobility tabs
+  const didMountMobilityTabRef = useRef(false);
+  useEffect(() => {
+    if (!didMountMobilityTabRef.current) {
+      didMountMobilityTabRef.current = true;
+      return;
+    }
+    if (prefersReducedMotion()) return;
+
+    const stage = mobilityStageRef.current;
+    if (!stage) return;
+    const activePanel = stage.querySelector<HTMLElement>(
+      `[data-mobility-panel="${mobilityTab}"]`
+    );
+    if (!activePanel) return;
+
+    const widgetShells = activePanel.querySelectorAll<HTMLElement>('.ggt-widget-safe-fade');
+    const headings = activePanel.querySelectorAll<HTMLElement>('.ggt-3d-stagger');
+
+    if (widgetShells.length > 0) {
+      gsap.fromTo(
+        widgetShells,
+        { opacity: 0.12 },
+        { opacity: 1, duration: 0.36, ease: 'power2.out', clearProps: 'opacity' }
+      );
+    }
+    if (headings.length > 0) {
+      gsap.fromTo(
+        headings,
+        { opacity: 0, y: 12, rotateX: 4, transformPerspective: 1000 },
+        {
+          opacity: 1,
+          y: 0,
+          rotateX: 0,
+          duration: 0.44,
+          stagger: 0.05,
+          ease: 'power3.out',
+          clearProps: 'transform,opacity'
+        }
+      );
+    }
+  }, [mobilityTab]);
+
+  // Embedded Service Page category switch (opacity fade on widgets + 3D pop on non-widget cards)
+  const didMountEmbeddedRef = useRef(false);
+  useEffect(() => {
+    if (!embeddedOnServicePage) return;
+    const container = embeddedStageRef.current;
+    if (!container || prefersReducedMotion()) return;
+
+    if (!didMountEmbeddedRef.current) {
+      didMountEmbeddedRef.current = true;
+    }
+
+    const widgetShells = container.querySelectorAll<HTMLElement>('.widget-stability-shell');
+    const popCards = container.querySelectorAll<HTMLElement>('.ggt-panel-pop-card');
+
+    if (widgetShells.length > 0) {
+      gsap.fromTo(
+        widgetShells,
+        { opacity: 0.18 },
+        { opacity: 1, duration: 0.36, ease: 'power2.out', clearProps: 'opacity' }
+      );
+    }
+    if (popCards.length > 0) {
+      gsap.fromTo(
+        popCards,
+        { opacity: 0, y: 14, scale: 0.97, rotateX: 4, transformPerspective: 1100 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotateX: 0,
+          duration: 0.48,
+          stagger: 0.055,
+          ease: 'power3.out',
+          clearProps: 'transform,opacity'
+        }
+      );
+    }
+  }, [activeCategory, embeddedOnServicePage]);
 
   // Register newly selected service in visitedCategories & trigger gold border highlight
   useEffect(() => {
@@ -521,19 +690,35 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
   };
 
   const handleSelectFlightEngineTab = (tabId: FlightEngineTabId) => {
-    setFlightEngineTab(tabId);
-    setVisitedFlightTabs((prev) => (prev.includes(tabId) ? prev : [...prev, tabId]));
-    trackServiceSelection('flights_selected');
-    window.setTimeout(() => ScrollTrigger.refresh(), 160);
+    if (tabId === flightEngineTab) return;
+    switchTabWithTimeline({
+      outgoingEl: flightStageRef.current,
+      timelineRef: flightTabTlRef,
+      isWidgetSafe: true,
+      onSwap: () => {
+        setFlightEngineTab(tabId);
+        setVisitedFlightTabs((prev) => (prev.includes(tabId) ? prev : [...prev, tabId]));
+        trackServiceSelection('flights_selected');
+        window.setTimeout(() => ScrollTrigger.refresh(), 160);
+      }
+    });
   };
 
   const handleSelectMobilityTab = (tabId: MobilityTabId) => {
-    setMobilityTab(tabId);
-    setVisitedMobilityTabs((prev) => (prev.includes(tabId) ? prev : [...prev, tabId]));
-    trackServiceSelection(
-      tabId === 'airport_transfers' ? 'airport_transfers_selected' : 'car_rentals_selected'
-    );
-    window.setTimeout(() => ScrollTrigger.refresh(), 160);
+    if (tabId === mobilityTab) return;
+    switchTabWithTimeline({
+      outgoingEl: mobilityStageRef.current,
+      timelineRef: mobilityTabTlRef,
+      isWidgetSafe: true,
+      onSwap: () => {
+        setMobilityTab(tabId);
+        setVisitedMobilityTabs((prev) => (prev.includes(tabId) ? prev : [...prev, tabId]));
+        trackServiceSelection(
+          tabId === 'airport_transfers' ? 'airport_transfers_selected' : 'car_rentals_selected'
+        );
+        window.setTimeout(() => ScrollTrigger.refresh(), 160);
+      }
+    });
   };
 
   // ---------------- UMRAH HANDLERS ----------------
@@ -661,7 +846,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
       {/* Primary Flight Search Engine Stage */}
       <div className="rounded-2xl bg-[#f5ede0]/85 border border-[#d1a847]/55 p-3 sm:p-5 lg:p-6 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="space-y-1">
+          <div ref={flightMetaRef} className="space-y-1">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#9a7220]">
               {ui.primarySearchLabel} ·{' '}
               {flightEngineTab === 'aviasales'
@@ -679,19 +864,27 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
           </div>
 
           <div
+            ref={flightTablistRef}
             role="tablist"
             aria-label={pack.flights.providerSelectorLabel}
-            className="inline-flex items-center p-1 rounded-xl bg-[#ede1ce] border border-[#d1a847]/55 gap-1 self-start md:self-auto"
+            className="relative inline-flex items-center p-1 rounded-xl bg-[#ede1ce] border border-[#d1a847]/55 gap-1 self-start md:self-auto"
           >
+            <span
+              ref={flightIndicatorRef}
+              aria-hidden="true"
+              className="ggt-tab-indicator-pill"
+              style={{ opacity: 0 }}
+            />
             <button
               type="button"
               role="tab"
               aria-selected={flightEngineTab === 'aviasales'}
+              data-tab-active={flightEngineTab === 'aviasales' ? 'true' : undefined}
               onClick={() => handleSelectFlightEngineTab('aviasales')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] transition-colors cursor-pointer whitespace-nowrap ${
+              className={`ggt-tab-3d relative z-10 px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] cursor-pointer whitespace-nowrap ${
                 flightEngineTab === 'aviasales'
-                  ? 'bg-[#0b1d3a] text-[#fceda2] shadow-sm'
-                  : 'text-[#0b1d3a]/80 hover:text-[#0b1d3a]'
+                  ? 'text-[#fceda2]'
+                  : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a]'
               }`}
             >
               {pack.flights.providers.aviasales.label}
@@ -700,11 +893,12 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
               type="button"
               role="tab"
               aria-selected={flightEngineTab === 'expedia'}
+              data-tab-active={flightEngineTab === 'expedia' ? 'true' : undefined}
               onClick={() => handleSelectFlightEngineTab('expedia')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] transition-colors cursor-pointer whitespace-nowrap ${
+              className={`ggt-tab-3d relative z-10 px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] cursor-pointer whitespace-nowrap ${
                 flightEngineTab === 'expedia'
-                  ? 'bg-[#0b1d3a] text-[#fceda2] shadow-sm'
-                  : 'text-[#0b1d3a]/80 hover:text-[#0b1d3a]'
+                  ? 'text-[#fceda2]'
+                  : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a]'
               }`}
             >
               {pack.flights.providers.expedia.label}
@@ -712,29 +906,15 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
           </div>
         </div>
 
-        {/* Aviasales Primary Flight Search (100/7879) */}
-        <div
-          className={flightEngineTab === 'aviasales' ? 'block' : 'hidden'}
-          aria-hidden={flightEngineTab !== 'aviasales'}
-        >
-          <AviasalesFlightWidget
-            key="aviasales-flights-widget"
-            lang={lang}
-            onJumpToPlanner={onJumpToPlanner}
-            whatsappInternational={whatsappInternational}
-            displayPhone={displayPhone}
-            embedClean
-          />
-        </div>
-
-        {/* Alternative Flight Search (Expedia lobs="flights") — mounts ONLY when tab is first opened */}
-        {visitedFlightTabs.includes('expedia') && (
+        {/* Opacity-only Widget Stage (never transformed!) */}
+        <div ref={flightStageRef}>
+          {/* Aviasales Primary Flight Search (100/7879) */}
           <div
-            className={flightEngineTab === 'expedia' ? 'block' : 'hidden'}
-            aria-hidden={flightEngineTab !== 'expedia'}
+            className={flightEngineTab === 'aviasales' ? 'block' : 'hidden'}
+            aria-hidden={flightEngineTab !== 'aviasales'}
           >
-            <ExpediaFlightWidget
-              key="expedia-flights-widget"
+            <AviasalesFlightWidget
+              key="aviasales-flights-widget"
               lang={lang}
               onJumpToPlanner={onJumpToPlanner}
               whatsappInternational={whatsappInternational}
@@ -742,7 +922,24 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
               embedClean
             />
           </div>
-        )}
+
+          {/* Alternative Flight Search (Expedia lobs="flights") — mounts ONLY when tab is first opened */}
+          {visitedFlightTabs.includes('expedia') && (
+            <div
+              className={flightEngineTab === 'expedia' ? 'block' : 'hidden'}
+              aria-hidden={flightEngineTab !== 'expedia'}
+            >
+              <ExpediaFlightWidget
+                key="expedia-flights-widget"
+                lang={lang}
+                onJumpToPlanner={onJumpToPlanner}
+                whatsappInternational={whatsappInternational}
+                displayPhone={displayPhone}
+                embedClean
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Unified Flight Agency Concierge Strip */}
@@ -823,8 +1020,11 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
       <div className="lg:col-span-8">
         {umrahReady ? (
-          <div className="rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847] p-6 space-y-5 animate-search-panel-in">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <div
+            ref={umrahReadyCardRef}
+            className="rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847] p-6 space-y-5 shadow-[0_18px_40px_rgba(4,12,28,0.3)]"
+          >
+            <div className="ggt-3d-stagger flex flex-wrap items-center justify-between gap-3">
               <h4 className="font-serif-crest text-xl font-semibold text-[#fceda2]">
                 {pack.umrah.summaryTitle}
               </h4>
@@ -1130,8 +1330,11 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
       <div className="lg:col-span-8">
         {holidayReady ? (
-          <div className="rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847] p-6 space-y-5 animate-search-panel-in">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <div
+            ref={holidayReadyCardRef}
+            className="rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847] p-6 space-y-5 shadow-[0_18px_40px_rgba(4,12,28,0.3)]"
+          >
+            <div className="ggt-3d-stagger flex flex-wrap items-center justify-between gap-3">
               <h4 className="font-serif-crest text-xl font-semibold text-[#fceda2]">
                 {pack.holidays.summaryTitle}
               </h4>
@@ -1511,9 +1714,10 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                       key={city}
                       type="button"
                       onClick={() => setTourDestination(city)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                      data-tab-active={selected ? 'true' : undefined}
+                      className={`ggt-tab-3d px-2.5 py-1 rounded-lg text-xs font-semibold border cursor-pointer ${
                         selected
-                          ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847]'
+                          ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847] shadow-sm'
                           : 'bg-[#fcf9f2] text-[#0b1d3a] border-[#d1a847]/45 hover:border-[#0b1d3a]'
                       }`}
                     >
@@ -1652,10 +1856,17 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
         {/* Clean Two-Tab Internal Navigation: Location de Voitures | Transferts Aéroport */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
           <div
+            ref={mobilityTablistRef}
             role="tablist"
             aria-label={pack.carTransfers.tabSelectorLabel}
-            className="inline-flex flex-wrap sm:flex-nowrap items-center p-1.5 rounded-xl bg-[#ede1ce] border border-[#d1a847]/60 gap-1.5 w-full sm:w-auto"
+            className="relative inline-flex flex-wrap sm:flex-nowrap items-center p-1.5 rounded-xl bg-[#ede1ce] border border-[#d1a847]/60 gap-1.5 w-full sm:w-auto"
           >
+            <span
+              ref={mobilityIndicatorRef}
+              aria-hidden="true"
+              className="ggt-tab-indicator-pill"
+              style={{ opacity: 0 }}
+            />
             {(['car_rentals', 'airport_transfers'] as const).map((tabId) => {
               const selected = mobilityTab === tabId;
               const tabMeta = pack.carTransfers.tabs[tabId];
@@ -1667,15 +1878,18 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                   type="button"
                   role="tab"
                   aria-selected={selected}
+                  data-tab-active={selected ? 'true' : undefined}
                   onClick={() => handleSelectMobilityTab(tabId)}
-                  className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg text-xs font-bold uppercase tracking-[0.09em] transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b1d3a] ${
+                  className={`ggt-tab-3d relative z-10 flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg text-xs font-bold uppercase tracking-[0.09em] cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b1d3a] ${
                     selected
-                      ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847] shadow-sm'
-                      : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a] hover:bg-[#fcf9f2]/80 border border-transparent'
+                      ? 'text-[#fceda2]'
+                      : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a]'
                   }`}
                 >
                   <TabIcon
-                    className={`w-4 h-4 shrink-0 ${selected ? 'text-[#d1a847]' : 'text-[#9a7220]'}`}
+                    className={`ggt-tab-icon w-4 h-4 shrink-0 ${
+                      selected ? 'text-[#d1a847]' : 'text-[#9a7220]'
+                    }`}
                   />
                   <span>{tabMeta.label}</span>
                 </button>
@@ -1689,26 +1903,28 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
           </div>
         </div>
 
-        {/* TAB 1: LOCATION DE VOITURES (All 4 Car Rental Widgets) */}
-        {visitedMobilityTabs.includes('car_rentals') && (
-          <div
-            role="tabpanel"
-            className={showCarRentals ? 'space-y-7' : 'hidden'}
-            aria-hidden={!showCarRentals}
-          >
-            {/* Primary Spotlight: AutoEurope (143/4362) */}
-            <div className="rounded-2xl bg-[#f5ede0]/90 border border-[#d1a847]/55 p-3.5 sm:p-6 space-y-4">
-              <div className="pb-3 border-b border-[#d1a847]/35 space-y-0.5">
-                <div className="text-[11px] uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
-                  {ui.primarySearchLabel} · {primaryCarMeta.badge}
+        <div ref={mobilityStageRef}>
+          {/* TAB 1: LOCATION DE VOITURES (All 4 Car Rental Widgets) */}
+          {visitedMobilityTabs.includes('car_rentals') && (
+            <div
+              role="tabpanel"
+              data-mobility-panel="car_rentals"
+              className={showCarRentals ? 'space-y-7' : 'hidden'}
+              aria-hidden={!showCarRentals}
+            >
+              {/* Primary Spotlight: AutoEurope (143/4362) */}
+              <div className="rounded-2xl bg-[#f5ede0]/90 border border-[#d1a847]/55 p-3.5 sm:p-6 space-y-4">
+                <div className="ggt-3d-stagger pb-3 border-b border-[#d1a847]/35 space-y-0.5">
+                  <div className="text-[11px] uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
+                    {ui.primarySearchLabel} · {primaryCarMeta.badge}
+                  </div>
+                  <h4 className="font-serif-crest text-lg sm:text-xl font-semibold text-[#0b1d3a]">
+                    {primaryCarMeta.title}
+                  </h4>
+                  <p className="text-xs text-[#2c405e]">{primaryCarMeta.subtitle}</p>
                 </div>
-                <h4 className="font-serif-crest text-lg sm:text-xl font-semibold text-[#0b1d3a]">
-                  {primaryCarMeta.title}
-                </h4>
-                <p className="text-xs text-[#2c405e]">{primaryCarMeta.subtitle}</p>
-              </div>
 
-              <div className="rounded-xl bg-[#fcf9f2] border border-[#d1a847]/35 p-1.5 sm:p-4 overflow-x-clip widget-stability-shell">
+                <div className="ggt-widget-safe-fade rounded-xl bg-[#fcf9f2] border border-[#d1a847]/35 p-1.5 sm:p-4 overflow-x-clip widget-stability-shell">
                 <ThirdPartyScriptWidget
                   scriptSrc={primaryCarWidget.scriptSrc}
                   title={primaryCarMeta.title}
@@ -1818,12 +2034,13 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
         {visitedMobilityTabs.includes('airport_transfers') && (
           <div
             role="tabpanel"
+            data-mobility-panel="airport_transfers"
             className={showAirportTransfers ? 'space-y-7' : 'hidden'}
             aria-hidden={!showAirportTransfers}
           >
             {/* Primary Airport Transfer Search Engine (Kiwitaxi 1/3879) */}
             <div className="rounded-2xl bg-[#f5ede0]/90 border border-[#d1a847]/55 p-3.5 sm:p-6 space-y-4">
-              <div className="pb-3 border-b border-[#d1a847]/35 space-y-0.5">
+              <div className="ggt-3d-stagger pb-3 border-b border-[#d1a847]/35 space-y-0.5">
                 <div className="text-[11px] uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
                   {ui.primarySearchLabel} · {primaryTransferMeta.badge}
                 </div>
@@ -1833,7 +2050,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                 <p className="text-xs text-[#2c405e]">{primaryTransferMeta.subtitle}</p>
               </div>
 
-              <div className="rounded-xl bg-[#fcf9f2] border border-[#d1a847]/35 p-1.5 sm:p-4 overflow-x-clip widget-stability-shell">
+              <div className="ggt-widget-safe-fade rounded-xl bg-[#fcf9f2] border border-[#d1a847]/35 p-1.5 sm:p-4 overflow-x-clip widget-stability-shell">
                 <ThirdPartyScriptWidget
                   scriptSrc={primaryTransferWidget.scriptSrc}
                   title={primaryTransferMeta.title}
@@ -1849,7 +2066,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
 
             {/* Supplementary Popular Airport Transfer Routes (Intui.travel 22/3507) */}
             <div className="rounded-2xl bg-[#f5ede0]/70 border border-[#d1a847]/40 p-3.5 sm:p-6 space-y-4">
-              <div className="pb-3 border-b border-[#d1a847]/30 space-y-0.5">
+              <div className="ggt-3d-stagger pb-3 border-b border-[#d1a847]/30 space-y-0.5">
                 <div className="text-[11px] uppercase tracking-[0.18em] text-[#9a7220] font-semibold">
                   {ui.supplementaryLabel} · {secondaryTransferMeta.badge}
                 </div>
@@ -1859,7 +2076,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                 <p className="text-xs text-[#2c405e]">{secondaryTransferMeta.subtitle}</p>
               </div>
 
-              <div className="rounded-xl bg-[#fcf9f2] border border-[#d1a847]/35 p-1.5 sm:p-4 overflow-x-clip widget-stability-shell">
+              <div className="ggt-widget-safe-fade rounded-xl bg-[#fcf9f2] border border-[#d1a847]/35 p-1.5 sm:p-4 overflow-x-clip widget-stability-shell">
                 <IsolatedWidgetFrame
                   scriptSrc={secondaryTransferWidget.scriptSrc}
                   title={secondaryTransferMeta.title}
@@ -1873,6 +2090,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
             </div>
           </div>
         )}
+        </div>
 
         {/* Direct Mobility Concierge Strip */}
         <div className="ggt-panel-pop-card rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/55 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1923,10 +2141,17 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
           {tabsToRender.length > 1 && (
             <div className="mb-7 pb-5 border-b border-[#d1a847]/35">
               <div
+                ref={embeddedTablistRef}
                 role="tablist"
                 aria-label={pack.servicesHubTitle}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                className="relative grid grid-cols-1 sm:grid-cols-2 gap-3 p-1.5 rounded-2xl bg-[#ede1ce]/70 border border-[#d1a847]/45"
               >
+                <span
+                  ref={embeddedIndicatorRef}
+                  aria-hidden="true"
+                  className="ggt-tab-indicator-pill"
+                  style={{ opacity: 0 }}
+                />
                 {tabsToRender.map((catId) => {
                   const Icon = HERO_CATEGORY_ICONS[catId];
                   const meta = pack.categories[catId];
@@ -1937,15 +2162,16 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                       type="button"
                       role="tab"
                       aria-selected={isActive}
+                      data-tab-active={isActive ? 'true' : undefined}
                       onClick={() => handleSelectCategory(catId)}
-                      className={`rounded-xl px-4 py-3 text-left rtl:text-right border transition-all duration-300 cursor-pointer flex items-center gap-3 ${
+                      className={`ggt-tab-3d relative z-10 rounded-xl px-4 py-3 text-left rtl:text-right border cursor-pointer flex items-center gap-3 ${
                         isActive
-                          ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847] shadow-md'
-                          : 'bg-[#f5ede0]/85 text-[#0b1d3a] border-[#d1a847]/40 hover:border-[#0b1d3a]/60'
+                          ? 'text-[#fceda2] border-transparent'
+                          : 'bg-[#fcf9f2]/75 text-[#0b1d3a] border-[#d1a847]/35 hover:border-[#c59b38]'
                       }`}
                     >
                       <span
-                        className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 ${
+                        className={`ggt-tab-icon w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 ${
                           isActive
                             ? 'bg-[#071429] border-[#d1a847] text-[#fceda2]'
                             : 'bg-[#fcf9f2] border-[#c59b38]/60 text-[#0b1d3a]'
@@ -1959,7 +2185,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                         </div>
                         <div
                           className={`text-[11px] truncate ${
-                            isActive ? 'text-[#f5ede0]/80' : 'text-[#2c405e]/80'
+                            isActive ? 'text-[#f5ede0]/85' : 'text-[#2c405e]/80'
                           }`}
                         >
                           {meta.shortSub}
@@ -1972,7 +2198,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
             </div>
           )}
 
-          {renderCategoryContentById(resolvedCategory)}
+          <div ref={embeddedStageRef}>{renderCategoryContentById(resolvedCategory)}</div>
         </div>
       </section>
     );

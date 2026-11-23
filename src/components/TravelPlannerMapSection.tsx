@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 import {
   APIProvider,
   APILoadingStatus,
@@ -34,6 +35,12 @@ import {
 import { Language, SERVICE_ORDER, ServiceId } from '../assets/destinations';
 import { TranslationPack } from '../i18n';
 import { SERVICE_ICONS, HajjUmrahServiceIcon } from './ServiceIcons';
+import {
+  isDesktopViewport,
+  prefersReducedMotion,
+  useReplayable3DPanel,
+  useSlidingTabIndicator
+} from '../utils/tab3DMotion';
 
 export { SERVICE_ICONS };
 
@@ -237,6 +244,85 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
   const [mapEmptyMsg, setMapEmptyMsg] = useState(false);
 
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
+  const serviceTablistRef = useRef<HTMLDivElement>(null);
+  const serviceIndicatorRef = useRef<HTMLSpanElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const dossierCardRef = useRef<HTMLDivElement>(null);
+  const visaDropdownRef = useRef<HTMLUListElement>(null);
+  const hotelDropdownRef = useRef<HTMLUListElement>(null);
+  const cityDropdownRef = useRef<HTMLUListElement>(null);
+
+  useSlidingTabIndicator(serviceTablistRef, serviceIndicatorRef, activeService, [lang]);
+
+  useReplayable3DPanel(dossierCardRef, itineraryBuilt, {
+    enabled: itineraryBuilt,
+    duration: 0.48,
+    staggerEach: 0.045,
+    yOffset: 14,
+    rotateXDeg: 4
+  });
+
+  // Replay 3D emergence on conditional service-specific fields when switching service category
+  useEffect(() => {
+    const formEl = formRef.current;
+    if (!formEl || prefersReducedMotion()) return;
+
+    const nodes = Array.from(formEl.querySelectorAll<HTMLElement>('.ggt-planner-service-field'));
+    if (nodes.length === 0) return;
+
+    const desktop = isDesktopViewport();
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        nodes,
+        desktop
+          ? { opacity: 0, y: 12, scale: 0.975, rotateX: 3.5, transformPerspective: 1050 }
+          : { opacity: 0, y: 8, scale: 0.985 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotateX: 0,
+          duration: 0.4,
+          stagger: 0.05,
+          ease: 'power3.out',
+          force3D: true,
+          clearProps: 'transform,opacity'
+        }
+      );
+    }, formEl);
+
+    return () => ctx.revert();
+  }, [activeService]);
+
+  useEffect(() => {
+    const el = visaDropdownRef.current;
+    if (!showVisaDropdown || visaSuggestions.length === 0 || !el || prefersReducedMotion()) return;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: -5, scale: 0.98 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.22, ease: 'power3.out', clearProps: 'transform,opacity' }
+    );
+  }, [showVisaDropdown, visaSuggestions.length]);
+
+  useEffect(() => {
+    const el = hotelDropdownRef.current;
+    if (!showHotelDropdown || hotelSuggestions.length === 0 || !el || prefersReducedMotion()) return;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: -5, scale: 0.98 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.22, ease: 'power3.out', clearProps: 'transform,opacity' }
+    );
+  }, [showHotelDropdown, hotelSuggestions.length]);
+
+  useEffect(() => {
+    const el = cityDropdownRef.current;
+    if (!showCityDropdown || citySuggestions.length === 0 || !el || prefersReducedMotion()) return;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: -5, scale: 0.98 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.22, ease: 'power3.out', clearProps: 'transform,opacity' }
+    );
+  }, [showCityDropdown, citySuggestions.length]);
 
   const isHotelService =
     activeService === 'hotel-reservations' || activeService === 'hajj-umrah';
@@ -639,7 +725,17 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
           <label className="block text-xs font-semibold uppercase tracking-[0.18em] text-[#0b1d3a] mb-3">
             {t.plannerSection.serviceLabel}
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5">
+          <div
+            ref={serviceTablistRef}
+            role="tablist"
+            aria-label={t.plannerSection.serviceLabel}
+            className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5"
+          >
+            <span
+              ref={serviceIndicatorRef}
+              aria-hidden="true"
+              className="ggt-tab-indicator-pill pointer-events-none"
+            />
             {SERVICE_ORDER.map((srvId) => {
               const srv = t.servicesSection.services[srvId];
               const Icon = SERVICE_ICONS[srvId];
@@ -648,17 +744,20 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                 <button
                   key={srvId}
                   type="button"
+                  role="tab"
+                  aria-selected={active}
+                  data-tab-active={active ? 'true' : 'false'}
                   onClick={() => {
                     onSelectService(srvId);
                     setItineraryBuilt(false);
                   }}
-                  className={`min-w-0 py-2.5 sm:py-3 px-2.5 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer ${
+                  className={`ggt-tab-3d relative z-10 min-w-0 py-2.5 sm:py-3 px-2.5 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 transition-colors cursor-pointer ${
                     active
-                      ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847] shadow-md'
-                      : 'bg-[#f5ede0] text-[#0b1d3a] border-[#d1a847]/40 hover:border-[#0b1d3a]'
+                      ? 'text-[#fceda2] border-transparent'
+                      : 'bg-[#f5ede0]/85 text-[#0b1d3a] border-[#d1a847]/40 hover:border-[#0b1d3a]'
                   }`}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
+                  <Icon className="w-4 h-4 shrink-0 ggt-tab-icon" />
                   <span className="truncate">{srv.label}</span>
                 </button>
               );
@@ -668,9 +767,12 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* LEFT: Dynamic Contact / Booking Form (7 columns on desktop) */}
-          <div className="lg:col-span-7 flex flex-col justify-between">
+          <div className="lg:col-span-7 flex flex-col justify-between perspective-1200">
             {itineraryBuilt ? (
-              <div className="space-y-6 bg-[#f5ede0]/70 border border-[#d1a847]/40 rounded-xl p-6">
+              <div
+                ref={dossierCardRef}
+                className="space-y-6 bg-[#f5ede0]/70 border border-[#d1a847]/40 rounded-xl p-6"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#d1a847]/30">
                   <div>
                     <div className="text-xs uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
@@ -683,14 +785,14 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                   <button
                     type="button"
                     onClick={() => setItineraryBuilt(false)}
-                    className="px-4 py-2 rounded-lg border border-[#d1a847]/50 text-xs font-semibold uppercase tracking-wider text-[#0b1d3a] hover:bg-[#0b1d3a] hover:text-[#fceda2] transition-colors cursor-pointer"
+                    className="ggt-btn-3d-return px-4 py-2 rounded-lg border border-[#d1a847]/50 text-xs font-semibold uppercase tracking-wider text-[#0b1d3a] hover:bg-[#0b1d3a] hover:text-[#fceda2] transition-colors cursor-pointer"
                   >
                     {t.plannerSection.adjustBtn}
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                  <div className="p-4 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/30">
+                  <div className="ggt-3d-stagger p-4 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/30">
                     <div className="text-[11px] uppercase tracking-wider text-[#2c405e]">
                       {t.plannerSection.locationSummaryLabel}
                     </div>
@@ -698,7 +800,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                       {destinationLocation.trim() || '—'}
                     </div>
                   </div>
-                  <div className="p-4 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/30">
+                  <div className="ggt-3d-stagger p-4 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/30">
                     <div className="text-[11px] uppercase tracking-wider text-[#2c405e]">
                       {isVisaService
                         ? t.plannerSection.visaPurposeLabel
@@ -712,7 +814,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                         : hotelName.trim() || selectedMapPlace?.name || '—'}
                     </div>
                   </div>
-                  <div className="p-4 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/30">
+                  <div className="ggt-3d-stagger p-4 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/30">
                     <div className="text-[11px] uppercase tracking-wider text-[#2c405e]">
                       {t.plannerSection.scheduleLabel}
                     </div>
@@ -721,7 +823,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                       {preferredTime ? `· ${preferredTime}` : ''}
                     </div>
                   </div>
-                  <div className="p-4 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/30">
+                  <div className="ggt-3d-stagger p-4 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/30">
                     <div className="text-[11px] uppercase tracking-wider text-[#2c405e]">
                       {t.plannerSection.travelersLabel}
                     </div>
@@ -736,7 +838,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     href={buildWhatsAppMessageUrl()}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="flex-1 inline-flex items-center justify-center text-center gap-2.5 py-3.5 px-4 sm:px-6 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 shadow-[0_6px_20px_rgba(16,185,129,0.28)] transition-all"
+                    className="ggt-btn-3d-return flex-1 inline-flex items-center justify-center text-center gap-2.5 py-3.5 px-4 sm:px-6 rounded-lg text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 hover:bg-emerald-500 shadow-[0_6px_20px_rgba(16,185,129,0.28)] transition-all"
                   >
                     <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
                     <span>
@@ -746,7 +848,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
                   <a
                     href="tel:0666484815"
-                    className="inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-lg text-xs font-semibold uppercase tracking-wider text-[#0b1d3a] bg-[#ede1ce] border border-[#d1a847]/60 hover:bg-[#0b1d3a] hover:text-[#fceda2] transition-colors"
+                    className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-lg text-xs font-semibold uppercase tracking-wider text-[#0b1d3a] bg-[#ede1ce] border border-[#d1a847]/60 hover:bg-[#0b1d3a] hover:text-[#fceda2] transition-colors"
                   >
                     <Phone className="w-3.5 h-3.5 text-[#c59b38]" />
                     <span>
@@ -760,19 +862,19 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                   <button
                     type="button"
                     onClick={onReturnToHero}
-                    className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#0b1d3a] hover:text-[#9a7220] cursor-pointer"
+                    className="ggt-btn-3d-return inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-[#0b1d3a] hover:text-[#9a7220] cursor-pointer"
                   >
-                    <RotateCcw className="w-3.5 h-3.5 text-[#c59b38]" />
+                    <RotateCcw className="w-3.5 h-3.5 text-[#c59b38] ggt-return-arrow" />
                     <span>{t.plannerSection.returnBtn}</span>
                   </button>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleBuildItinerary} className="space-y-5">
+              <form ref={formRef} onSubmit={handleBuildItinerary} className="space-y-5">
                 {/* Service-Dynamic Primary Focus Order:
                     When Visa Assistance is selected, highlight Visa Type + Consulate/Visa Center connected to Google Maps! */}
                 {isVisaService && (
-                  <div className="space-y-4 p-4 rounded-xl bg-[#ede1ce]/55 border border-[#d1a847]/70">
+                  <div className="ggt-planner-service-field space-y-4 p-4 rounded-xl bg-[#ede1ce]/55 border border-[#d1a847]/70">
                     <div>
                       <label
                         htmlFor="visa-purpose-input"
@@ -836,7 +938,10 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                       </div>
 
                       {showVisaDropdown && visaSuggestions.length > 0 && (
-                        <ul className="absolute left-0 right-0 z-30 mt-1.5 bg-[#fcf9f2] border border-[#d1a847]/70 rounded-xl shadow-xl overflow-hidden divide-y divide-[#d1a847]/20">
+                        <ul
+                          ref={visaDropdownRef}
+                          className="absolute left-0 right-0 z-30 mt-1.5 bg-[#fcf9f2] border border-[#d1a847]/70 rounded-xl shadow-xl overflow-hidden divide-y divide-[#d1a847]/20"
+                        >
                           {visaSuggestions.map((s, idx) => (
                             <li key={idx}>
                               <button
@@ -857,7 +962,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
                 {/* When Hotel Reservations is selected, Hotel Name comes FIRST & highlighted for Google Maps! */}
                 {isHotelService && (
-                  <div className="relative p-4 rounded-xl bg-[#ede1ce]/55 border border-[#d1a847]/70">
+                  <div className="ggt-planner-service-field relative p-4 rounded-xl bg-[#ede1ce]/55 border border-[#d1a847]/70">
                     <label
                       htmlFor="hotel-name-input"
                       className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#0b1d3a] mb-2"
@@ -896,7 +1001,10 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     </div>
 
                     {showHotelDropdown && hotelSuggestions.length > 0 && (
-                      <ul className="absolute left-4 right-4 z-30 mt-1.5 bg-[#fcf9f2] border border-[#d1a847]/70 rounded-xl shadow-xl overflow-hidden divide-y divide-[#d1a847]/20">
+                      <ul
+                        ref={hotelDropdownRef}
+                        className="absolute left-4 right-4 z-30 mt-1.5 bg-[#fcf9f2] border border-[#d1a847]/70 rounded-xl shadow-xl overflow-hidden divide-y divide-[#d1a847]/20"
+                      >
                         {hotelSuggestions.map((s, idx) => (
                           <li key={idx}>
                             <button
@@ -916,7 +1024,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
                 {/* Flight Bookings Departure City */}
                 {activeService === 'flight-bookings' && (
-                  <div>
+                  <div className="ggt-planner-service-field">
                     <label
                       htmlFor="departure-city-input"
                       className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#0b1d3a] mb-1.5"
@@ -978,7 +1086,10 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                   </div>
 
                   {showCityDropdown && citySuggestions.length > 0 && (
-                    <ul className="absolute left-0 right-0 z-30 mt-1.5 bg-[#fcf9f2] border border-[#d1a847]/70 rounded-xl shadow-xl overflow-hidden divide-y divide-[#d1a847]/20">
+                    <ul
+                      ref={cityDropdownRef}
+                      className="absolute left-0 right-0 z-30 mt-1.5 bg-[#fcf9f2] border border-[#d1a847]/70 rounded-xl shadow-xl overflow-hidden divide-y divide-[#d1a847]/20"
+                    >
                       {citySuggestions.map((s, idx) => (
                         <li key={idx}>
                           <button
@@ -997,7 +1108,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
                 {/* Hotel Name Input for Holiday Packages & Flights (Client can write ANY hotel!) */}
                 {!isHotelService && showHotelField && (
-                  <div className="relative">
+                  <div className="ggt-planner-service-field relative">
                     <label
                       htmlFor="optional-hotel-input"
                       className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#0b1d3a] mb-1.5"
@@ -1019,7 +1130,10 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                       className="w-full bg-[#f8f2e7] border border-[#d1a847]/50 rounded-lg px-3.5 py-2.5 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
                     />
                     {showHotelDropdown && hotelSuggestions.length > 0 && (
-                      <ul className="absolute left-0 right-0 z-30 mt-1.5 bg-[#fcf9f2] border border-[#d1a847]/70 rounded-xl shadow-xl overflow-hidden divide-y divide-[#d1a847]/20">
+                      <ul
+                        ref={hotelDropdownRef}
+                        className="absolute left-0 right-0 z-30 mt-1.5 bg-[#fcf9f2] border border-[#d1a847]/70 rounded-xl shadow-xl overflow-hidden divide-y divide-[#d1a847]/20"
+                      >
                         {hotelSuggestions.map((s, idx) => (
                           <li key={idx}>
                             <button
@@ -1039,7 +1153,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
                 {/* Travel Insurance Specific Plan Field */}
                 {activeService === 'travel-insurance' && (
-                  <div>
+                  <div className="ggt-planner-service-field">
                     <label
                       htmlFor="insurance-plan-select"
                       className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#0b1d3a] mb-1.5"
@@ -1211,10 +1325,10 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 px-6 rounded-lg bg-[#0b1d3a] text-[#fceda2] hover:bg-[#132d56] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2.5 cursor-pointer"
+                  className="ggt-btn-3d-return w-full py-3.5 px-6 rounded-lg bg-[#0b1d3a] text-[#fceda2] hover:bg-[#132d56] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2.5 cursor-pointer"
                 >
                   <span>{t.plannerSection.submitBtn}</span>
-                  <ArrowRight className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+                  <ArrowRight className={`w-4 h-4 text-[#d1a847] ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
                 </button>
               </form>
             )}
@@ -1333,7 +1447,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                       key={place.id}
                       type="button"
                       onClick={() => handleChooseMapResult(place)}
-                      className={`w-full text-left rtl:text-right p-2.5 rounded-lg border transition-all flex items-start justify-between gap-2 cursor-pointer ${
+                      className={`ggt-card-3d-select w-full text-left rtl:text-right p-2.5 rounded-lg border transition-all flex items-start justify-between gap-2 cursor-pointer ${
                         chosen
                           ? 'bg-[#0b1d3a] text-[#fcf9f2] border-[#d1a847]'
                           : 'bg-[#f5ede0] text-[#0b1d3a] border-[#d1a847]/35 hover:border-[#0b1d3a]'

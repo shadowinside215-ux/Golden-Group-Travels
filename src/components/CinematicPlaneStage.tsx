@@ -646,21 +646,21 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
                     type="button"
                     onClick={() => onSelectCategory(catId)}
                     aria-pressed={isSelected}
-                    className="group flex flex-col items-center text-center gap-1.5 sm:gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#fceda2] rounded-2xl cursor-pointer active:scale-95 transition-transform duration-150 min-w-0"
+                    className="group ggt-tab-3d flex flex-col items-center text-center gap-1.5 sm:gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#fceda2] rounded-2xl cursor-pointer active:scale-95 min-w-0"
                   >
                     <span
                       className={`w-14 h-14 min-[380px]:w-16 min-[380px]:h-16 sm:w-[76px] sm:h-[76px] lg:w-[88px] lg:h-[88px] rounded-full flex items-center justify-center border-2 transition-all duration-300 backdrop-blur-md will-change-transform ${
                         isSelected
-                          ? 'bg-[#132d56]/92 border-[#fceda2] text-[#fceda2] ring-4 ring-[#d1a847]/35 shadow-[0_16px_38px_rgba(209,168,71,0.42)] scale-105 -translate-y-0.5'
+                          ? 'ggt-hero-medallion-activate bg-[#132d56]/95 border-[#fceda2] text-[#fceda2] ring-4 ring-[#d1a847]/45 shadow-[0_18px_42px_rgba(209,168,71,0.55)] scale-108 -translate-y-1'
                           : 'bg-[#071429]/82 border-[#d1a847]/70 text-[#d1a847] group-hover:border-[#fceda2] group-hover:text-[#fceda2] group-hover:bg-[#0b1d3a]/94 group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:shadow-[0_18px_36px_rgba(209,168,71,0.38)] shadow-[0_10px_26px_rgba(7,20,41,0.42)]'
                       }`}
                     >
-                      <Icon className="w-6 h-6 min-[380px]:w-7 min-[380px]:h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 transition-transform duration-300 group-hover:scale-105" />
+                      <Icon className="ggt-tab-icon w-6 h-6 min-[380px]:w-7 min-[380px]:h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9" />
                     </span>
                     <span
                       className={`max-w-[104px] sm:max-w-[136px] px-1.5 sm:px-2 py-0.5 rounded-md text-[9.5px] min-[380px]:text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.06em] sm:tracking-[0.08em] leading-tight transition-colors [text-wrap:balance] ${
                         isSelected
-                          ? 'bg-[#071429]/85 text-[#fceda2]'
+                          ? 'bg-[#071429]/90 text-[#fceda2] border border-[#d1a847]/50'
                           : isLandscapeDominant
                           ? 'bg-[#071429]/65 text-[#fcf9f2] group-hover:text-[#fceda2]'
                           : 'bg-[#071429]/82 text-[#fcf9f2] group-hover:text-[#fceda2]'

@@ -20,8 +20,14 @@ import { HERO_CATEGORY_ICONS, SERVICE_ICONS } from './components/ServiceIcons';
 import { ServiceDetailPage } from './components/ServiceDetailPage';
 import { ServiceRoutePage } from './components/ServiceRoutePage';
 import { CairoTourDetailPage } from './components/CairoTourDetailPage';
+import { GrandEgyptTourDetailPage } from './components/GrandEgyptTourDetailPage';
+import { EgyptExcursionsDetailPage } from './components/EgyptExcursionsDetailPage';
+import { IstanbulHolidayDetailPage } from './components/IstanbulHolidayDetailPage';
 import { TravelPlannerMapSection } from './components/TravelPlannerMapSection';
 import { CAIRO_TOUR_ROUTE } from './data/cairoTourData';
+import { GRAND_EGYPT_TOUR_ROUTE } from './data/grandEgyptTourData';
+import { EGYPT_EXCURSIONS_ROUTE } from './data/egyptExcursionsData';
+import { ISTANBUL_HOLIDAY_ROUTE } from './data/istanbulHolidayData';
 import {
   SERVICE_CATEGORY_ROUTES,
   SERVICE_ID_ROUTES,
@@ -30,6 +36,7 @@ import {
 import { SEARCH_ENGINE_PACKS } from './assets/searchEngineData';
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
 import {
   Language,
   SERVICE_ORDER,
@@ -39,6 +46,7 @@ import {
 import { SERVICE_PAGE_CHROME } from './assets/servicePagesData';
 import { LANGUAGES, translations } from './i18n';
 import { trackPageView } from './utils/analytics';
+import { prefersReducedMotion, pulseSelection3D } from './utils/tab3DMotion';
 
 const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
 const DISPLAY_PHONE = '0666-484815';
@@ -64,6 +72,12 @@ export default function App() {
   const [lang, setLang] = useState<Language>('fr');
   const [floatingLangOpen, setFloatingLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activatingCategory, setActivatingCategory] = useState<SearchCategoryId | null>(null);
+
+  const mobileDrawerRef = useRef<HTMLDivElement>(null);
+  const floatingLangMenuRef = useRef<HTMLDivElement>(null);
+  const desktopLangBarRef = useRef<HTMLDivElement>(null);
+  const heroNavTimerRef = useRef<number | null>(null);
 
   const [activeService, setActiveService] = useState<ServiceId>('hotel-reservations');
   const [destinationLocation, setDestinationLocation] = useState('');
@@ -145,6 +159,9 @@ export default function App() {
 
   // Scroll to top on route entry or scroll to requested section when returning to homepage
   useEffect(() => {
+    setActivatingCategory(null);
+    setFloatingLangOpen(false);
+    setMobileMenuOpen(false);
     const state = location.state as { scrollToId?: string } | null;
     if (state?.scrollToId) {
       scrollToId(state.scrollToId);
@@ -153,6 +170,54 @@ export default function App() {
     }
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [location.pathname, location.state, navigate, scrollToId]);
+
+  useEffect(() => {
+    return () => {
+      if (heroNavTimerRef.current !== null) {
+        window.clearTimeout(heroNavTimerRef.current);
+      }
+    };
+  }, []);
+
+  // 3D Pop-up entrance for Mobile Navigation Drawer
+  useEffect(() => {
+    if (!mobileMenuOpen || !mobileDrawerRef.current || prefersReducedMotion()) return;
+    const drawer = mobileDrawerRef.current;
+    const items = drawer.querySelectorAll<HTMLElement>('.ggt-drawer-item');
+    gsap.killTweensOf([drawer, ...items]);
+    gsap.fromTo(
+      drawer,
+      { opacity: 0, y: -12, scale: 0.985, rotateX: 4, transformPerspective: 1000, transformOrigin: '50% 0%' },
+      { opacity: 1, y: 0, scale: 1, rotateX: 0, duration: 0.36, ease: 'power3.out', force3D: true, clearProps: 'transform,opacity' }
+    );
+    if (items.length > 0) {
+      gsap.fromTo(
+        items,
+        { opacity: 0, x: isRtl ? 10 : -10 },
+        { opacity: 1, x: 0, duration: 0.3, stagger: 0.035, delay: 0.04, ease: 'power3.out', force3D: true, clearProps: 'transform,opacity' }
+      );
+    }
+  }, [mobileMenuOpen, isRtl]);
+
+  // 3D Pop-up entrance for Floating Language Menu
+  useEffect(() => {
+    if (!floatingLangOpen || !floatingLangMenuRef.current || prefersReducedMotion()) return;
+    const menu = floatingLangMenuRef.current;
+    const options = menu.querySelectorAll<HTMLElement>('button');
+    gsap.killTweensOf([menu, ...options]);
+    gsap.fromTo(
+      menu,
+      { opacity: 0, y: 12, scale: 0.94, rotateX: -6, transformPerspective: 1000, transformOrigin: '50% 100%' },
+      { opacity: 1, y: 0, scale: 1, rotateX: 0, duration: 0.34, ease: 'power3.out', force3D: true, clearProps: 'transform,opacity' }
+    );
+    if (options.length > 0) {
+      gsap.fromTo(
+        options,
+        { opacity: 0, y: 6 },
+        { opacity: 1, y: 0, duration: 0.24, stagger: 0.035, delay: 0.04, ease: 'power3.out', force3D: true, clearProps: 'transform,opacity' }
+      );
+    }
+  }, [floatingLangOpen]);
 
   /**
    * Repeatable Bidirectional 3D Scroll Animations across the homepage (GSAP + ScrollTrigger).
@@ -171,78 +236,80 @@ export default function App() {
       },
       (context) => {
         const isDesktop = Boolean(context.conditions?.isDesktop);
-        const shiftY = isDesktop ? 28 : 16;
+        const shiftY = isDesktop ? 18 : 10;
 
-        // 1. Section Headings (Nos Services + Planner) — bidirectional 3D lift
+        // 1. Section Headings (Nos Services + Planner) — fast, responsive bidirectional 3D lift
         const headings = document.querySelectorAll<HTMLElement>('.ggt-scroll-heading');
         headings.forEach((heading) => {
           gsap.fromTo(
             heading,
             isDesktop
               ? {
-                  opacity: 0.25,
+                  opacity: 0.45,
                   y: shiftY,
-                  scale: 0.96,
-                  rotateX: 6.5,
+                  scale: 0.98,
+                  rotateX: 5,
                   transformPerspective: 1100
                 }
-              : { opacity: 0.35, y: shiftY },
+              : { opacity: 0.45, y: shiftY },
             {
               opacity: 1,
               y: 0,
               scale: 1,
               rotateX: 0,
+              force3D: true,
               ease: 'none',
               scrollTrigger: {
                 trigger: heading,
-                start: 'top 94%',
-                end: 'top 62%',
-                scrub: 0.6
+                start: 'top 96%',
+                end: 'top 78%',
+                scrub: 0.12
               }
             }
           );
         });
 
-        // 2. Gold Hairline Dividers — draw in horizontally down-scroll, retract on up-scroll
+        // 2. Gold Hairline Dividers — snappy horizontal draw down/up
         const dividers = document.querySelectorAll<HTMLElement>('.ggt-scroll-divider');
         dividers.forEach((divider) => {
           gsap.fromTo(
             divider,
-            { scaleX: 0.14, opacity: 0.25, transformOrigin: 'center center' },
+            { scaleX: 0.2, opacity: 0.35, transformOrigin: 'center center' },
             {
               scaleX: 1,
               opacity: 1,
+              force3D: true,
               ease: 'none',
               scrollTrigger: {
                 trigger: divider,
-                start: 'top 95%',
-                end: 'top 64%',
-                scrub: 0.5
+                start: 'top 96%',
+                end: 'top 80%',
+                scrub: 0.1
               }
             }
           );
         });
 
-        // 3. "Nos Services" 3D Cards — repeatable bidirectional depth emergence (zero once: true)
+        // 3. "Nos Services" 3D Cards — fast GPU-composited bidirectional depth emergence
         const serviceCards = document.querySelectorAll<HTMLElement>('.gsap-service-card-3d');
         serviceCards.forEach((card, idx) => {
           const colOffset = idx % 3;
-          const rotY = isDesktop ? (colOffset === 0 ? 5.5 : colOffset === 2 ? -5.5 : 0) : 0;
-          const shiftX = isDesktop ? (colOffset === 0 ? -18 : colOffset === 2 ? 18 : 0) : 0;
+          const rotY = isDesktop ? (colOffset === 0 ? 4.5 : colOffset === 2 ? -4.5 : 0) : 0;
+          const shiftX = isDesktop ? (colOffset === 0 ? -12 : colOffset === 2 ? 12 : 0) : 0;
 
           gsap.fromTo(
             card,
             isDesktop
               ? {
-                  opacity: 0.28,
-                  y: 34,
+                  opacity: 0.45,
+                  y: 22,
                   x: shiftX,
-                  scale: 0.94,
-                  rotateX: 6,
+                  scale: 0.96,
+                  rotateX: 5,
                   rotateY: rotY,
                   transformPerspective: 1100
                 }
-              : { opacity: 0.35, y: 20, scale: 0.97 },
+              : { opacity: 0.45, y: 14, scale: 0.98 },
             {
               opacity: 1,
               y: 0,
@@ -250,32 +317,34 @@ export default function App() {
               scale: 1,
               rotateX: 0,
               rotateY: 0,
+              force3D: true,
               ease: 'none',
               scrollTrigger: {
                 trigger: card,
-                start: 'top 95%',
-                end: 'top 64%',
-                scrub: 0.65
+                start: 'top 96%',
+                end: 'top 78%',
+                scrub: 0.12
               }
             }
           );
         });
 
-        // 4. Footer Grid — subtle repeatable bidirectional entrance
+        // 4. Footer Grid — crisp bidirectional entrance
         const footerReveal = document.querySelector<HTMLElement>('.ggt-footer-reveal');
         if (footerReveal) {
           gsap.fromTo(
             footerReveal,
-            { opacity: 0.35, y: isDesktop ? 24 : 14 },
+            { opacity: 0.45, y: isDesktop ? 16 : 10 },
             {
               opacity: 1,
               y: 0,
+              force3D: true,
               ease: 'none',
               scrollTrigger: {
                 trigger: footerReveal,
-                start: 'top 96%',
-                end: 'top 72%',
-                scrub: 0.55
+                start: 'top 97%',
+                end: 'top 82%',
+                scrub: 0.12
               }
             }
           );
@@ -318,6 +387,27 @@ export default function App() {
   const navigateToCategoryRoute = (category: SearchCategoryId) => {
     setMobileMenuOpen(false);
     navigate(SERVICE_CATEGORY_ROUTES[category]);
+  };
+
+  const handleHeroCategoryClick = (category: SearchCategoryId) => {
+    if (heroNavTimerRef.current !== null) {
+      window.clearTimeout(heroNavTimerRef.current);
+      heroNavTimerRef.current = null;
+    }
+    if (prefersReducedMotion()) {
+      navigateToCategoryRoute(category);
+      return;
+    }
+    setActivatingCategory(category);
+    heroNavTimerRef.current = window.setTimeout(() => {
+      heroNavTimerRef.current = null;
+      navigateToCategoryRoute(category);
+    }, 175);
+  };
+
+  const handleLanguageChange = (nextLang: Language) => {
+    setLang(nextLang);
+    pulseSelection3D(desktopLangBarRef.current);
   };
 
   const navigateToServiceRoute = (srvId: ServiceId) => {
@@ -364,8 +454,8 @@ export default function App() {
         <CinematicPlaneStage
           lang={lang}
           readyToAnimate={heroAnimationReady}
-          activeCategory={null}
-          onSelectCategory={navigateToCategoryRoute}
+          activeCategory={activatingCategory}
+          onSelectCategory={handleHeroCategoryClick}
           onExploreBelow={() => scrollToId('services')}
         />
       )}
@@ -495,15 +585,19 @@ export default function App() {
 
           {/* Desktop 4 Languages Selector + Primary CTA */}
           <div className="hidden lg:flex items-center gap-3 shrink-0">
-            <div className="flex items-center bg-[#ede1ce] border border-[#d1a847]/45 rounded-lg p-1 text-xs gap-1">
+            <div
+              ref={desktopLangBarRef}
+              className="flex items-center bg-[#ede1ce] border border-[#d1a847]/45 rounded-lg p-1 text-xs gap-1"
+            >
               {LANGUAGES.map((item) => (
                 <button
                   key={item.code}
                   type="button"
-                  onClick={() => setLang(item.code)}
-                  className={`px-2 py-1 rounded font-semibold cursor-pointer transition-colors whitespace-nowrap ${
+                  onClick={() => handleLanguageChange(item.code)}
+                  data-tab-active={lang === item.code ? 'true' : undefined}
+                  className={`ggt-tab-3d px-2 py-1 rounded font-semibold cursor-pointer whitespace-nowrap ${
                     lang === item.code
-                      ? 'bg-[#0b1d3a] text-[#fceda2]'
+                      ? 'bg-[#0b1d3a] text-[#fceda2] shadow-sm'
                       : 'text-[#0b1d3a]/80 hover:text-[#0b1d3a] hover:bg-[#fcf9f2]'
                   }`}
                   title={item.name}
@@ -516,7 +610,7 @@ export default function App() {
             <button
               type="button"
               onClick={navigateToPlanner}
-              className="px-4 py-2 rounded-lg bg-[#0b1d3a] text-[#fceda2] hover:bg-[#132d56] border border-[#d1a847]/50 text-xs font-semibold uppercase tracking-[0.14em] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="ggt-btn-3d-return px-4 py-2 rounded-lg bg-[#0b1d3a] text-[#fceda2] hover:bg-[#132d56] border border-[#d1a847]/50 text-xs font-semibold uppercase tracking-[0.14em] whitespace-nowrap shrink-0 cursor-pointer"
             >
               {t.nav.curateCta}
             </button>
@@ -527,7 +621,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-[#0b1d3a] hover:bg-[#ede1ce] transition-colors cursor-pointer"
+              className="ggt-tab-3d p-2 rounded-lg text-[#0b1d3a] hover:bg-[#ede1ce] cursor-pointer"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -537,8 +631,11 @@ export default function App() {
 
         {/* Mobile Drawer with 4 Languages & Nav */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#fbf7ee] border-t border-[#d1a847]/35 px-5 py-5 space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#d1a847]/25">
+          <div
+            ref={mobileDrawerRef}
+            className="lg:hidden bg-[#fbf7ee] border-t border-[#d1a847]/35 px-5 py-5 space-y-4 shadow-[0_18px_36px_rgba(11,29,58,0.12)]"
+          >
+            <div className="ggt-drawer-item flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#d1a847]/25">
               <span className="text-xs font-semibold uppercase tracking-wider text-[#9a7220]">
                 Language / اللغة
               </span>
@@ -548,10 +645,10 @@ export default function App() {
                     key={item.code}
                     type="button"
                     onClick={() => {
-                      setLang(item.code);
+                      handleLanguageChange(item.code);
                       setMobileMenuOpen(false);
                     }}
-                    className={`px-2 py-1 rounded font-semibold cursor-pointer ${
+                    className={`ggt-tab-3d px-2 py-1 rounded font-semibold cursor-pointer ${
                       lang === item.code
                         ? 'bg-[#0b1d3a] text-[#fceda2]'
                         : 'text-[#0b1d3a]/80 hover:text-[#0b1d3a]'
@@ -567,28 +664,28 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => navigateHome()}
-                className="py-2 text-left rtl:text-right cursor-pointer"
+                className="ggt-drawer-item ggt-tab-3d px-2.5 py-2 rounded-lg text-left rtl:text-right hover:bg-[#ede1ce]/55 cursor-pointer"
               >
                 {chrome.homeNavLabel}
               </button>
               <button
                 type="button"
                 onClick={() => navigateHome('services')}
-                className="py-2 text-left rtl:text-right cursor-pointer"
+                className="ggt-drawer-item ggt-tab-3d px-2.5 py-2 rounded-lg text-left rtl:text-right hover:bg-[#ede1ce]/55 cursor-pointer"
               >
                 {t.nav.services}
               </button>
               <button
                 type="button"
                 onClick={() => navigateToCategoryRoute('umrah')}
-                className="py-2 text-left rtl:text-right cursor-pointer"
+                className="ggt-drawer-item ggt-tab-3d px-2.5 py-2 rounded-lg text-left rtl:text-right hover:bg-[#ede1ce]/55 cursor-pointer"
               >
                 {t.servicesSection.services['hajj-umrah'].label}
               </button>
               <button
                 type="button"
                 onClick={navigateToPlanner}
-                className="py-2 text-left rtl:text-right cursor-pointer"
+                className="ggt-drawer-item ggt-tab-3d px-2.5 py-2 rounded-lg text-left rtl:text-right hover:bg-[#ede1ce]/55 cursor-pointer"
               >
                 {t.nav.planner}
               </button>
@@ -598,7 +695,7 @@ export default function App() {
                   setMobileMenuOpen(false);
                   scrollToId('contact');
                 }}
-                className="py-2 text-left rtl:text-right cursor-pointer"
+                className="ggt-drawer-item ggt-tab-3d px-2.5 py-2 rounded-lg text-left rtl:text-right hover:bg-[#ede1ce]/55 cursor-pointer"
               >
                 {t.nav.contact}
               </button>
@@ -645,7 +742,7 @@ export default function App() {
                         <article
                           key={srvId}
                           id={`service-${srvId}`}
-                          className={`gsap-service-card-3d rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-all duration-300 hover:-translate-y-1 ${
+                          className={`gsap-service-card-3d rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-[border-color,box-shadow] duration-200 ${
                             isOmra
                               ? 'border-2 border-[#d1a847] shadow-[0_22px_50px_rgba(11,29,58,0.16)]'
                               : 'border border-[#d1a847]/45 shadow-[0_16px_40px_rgba(11,29,58,0.09)] hover:border-[#c59b38]'
@@ -709,13 +806,13 @@ export default function App() {
                             <button
                               type="button"
                               onClick={() => navigateToServiceRoute(srvId)}
-                              className="w-full inline-flex items-center justify-center text-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.12em] sm:tracking-[0.14em] transition-colors cursor-pointer"
+                              className="ggt-btn-3d-return w-full inline-flex items-center justify-center text-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.12em] sm:tracking-[0.14em] cursor-pointer"
                             >
                               <span className="sm:whitespace-nowrap">
                                 {chrome.openPageCta} · {srv.label}
                               </span>
                               <ArrowRight
-                                className={`w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
+                                className={`ggt-forward-arrow w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
                                   isRtl ? 'rotate-180' : ''
                                 }`}
                               />
@@ -736,11 +833,11 @@ export default function App() {
                           key={catId}
                           type="button"
                           onClick={() => navigateToCategoryRoute(catId)}
-                          className="gsap-service-card-3d group w-full rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 text-left rtl:text-right bg-[#fcf9f2] border border-[#d1a847]/45 shadow-[0_12px_30px_rgba(11,29,58,0.07)] hover:border-[#c59b38] transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
+                          className="gsap-service-card-3d ggt-btn-3d-return group w-full rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 text-left rtl:text-right bg-[#fcf9f2] border border-[#d1a847]/45 shadow-[0_12px_30px_rgba(11,29,58,0.07)] hover:border-[#c59b38] cursor-pointer"
                         >
                           <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
                             <span className="w-12 h-12 rounded-full bg-[#071429] border-2 border-[#d1a847] text-[#fceda2] flex items-center justify-center shrink-0 shadow-md">
-                              <Icon className="w-6 h-6" />
+                              <Icon className="ggt-tab-icon w-6 h-6" />
                             </span>
                             <div className="min-w-0">
                               <div className="text-[11px] uppercase tracking-[0.18em] text-[#9a7220] font-semibold">
@@ -754,7 +851,7 @@ export default function App() {
                           <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0b1d3a] group-hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-[11px] font-semibold uppercase tracking-[0.12em] shrink-0 whitespace-nowrap transition-colors">
                             <span>{chrome.openPageCta}</span>
                             <ArrowRight
-                              className={`w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
+                              className={`ggt-forward-arrow w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
                                 isRtl ? 'rotate-180' : ''
                               }`}
                             />
@@ -855,6 +952,48 @@ export default function App() {
             }
           />
 
+          {/* Dedicated Route for Golden Group Travels Official Grand Egypt Tour */}
+          <Route
+            path={GRAND_EGYPT_TOUR_ROUTE}
+            element={
+              <GrandEgyptTourDetailPage
+                lang={lang}
+                isRtl={isRtl}
+                whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                displayPhone={DISPLAY_PHONE}
+                onJumpToHomePlanner={navigateToPlanner}
+              />
+            }
+          />
+
+          {/* Dedicated Route for Golden Group Travels Egypt Transfers & Excursions */}
+          <Route
+            path={EGYPT_EXCURSIONS_ROUTE}
+            element={
+              <EgyptExcursionsDetailPage
+                lang={lang}
+                isRtl={isRtl}
+                whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                displayPhone={DISPLAY_PHONE}
+                onJumpToHomePlanner={navigateToPlanner}
+              />
+            }
+          />
+
+          {/* Dedicated Route for Golden Group Travels Official Turquie – Istanbul Holiday */}
+          <Route
+            path={ISTANBUL_HOLIDAY_ROUTE}
+            element={
+              <IstanbulHolidayDetailPage
+                lang={lang}
+                isRtl={isRtl}
+                whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                displayPhone={DISPLAY_PHONE}
+                onJumpToHomePlanner={navigateToPlanner}
+              />
+            }
+          />
+
           {/* Fallback Route -> Homepage */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -866,7 +1005,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setFloatingLangOpen(!floatingLangOpen)}
-            className="bg-[#0b1d3a] text-white border border-[#d1a847]/65 shadow-[0_8px_28px_rgba(11,29,58,0.34)] hover:border-[#fceda2] px-3 sm:px-3.5 py-2 rounded-lg flex items-center gap-2 text-xs sm:text-sm font-bold transition-all hover:scale-105 cursor-pointer"
+            className="ggt-btn-3d-return bg-[#0b1d3a] text-white border border-[#d1a847]/65 shadow-[0_8px_28px_rgba(11,29,58,0.34)] hover:border-[#fceda2] px-3 sm:px-3.5 py-2 rounded-lg flex items-center gap-2 text-xs sm:text-sm font-bold cursor-pointer"
             aria-label="Select Language"
           >
             <span className="text-base">{LANGUAGES.find((l) => l.code === lang)?.flag}</span>
@@ -874,25 +1013,28 @@ export default function App() {
               {LANGUAGES.find((l) => l.code === lang)?.label}
             </span>
             <ChevronUp
-              className={`w-3.5 h-3.5 text-[#d1a847] transition-transform ${
+              className={`w-3.5 h-3.5 text-[#d1a847] transition-transform duration-300 ${
                 floatingLangOpen ? 'rotate-180' : ''
               }`}
             />
           </button>
 
           {floatingLangOpen && (
-            <div className="absolute bottom-full mb-2 left-0 rtl:left-auto rtl:right-0 w-44 bg-[#fcf9f2] border border-[#d1a847]/60 rounded-xl shadow-[0_14px_35px_rgba(11,29,58,0.22)] p-1.5 space-y-1 z-50 text-[#0b1d3a]">
+            <div
+              ref={floatingLangMenuRef}
+              className="absolute bottom-full mb-2 left-0 rtl:left-auto rtl:right-0 w-44 bg-[#fcf9f2] border border-[#d1a847]/60 rounded-xl shadow-[0_14px_35px_rgba(11,29,58,0.22)] p-1.5 space-y-1 z-50 text-[#0b1d3a]"
+            >
               {LANGUAGES.map((item) => (
                 <button
                   key={item.code}
                   type="button"
                   onClick={() => {
-                    setLang(item.code);
+                    handleLanguageChange(item.code);
                     setFloatingLangOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                  className={`ggt-tab-3d w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer ${
                     lang === item.code
-                      ? 'bg-[#0b1d3a] text-[#fceda2] font-bold'
+                      ? 'bg-[#0b1d3a] text-[#fceda2] font-bold shadow-sm'
                       : 'text-[#0b1d3a] hover:bg-[#ede1ce]'
                   }`}
                 >

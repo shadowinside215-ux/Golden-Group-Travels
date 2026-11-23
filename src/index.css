@@ -316,5 +316,247 @@
   }
 }
 
+/* Promote 3D ScrollTrigger targets to GPU compositor layers cleanly */
+.gsap-service-card-3d,
+.ggt-scroll-heading,
+.ggt-scroll-divider,
+.ggt-route-card-3d,
+.ggt-route-divider,
+.ggt-umrah-card-3d,
+.ggt-umrah-reveal-left,
+.ggt-umrah-reveal-right,
+.ggt-cairo-sec-heading,
+.ggt-cairo-showcase-card,
+.ggt-cairo-heading-3d,
+.ggt-cairo-card-3d,
+.ggt-cairo-photo-reveal,
+.ggt-egypt-heading-3d,
+.ggt-egypt-divider,
+.ggt-egypt-card-3d,
+.ggt-egypt-stage-img,
+.ggt-footer-reveal {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gsap-service-card-3d,
+  .ggt-scroll-heading,
+  .ggt-scroll-divider,
+  .ggt-route-card-3d,
+  .ggt-route-divider,
+  .ggt-umrah-card-3d,
+  .ggt-umrah-reveal-left,
+  .ggt-umrah-reveal-right,
+  .ggt-cairo-sec-heading,
+  .ggt-cairo-showcase-card,
+  .ggt-cairo-heading-3d,
+  .ggt-cairo-card-3d,
+  .ggt-cairo-photo-reveal,
+  .ggt-egypt-heading-3d,
+  .ggt-egypt-divider,
+  .ggt-egypt-card-3d,
+  .ggt-egypt-stage-img,
+  .ggt-footer-reveal {
+    will-change: auto;
+  }
+}
+
+/* ==========================================================================
+   PREMIUM 3D TAB, NAV & SELECTOR INTERACTIONS (GPU-Composited & Reduced-Motion Safe)
+   ========================================================================== */
+
+/* Sliding Active Pill / Depth Indicator */
+.ggt-tab-indicator-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 0.65rem;
+  background: linear-gradient(135deg, #0b1d3a 0%, #132d56 100%);
+  border: 1px solid rgba(209, 168, 71, 0.85);
+  box-shadow:
+    0 10px 24px rgba(11, 29, 58, 0.24),
+    0 0 18px rgba(209, 168, 71, 0.22),
+    inset 0 1px 0 rgba(252, 237, 162, 0.22);
+  will-change: transform, width, height;
+}
+
+.ggt-tab-indicator-gold {
+  background: linear-gradient(135deg, #fceda2 0%, #d1a847 100%);
+  border: 1px solid rgba(252, 237, 162, 0.95);
+  box-shadow:
+    0 10px 24px rgba(209, 168, 71, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+/* Interactive Tab Button with 3D Lift, Gold Border Glow, Icon Glide & Gold Underline */
+.ggt-tab-3d {
+  position: relative;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.24s ease,
+    background-color 0.24s ease,
+    border-color 0.26s ease,
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.ggt-tab-3d::after {
+  content: '';
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 3px;
+  height: 1.5px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, #d1a847, transparent);
+  transform: scaleX(0);
+  transform-origin: center;
+  opacity: 0;
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.24s ease;
+  pointer-events: none;
+}
+
+.ggt-tab-3d .ggt-tab-icon {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s ease;
+}
+
+@media (hover: hover) {
+  .ggt-tab-3d:hover:not([data-tab-active='true']) {
+    transform: translate3d(0, -2px, 0);
+    box-shadow:
+      0 8px 20px rgba(11, 29, 58, 0.12),
+      0 0 0 1px rgba(209, 168, 71, 0.45);
+  }
+
+  .ggt-tab-3d:hover:not([data-tab-active='true'])::after {
+    transform: scaleX(1);
+    opacity: 0.9;
+  }
+
+  .ggt-tab-3d:hover .ggt-tab-icon {
+    transform: translateY(-1px) scale(1.1);
+  }
+}
+
+.ggt-tab-3d:active {
+  transform: translate3d(0, 0, 0) scale(0.968);
+}
+
+/* Return-to-Home & Premium Action Buttons with Directional Arrow Glide */
+.ggt-btn-3d-return {
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ggt-btn-3d-return .ggt-return-arrow,
+.ggt-btn-3d-return .ggt-forward-arrow {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .ggt-btn-3d-return:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow:
+      0 14px 30px rgba(7, 20, 41, 0.26),
+      0 0 0 1px rgba(252, 237, 162, 0.55),
+      0 0 22px rgba(209, 168, 71, 0.24);
+  }
+
+  .ggt-btn-3d-return:hover .ggt-return-arrow {
+    transform: translateX(-3px);
+  }
+
+  [dir='rtl'] .ggt-btn-3d-return:hover .ggt-return-arrow {
+    transform: translateX(3px) rotate(180deg);
+  }
+
+  .ggt-btn-3d-return:hover .ggt-forward-arrow {
+    transform: translateX(3px);
+  }
+
+  [dir='rtl'] .ggt-btn-3d-return:hover .ggt-forward-arrow {
+    transform: translateX(-3px) rotate(180deg);
+  }
+}
+
+.ggt-btn-3d-return:active {
+  transform: scale(0.972);
+}
+
+/* Interactive Hotel / Matrix / Tier Selector Cards */
+.ggt-card-3d-select {
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.24s ease,
+    background-color 0.24s ease,
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .ggt-card-3d-select:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow:
+      0 12px 26px rgba(11, 29, 58, 0.11),
+      0 0 0 1px rgba(209, 168, 71, 0.55);
+  }
+}
+
+.ggt-card-3d-select:active {
+  transform: scale(0.98);
+}
+
+/* Hero Medallion Brief Gold Activation Ring when Clicked */
+@keyframes heroMedallionActivate {
+  0% {
+    transform: scale(0.94);
+    box-shadow:
+      0 0 0 0 rgba(252, 237, 162, 0.78),
+      0 16px 38px rgba(209, 168, 71, 0.55);
+  }
+  55% {
+    transform: scale(1.11) translateY(-4px);
+    box-shadow:
+      0 0 0 10px rgba(209, 168, 71, 0),
+      0 22px 44px rgba(209, 168, 71, 0.65);
+  }
+  100% {
+    transform: scale(1.06) translateY(-2px);
+    box-shadow:
+      0 0 0 14px rgba(209, 168, 71, 0),
+      0 18px 36px rgba(209, 168, 71, 0.48);
+  }
+}
+
+.ggt-hero-medallion-activate {
+  animation: heroMedallionActivate 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ggt-tab-indicator-pill,
+  .ggt-tab-3d,
+  .ggt-tab-3d::after,
+  .ggt-tab-3d .ggt-tab-icon,
+  .ggt-btn-3d-return,
+  .ggt-btn-3d-return .ggt-return-arrow,
+  .ggt-btn-3d-return .ggt-forward-arrow,
+  .ggt-card-3d-select,
+  .ggt-hero-medallion-activate {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
 
 
