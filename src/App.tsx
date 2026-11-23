@@ -23,11 +23,17 @@ import { CairoTourDetailPage } from './components/CairoTourDetailPage';
 import { GrandEgyptTourDetailPage } from './components/GrandEgyptTourDetailPage';
 import { EgyptExcursionsDetailPage } from './components/EgyptExcursionsDetailPage';
 import { IstanbulHolidayDetailPage } from './components/IstanbulHolidayDetailPage';
+import { OmraChaabaneRamadanDetailPage } from './components/OmraChaabaneRamadanDetailPage';
+import { OmraRamadanDetailPage } from './components/OmraRamadanDetailPage';
+import { OmraChaabaneDetailPage } from './components/OmraChaabaneDetailPage';
 import { TravelPlannerMapSection } from './components/TravelPlannerMapSection';
 import { CAIRO_TOUR_ROUTE } from './data/cairoTourData';
 import { GRAND_EGYPT_TOUR_ROUTE } from './data/grandEgyptTourData';
 import { EGYPT_EXCURSIONS_ROUTE } from './data/egyptExcursionsData';
 import { ISTANBUL_HOLIDAY_ROUTE } from './data/istanbulHolidayData';
+import { OMRA_CHAABANE_RAMADAN_ROUTE } from './data/omraChaabaneRamadanData';
+import { OMRA_RAMADAN_ROUTE } from './data/omraRamadanData';
+import { OMRA_CHAABANE_ONLY_ROUTE } from './data/omraChaabaneData';
 import {
   SERVICE_CATEGORY_ROUTES,
   SERVICE_ID_ROUTES,
@@ -985,6 +991,48 @@ export default function App() {
             path={ISTANBUL_HOLIDAY_ROUTE}
             element={
               <IstanbulHolidayDetailPage
+                lang={lang}
+                isRtl={isRtl}
+                whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                displayPhone={DISPLAY_PHONE}
+                onJumpToHomePlanner={navigateToPlanner}
+              />
+            }
+          />
+
+          {/* Dedicated Route for Golden Group Travels Official Omra Chaâbane & Ramadan 2027 / 1448 */}
+          <Route
+            path={OMRA_CHAABANE_RAMADAN_ROUTE}
+            element={
+              <OmraChaabaneRamadanDetailPage
+                lang={lang}
+                isRtl={isRtl}
+                whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                displayPhone={DISPLAY_PHONE}
+                onJumpToHomePlanner={navigateToPlanner}
+              />
+            }
+          />
+
+          {/* Dedicated Route for Golden Group Travels Official Omra Ramadan 1448 / 2027 */}
+          <Route
+            path={OMRA_RAMADAN_ROUTE}
+            element={
+              <OmraRamadanDetailPage
+                lang={lang}
+                isRtl={isRtl}
+                whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                displayPhone={DISPLAY_PHONE}
+                onJumpToHomePlanner={navigateToPlanner}
+              />
+            }
+          />
+
+          {/* Dedicated Route for Golden Group Travels Official Omra Chaâbane 2026 / 1448 */}
+          <Route
+            path={OMRA_CHAABANE_ONLY_ROUTE}
+            element={
+              <OmraChaabaneDetailPage
                 lang={lang}
                 isRtl={isRtl}
                 whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
