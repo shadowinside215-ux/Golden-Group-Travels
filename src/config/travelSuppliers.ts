@@ -19,6 +19,44 @@ export const SEARCH_CATEGORY_ORDER: SearchCategoryId[] = [
   'car-transfers'
 ];
 
+export const SERVICE_CATEGORY_ROUTES: Record<SearchCategoryId, string> = {
+  flights: '/vols',
+  hotels: '/hotels',
+  umrah: '/hajj-omra',
+  holidays: '/sejours',
+  tours: '/circuits-activites',
+  'car-transfers': '/voitures-transferts'
+};
+
+export const SERVICE_ID_ROUTES: Record<ServiceId, string> = {
+  'flight-bookings': '/vols',
+  'hotel-reservations': '/hotels',
+  'hajj-umrah': '/hajj-omra',
+  'holiday-packages': '/sejours',
+  'visa-assistance': '/visa',
+  'travel-insurance': '/assurance'
+};
+
+export const SERVICE_ROUTE_TO_CATEGORY: Record<string, SearchCategoryId> = {
+  '/vols': 'flights',
+  '/hotels': 'hotels',
+  '/hajj-omra': 'umrah',
+  '/sejours': 'holidays',
+  '/circuits-activites': 'tours',
+  '/voitures-transferts': 'car-transfers'
+};
+
+export const SERVICE_ROUTE_TO_SERVICE_ID: Record<string, ServiceId> = {
+  '/vols': 'flight-bookings',
+  '/hotels': 'hotel-reservations',
+  '/hajj-omra': 'hajj-umrah',
+  '/sejours': 'holiday-packages',
+  '/circuits-activites': 'holiday-packages',
+  '/voitures-transferts': 'holiday-packages',
+  '/visa': 'visa-assistance',
+  '/assurance': 'travel-insurance'
+};
+
 export const SERVICE_SECTION_IDS: Record<SearchCategoryId, string> = {
   flights: 'section-flights',
   hotels: 'section-hotels',

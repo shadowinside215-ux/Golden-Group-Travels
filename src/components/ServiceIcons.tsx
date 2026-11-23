@@ -302,3 +302,19 @@ export const SERVICE_ICONS: Record<ServiceId, React.ComponentType<ServiceIconPro
   'travel-insurance': InsuranceServiceIcon,
   'holiday-packages': HolidayPackagesServiceIcon
 };
+
+/**
+ * Single shared source of truth for the 6 service icons used identically
+ * in the Hero (CinematicPlaneStage) and the Booking Sections (TravelSearchEngine).
+ */
+export const HERO_CATEGORY_ICONS: Record<
+  'flights' | 'hotels' | 'umrah' | 'holidays' | 'tours' | 'car-transfers',
+  React.ComponentType<ServiceIconProps>
+> = {
+  flights: FlightServiceIcon,
+  hotels: HotelServiceIcon,
+  umrah: HajjUmrahServiceIcon,
+  holidays: HolidayPackagesServiceIcon,
+  tours: ToursActivitiesServiceIcon,
+  'car-transfers': CarRentalServiceIcon
+};

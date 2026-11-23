@@ -1,10 +1,17 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { Check, ExternalLink, MapPin, ShieldCheck } from 'lucide-react';
+import { Check, ExternalLink, MapPin, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Language } from '../assets/destinations';
 import { SEARCH_ENGINE_PACKS } from '../assets/searchEngineData';
 import { EXPEDIA_WIDGET_COPY } from '../assets/servicePagesData';
 import { EXPEDIA_HOTELS_WIDGET_CONFIG } from '../config/travelSuppliers';
 import { ensureExpediaScript, ensureExpediaStylesheet } from '../utils/expediaLoader';
+
+const RETRY_LABEL: Record<Language, string> = {
+  fr: 'Réessayer le chargement',
+  ar: 'إعادة المحاولة',
+  en: 'Retry loading',
+  es: 'Reintentar carga'
+};
 
 declare global {
   interface Window {
@@ -41,6 +48,7 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = memo(({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [frameReady, setFrameReady] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
 
   const pageCopy = EXPEDIA_WIDGET_COPY[lang];
   const hotelsPack = SEARCH_ENGINE_PACKS[lang].hotels;
@@ -69,6 +77,20 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = memo(({
         instanceId = el.getAttribute('data-instance') || instanceId;
         if (instanceId) {
           window.eg.widgets.elements[instanceId] = el;
+        }
+        existingFrame.addEventListener(
+          'load',
+          () => {
+            if (!cancelled) {
+              setFrameReady(true);
+              setLoadFailed(false);
+            }
+          },
+          { once: true }
+        );
+        if (existingFrame.getBoundingClientRect().height > 120) {
+          setFrameReady(true);
+          setLoadFailed(false);
         }
         return;
       }
@@ -209,7 +231,7 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = memo(({
       }
       element.removeAttribute('data-instance');
     };
-  }, []);
+  }, [retryNonce]);
 
   const hotelTitleRef = useRef(pageCopy.hotels.iframeTitle);
   hotelTitleRef.current = pageCopy.hotels.iframeTitle;
@@ -221,11 +243,11 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = memo(({
   }, [pageCopy.hotels.iframeTitle]);
 
   const widgetContainer = (
-    <div className="relative rounded-xl bg-[#f5ede0]/70 border border-[#d1a847]/45 px-2 py-3 sm:p-6 shadow-inner overflow-x-clip widget-stability-shell">
-      <div className="relative w-full max-w-[575px] mx-auto flex flex-col justify-center min-h-[300px]">
+    <div className="relative rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/45 px-2.5 py-3 sm:p-6 overflow-x-clip widget-stability-shell">
+      <div className="relative w-full max-w-[600px] mx-auto flex flex-col justify-center min-h-[300px]">
         {!frameReady && !loadFailed && (
           <div className="pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center px-3">
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#fcf9f2]/95 border border-[#d1a847]/45 text-[11px] text-[#2c405e]/85 tracking-wide shadow-sm">
+            <span className="text-xs text-[#2c405e]/85 tracking-wide bg-[#fcf9f2]/95 px-3 py-1 rounded-md">
               {pageCopy.loadingLabel}
             </span>
           </div>
@@ -233,9 +255,17 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = memo(({
         {loadFailed && !frameReady && (
           <div
             role="status"
-            className="mb-3 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/60 p-3 text-center text-xs text-[#0b1d3a]"
+            className="mb-3 rounded-xl bg-[#f5ede0] border border-[#d1a847]/55 p-4 text-center space-y-2.5 text-xs text-[#0b1d3a]"
           >
-            {hotelsPack.widgetNote}
+            <p>{hotelsPack.widgetNote}</p>
+            <button
+              type="button"
+              onClick={() => setRetryNonce((n) => n + 1)}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
+              <span>{RETRY_LABEL[lang]}</span>
+            </button>
           </div>
         )}
         <div
@@ -255,52 +285,51 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = memo(({
   if (variant === 'hub') {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        <div className="lg:col-span-7 min-w-0">{widgetContainer}</div>
+        {/* Strictly Untransformed Primary Expedia Hotel Search Stage */}
+        <div className="lg:col-span-7 xl:col-span-8 min-w-0">{widgetContainer}</div>
 
-        <div className="lg:col-span-5 space-y-4">
-          <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
-            <span>{hotelsPack.badge}</span>
-          </div>
-
-          <h3 className="font-serif-crest text-xl sm:text-2xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
-            {hotelsPack.title}
-          </h3>
-
-          <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
-            {hotelsPack.subtitle}
-          </p>
-
-          <div className="p-4 rounded-xl bg-[#f5ede0]/80 border border-[#d1a847]/35 space-y-2.5">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#0b1d3a]">
-              {hotelsPack.includesLabel}
+        {/* Non-Widget Editorial Concierge & Search Guide Card (Safe for 3D Pop-Out Scroll Animation) */}
+        <div className="lg:col-span-5 xl:col-span-4 space-y-4">
+          <div className="ggt-panel-pop-card rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/50 p-5 sm:p-6 space-y-5 shadow-[0_18px_42px_rgba(4,12,28,0.28)]">
+            <div className="space-y-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d1a847]">
+                {hotelsPack.includesLabel}
+              </div>
+              <ul className="space-y-2.5">
+                {hotelsPack.includesItems.map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-200 leading-relaxed">
+                    <Check className="w-4 h-4 text-[#d1a847] shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="space-y-1.5">
-              {hotelsPack.includesItems.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-xs text-[#2c405e]">
-                  <Check className="w-3.5 h-3.5 text-[#c59b38] shrink-0 mt-0.5" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
 
-          <div className="p-3.5 rounded-xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/50 space-y-2">
-            <div className="text-xs font-semibold text-[#fceda2]">
-              {hotelsPack.agencyHotelTitle}
+            <div className="h-px bg-gradient-to-r from-transparent via-[#d1a847]/45 to-transparent" />
+
+            <div className="space-y-2.5">
+              <div className="text-xs font-semibold text-[#fceda2]">
+                {hotelsPack.agencyHotelTitle}
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {hotelsPack.agencyHotelDesc}
+              </p>
+              {onJumpToPlanner && (
+                <button
+                  type="button"
+                  onClick={onJumpToPlanner}
+                  className="mt-1 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer"
+                >
+                  <MapPin className="w-3.5 h-3.5 shrink-0" />
+                  <span>{hotelsPack.agencyHotelBtn}</span>
+                </button>
+              )}
             </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              {hotelsPack.agencyHotelDesc}
-            </p>
-            {onJumpToPlanner && (
-              <button
-                type="button"
-                onClick={onJumpToPlanner}
-                className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#fceda2] hover:underline cursor-pointer"
-              >
-                <MapPin className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
-                <span>{hotelsPack.agencyHotelBtn}</span>
-              </button>
-            )}
+
+            <div className="flex items-start gap-2 text-[11px] text-slate-400 pt-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#d1a847] shrink-0 mt-0.5" />
+              <span>{hotelsPack.widgetNote}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -314,8 +343,8 @@ export const ExpediaSearchWidget: React.FC<ExpediaSearchWidgetProps> = memo(({
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-10 items-center">
         <div className="lg:col-span-5 space-y-4">
-          <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-            <span>{hotelsPack.badge}</span>
+          <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
+            {hotelsPack.badge}
           </div>
 
           <h2

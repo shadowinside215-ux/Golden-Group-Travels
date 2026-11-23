@@ -12,6 +12,7 @@ import {
   useMapsLibrary
 } from '@vis.gl/react-google-maps';
 import {
+  AlertCircle,
   Building2,
   Calendar,
   Clock,
@@ -219,6 +220,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
   const [guestIdx, setGuestIdx] = useState(1);
   const [preferences, setPreferences] = useState('');
   const [itineraryBuilt, setItineraryBuilt] = useState(false);
+  const [formErrors, setFormErrors] = useState<string[]>([]);
 
   // Maps Search & Autocomplete State
   const [citySuggestions, setCitySuggestions] = useState<google.maps.places.AutocompleteSuggestion[]>([]);
@@ -571,7 +573,44 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
   const handleBuildItinerary = (e: React.FormEvent) => {
     e.preventDefault();
-    setItineraryBuilt(true);
+    const errs: string[] = [];
+    const hasLocationOrServiceInfo = Boolean(
+      destinationLocation.trim() ||
+        hotelName.trim() ||
+        visaPurpose.trim() ||
+        visaCenter.trim() ||
+        departureCity.trim() ||
+        selectedMapPlace
+    );
+
+    if (!hasLocationOrServiceInfo) {
+      errs.push(
+        lang === 'fr'
+          ? 'Veuillez indiquer au moins une destination, un hôtel ou une précision de voyage.'
+          : lang === 'ar'
+          ? 'يرجى إدخال وجهة أو اسم فندق أو تفاصيل الرحلة المطلوبة.'
+          : lang === 'es'
+          ? 'Introduce al menos un destino, hotel o detalle del viaje.'
+          : 'Please enter at least a destination, hotel, or trip detail.'
+      );
+    }
+
+    if (departureDate && returnDate && returnDate < departureDate) {
+      errs.push(
+        lang === 'fr'
+          ? 'La date de retour doit être postérieure ou égale à la date de départ.'
+          : lang === 'ar'
+          ? 'يجب أن يكون تاريخ العودة بعد تاريخ الذهاب أو في نفس اليوم.'
+          : lang === 'es'
+          ? 'La fecha de regreso debe ser igual o posterior a la fecha de salida.'
+          : 'Return date must be on or after the departure date.'
+      );
+    }
+
+    setFormErrors(errs);
+    if (errs.length === 0) {
+      setItineraryBuilt(true);
+    }
   };
 
   const mapHealthy =
@@ -581,18 +620,20 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
 
   return (
     <section id="planner" className="py-14 sm:py-20 md:py-28 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12 reveal-init">
-        <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
-          {t.plannerSection.eyebrow}
-        </p>
-        <h2 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0b1d3a]">
-          {t.plannerSection.title}
-        </h2>
-        <p className="mt-4 text-sm sm:text-base text-[#2c405e]">{t.plannerSection.subtitle}</p>
+      <div className="perspective-1200">
+        <div className="ggt-scroll-heading text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+          <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
+            {t.plannerSection.eyebrow}
+          </p>
+          <h2 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0b1d3a]">
+            {t.plannerSection.title}
+          </h2>
+          <p className="mt-4 text-sm sm:text-base text-[#2c405e]">{t.plannerSection.subtitle}</p>
+        </div>
       </div>
 
       {/* Main Dynamic Service-Aware Form + Google Maps Connected Layout */}
-      <div className="bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-4 sm:p-8 lg:p-10 shadow-[0_22px_54px_rgba(11,29,58,0.1)] reveal-init">
+      <div className="bg-[#fcf9f2] border border-[#d1a847]/45 rounded-2xl p-4 sm:p-8 lg:p-10 shadow-[0_22px_54px_rgba(11,29,58,0.1)]">
         {/* Service Selector Row (6 Official Services Matching User Banner Icons) */}
         <div className="mb-7 sm:mb-8">
           <label className="block text-xs font-semibold uppercase tracking-[0.18em] text-[#0b1d3a] mb-3">
@@ -743,6 +784,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                       <input
                         id="visa-purpose-input"
                         type="text"
+                        maxLength={120}
                         value={visaPurpose}
                         onChange={(e) => setVisaPurpose(e.target.value)}
                         placeholder={t.plannerSection.visaPurposePlaceholder}
@@ -762,6 +804,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                         <input
                           id="visa-center-input"
                           type="text"
+                          maxLength={140}
                           value={visaCenter}
                           onFocus={() => setShowVisaDropdown(true)}
                           onBlur={() => window.setTimeout(() => setShowVisaDropdown(false), 180)}
@@ -826,6 +869,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                       <input
                         id="hotel-name-input"
                         type="text"
+                        maxLength={140}
                         value={hotelName}
                         onFocus={() => setShowHotelDropdown(true)}
                         onBlur={() => window.setTimeout(() => setShowHotelDropdown(false), 180)}
@@ -883,6 +927,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     <input
                       id="departure-city-input"
                       type="text"
+                      maxLength={120}
                       value={departureCity}
                       onChange={(e) => setDepartureCity(e.target.value)}
                       placeholder={t.plannerSection.departureCityPlaceholder}
@@ -904,6 +949,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     <input
                       id="horizon-destination-input"
                       type="text"
+                      maxLength={140}
                       value={destinationLocation}
                       onFocus={() => setShowCityDropdown(true)}
                       onBlur={() => window.setTimeout(() => setShowCityDropdown(false), 180)}
@@ -1104,6 +1150,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     <input
                       id="traveler-name"
                       type="text"
+                      maxLength={120}
                       value={travelerName}
                       onChange={(e) => setTravelerName(e.target.value)}
                       placeholder={t.plannerSection.namePlaceholder}
@@ -1120,6 +1167,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     <input
                       id="traveler-phone"
                       type="tel"
+                      maxLength={40}
                       value={travelerPhone}
                       onChange={(e) => setTravelerPhone(e.target.value)}
                       placeholder={displayPhone}
@@ -1139,12 +1187,27 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                   <textarea
                     id="travel-notes"
                     rows={2}
+                    maxLength={600}
                     value={preferences}
                     onChange={(e) => setPreferences(e.target.value)}
                     placeholder={t.plannerSection.notesPlaceholder}
                     className="w-full bg-[#f8f2e7] border border-[#d1a847]/45 rounded-lg p-3 text-sm text-[#0b1d3a] placeholder:text-[#2c405e]/60 focus:outline-none focus:border-[#0b1d3a]"
                   />
                 </div>
+
+                {formErrors.length > 0 && (
+                  <div
+                    role="alert"
+                    className="rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-xs text-amber-950 space-y-1"
+                  >
+                    {formErrors.map((err, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                        <span>{err}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <button
                   type="submit"

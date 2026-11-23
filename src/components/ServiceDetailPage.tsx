@@ -92,9 +92,9 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
           <button
             type="button"
             onClick={() => onSelectPage('home')}
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#0b1d3a] hover:text-[#9a7220] transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
-            <ArrowLeft className={`w-4 h-4 text-[#c59b38] ${isRtl ? 'rotate-180' : ''}`} />
+            <ArrowLeft className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
             <span>{chrome.backToHome}</span>
           </button>
 
@@ -402,6 +402,17 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
         displayPhone={displayPhone}
         agencyMapsUrl={agencyMapsUrl}
       />
+
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 flex justify-start">
+        <button
+          type="button"
+          onClick={() => onSelectPage('home')}
+          className="inline-flex items-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors cursor-pointer"
+        >
+          <ArrowLeft className={`w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`} />
+          <span>{chrome.backToHome}</span>
+        </button>
+      </div>
     </div>
   );
 };

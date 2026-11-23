@@ -16,7 +16,7 @@ export default defineConfig(({ command, mode }) => {
     '';
 
   return {
-    base: command === 'build' ? './' : '/',
+    base: '/',
     plugins: [react(), tailwindcss()],
     define: {
       'import.meta.env.VITE_GOOGLE_MAPS_API_KEY': JSON.stringify(mapsApiKey),

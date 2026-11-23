@@ -1,11 +1,20 @@
-import React, { memo, useEffect, useId, useMemo, useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import React, { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Language } from '../assets/destinations';
+
+const RETRY_LABEL: Record<Language, string> = {
+  fr: 'Réessayer',
+  ar: 'إعادة المحاولة',
+  en: 'Retry',
+  es: 'Reintentar'
+};
 
 interface IsolatedWidgetFrameProps {
   scriptSrc: string;
   title: string;
   loadingLabel: string;
   errorLabel: string;
+  lang?: Language;
   minHeight?: number;
   containerClassName?: string;
 }
@@ -13,7 +22,7 @@ interface IsolatedWidgetFrameProps {
 /**
  * Hosts a third-party widget <script> inside a dedicated isolated document (iframe srcDoc).
  * Memoized + srcDoc memoized on [frameId, scriptSrc] so language changes or parent state updates
- * never reload the frame. Uses non-shifting overlaid loading badge.
+ * never reload the frame. Uses non-shifting overlaid loading status and strict postMessage source verification.
  */
 export const IsolatedWidgetFrame: React.FC<IsolatedWidgetFrameProps> = memo(
   ({
@@ -21,13 +30,16 @@ export const IsolatedWidgetFrame: React.FC<IsolatedWidgetFrameProps> = memo(
     title,
     loadingLabel,
     errorLabel,
+    lang = 'fr',
     minHeight = 320,
     containerClassName = 'w-full'
   }) => {
     const frameId = useId();
+    const iframeRef = useRef<HTMLIFrameElement | null>(null);
     const [height, setHeight] = useState<number>(minHeight);
     const [ready, setReady] = useState(false);
     const [failed, setFailed] = useState(false);
+    const [retryNonce, setRetryNonce] = useState(0);
 
     const srcDoc = useMemo(() => {
       const safeId = JSON.stringify(frameId);
@@ -153,13 +165,19 @@ export const IsolatedWidgetFrame: React.FC<IsolatedWidgetFrameProps> = memo(
       setHeight(minHeight);
 
       const onMessage = (event: MessageEvent) => {
+        if (!iframeRef.current || event.source !== iframeRef.current.contentWindow) return;
+
         const data = event.data as
           | { type?: string; id?: string; height?: number }
           | undefined;
         if (!data || data.id !== frameId) return;
 
-        if (data.type === 'ggt-isolated-height' && typeof data.height === 'number') {
-          const clamped = Math.max(minHeight, Math.ceil(data.height) + 12);
+        if (
+          data.type === 'ggt-isolated-height' &&
+          typeof data.height === 'number' &&
+          Number.isFinite(data.height)
+        ) {
+          const clamped = Math.min(3200, Math.max(minHeight, Math.ceil(data.height) + 12));
           setHeight(clamped);
           setReady(true);
           setFailed(false);
@@ -182,7 +200,7 @@ export const IsolatedWidgetFrame: React.FC<IsolatedWidgetFrameProps> = memo(
         window.removeEventListener('message', onMessage);
         window.clearTimeout(timeoutId);
       };
-    }, [frameId, minHeight, scriptSrc]);
+    }, [frameId, minHeight, scriptSrc, retryNonce]);
 
     return (
       <div className={`relative overflow-x-clip widget-stability-shell ${containerClassName}`}>
@@ -191,7 +209,7 @@ export const IsolatedWidgetFrame: React.FC<IsolatedWidgetFrameProps> = memo(
             aria-live="polite"
             className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center px-3"
           >
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#fcf9f2]/95 border border-[#d1a847]/45 text-[11px] text-[#2c405e]/85 tracking-wide shadow-sm">
+            <span className="text-xs text-[#2c405e]/85 tracking-wide bg-[#fcf9f2]/95 px-3 py-1 rounded-md">
               {loadingLabel}
             </span>
           </div>
@@ -200,14 +218,26 @@ export const IsolatedWidgetFrame: React.FC<IsolatedWidgetFrameProps> = memo(
         {failed && !ready && (
           <div
             role="status"
-            className="rounded-xl bg-[#fcf9f2] border border-[#d1a847]/60 p-4 mb-3 text-center text-xs text-[#0b1d3a] flex items-center justify-center gap-2"
+            className="rounded-xl bg-[#f5ede0] border border-[#d1a847]/55 p-4 mb-3 text-center text-xs text-[#0b1d3a] flex flex-col sm:flex-row items-center justify-center gap-2.5"
           >
-            <AlertCircle className="w-4 h-4 text-[#9a7220] shrink-0" />
-            <span>{errorLabel}</span>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-[#9a7220] shrink-0" />
+              <span>{errorLabel}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRetryNonce((n) => n + 1)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0"
+            >
+              <RefreshCw className="w-3 h-3 text-[#d1a847]" />
+              <span>{RETRY_LABEL[lang]}</span>
+            </button>
           </div>
         )}
 
         <iframe
+          key={`${frameId}-${retryNonce}`}
+          ref={iframeRef}
           title={title}
           srcDoc={srcDoc}
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"

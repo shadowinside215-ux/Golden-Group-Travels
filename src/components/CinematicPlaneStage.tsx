@@ -10,26 +10,7 @@ import { Language, WORLD_CITY_SLIDES } from '../assets/destinations';
 import { SEARCH_ENGINE_PACKS } from '../assets/searchEngineData';
 import { SEARCH_CATEGORY_ORDER, SearchCategoryId } from '../config/travelSuppliers';
 import { translations } from '../i18n';
-import {
-  CarRentalServiceIcon,
-  FlightServiceIcon,
-  HajjUmrahServiceIcon,
-  HolidayPackagesServiceIcon,
-  HotelServiceIcon,
-  ToursActivitiesServiceIcon
-} from './ServiceIcons';
-
-const HERO_CATEGORY_ICONS: Record<
-  SearchCategoryId,
-  React.ComponentType<{ className?: string }>
-> = {
-  flights: FlightServiceIcon,
-  hotels: HotelServiceIcon,
-  umrah: HajjUmrahServiceIcon,
-  holidays: HolidayPackagesServiceIcon,
-  tours: ToursActivitiesServiceIcon,
-  'car-transfers': CarRentalServiceIcon
-};
+import { HERO_CATEGORY_ICONS } from './ServiceIcons';
 
 function detectSoftwareGl(): boolean {
   try {
@@ -49,7 +30,7 @@ function detectSoftwareGl(): boolean {
 interface CinematicPlaneStageProps {
   lang: Language;
   readyToAnimate?: boolean;
-  activeCategory: SearchCategoryId;
+  activeCategory: SearchCategoryId | null;
   onSelectCategory: (category: SearchCategoryId) => void;
   onExploreBelow: () => void;
 }
@@ -599,7 +580,7 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
             aria-label="Golden Group Travels"
           >
             <img
-              src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+              src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
               alt="Golden Group - Travel Services & Events"
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain"

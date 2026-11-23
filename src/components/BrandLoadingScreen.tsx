@@ -91,7 +91,7 @@ export const BrandLoadingScreen: React.FC<BrandLoadingScreenProps> = ({
         {/* Large 1:1 Square Golden Group Crest */}
         <div className="animate-splash-crest relative w-[min(64vw,260px)] sm:w-[min(44vw,320px)] md:w-[360px] aspect-square rounded-3xl border-2 border-[#d1a847]/75 bg-[#041533] shadow-[0_28px_80px_rgba(0,0,0,0.68)] overflow-hidden p-1.5 sm:p-2">
           <img
-            src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+            src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
             alt="Golden Group - Travel Services & Events"
             referrerPolicy="no-referrer"
             className="w-full h-full object-contain rounded-2xl"

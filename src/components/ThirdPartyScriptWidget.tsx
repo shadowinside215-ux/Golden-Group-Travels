@@ -1,5 +1,13 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Language } from '../assets/destinations';
+
+const RETRY_LABEL: Record<Language, string> = {
+  fr: 'Réessayer',
+  ar: 'إعادة المحاولة',
+  en: 'Retry',
+  es: 'Reintentar'
+};
 
 declare global {
   interface Window {
@@ -14,6 +22,7 @@ interface ThirdPartyScriptWidgetProps {
   title: string;
   loadingLabel: string;
   errorLabel: string;
+  lang?: Language;
   minHeightClass?: string;
   containerClassName?: string;
   hostClassName?: string;
@@ -21,8 +30,8 @@ interface ThirdPartyScriptWidgetProps {
 
 /**
  * Safely mounts a third-party affiliate <script> inside a dedicated React ref container.
- * - Uses React.memo + [scriptSrc]-only effect so language switches or parent state never reload widgets
- * - Uses non-flow-shifting loading overlay & stable height floors (including GetRentacar postMessage height sync)
+ * - Uses React.memo + [scriptSrc, retryNonce]-only effect so language switches or scroll animations never reload widgets
+ * - Uses non-flow-shifting loading overlay & stable height floors (including verified GetRentacar postMessage height sync)
  * - Uses overflow-x-clip (never overflow-x-hidden/auto which force accidental overflow-y: auto scroll traps)
  * - Cleans up injected Localrent teleports on unmount
  */
@@ -32,6 +41,7 @@ export const ThirdPartyScriptWidget: React.FC<ThirdPartyScriptWidgetProps> = mem
     title,
     loadingLabel,
     errorLabel,
+    lang = 'fr',
     minHeightClass = 'min-h-[240px]',
     containerClassName = 'w-full',
     hostClassName = 'w-full min-w-0'
@@ -40,6 +50,7 @@ export const ThirdPartyScriptWidget: React.FC<ThirdPartyScriptWidgetProps> = mem
     const [loaded, setLoaded] = useState(false);
     const [failed, setFailed] = useState(false);
     const [managedHeightPx, setManagedHeightPx] = useState<number | null>(null);
+    const [retryNonce, setRetryNonce] = useState(0);
 
     useEffect(() => {
       const container = hostRef.current;
@@ -86,7 +97,6 @@ export const ThirdPartyScriptWidget: React.FC<ThirdPartyScriptWidgetProps> = mem
       };
 
       // Sync official GetRentacar widget iframe height from its embedded resize postMessage
-      // (fixes excess 560px blank space & avoids cropping open datepicker/autocomplete dropdowns)
       const handlePartnerMessage = (event: MessageEvent) => {
         if (cancelled) return;
         if (event.origin !== 'https://getrentacar.com') return;
@@ -95,11 +105,12 @@ export const ThirdPartyScriptWidget: React.FC<ThirdPartyScriptWidgetProps> = mem
           data &&
           data.source === 'getrenacar' &&
           typeof data.height === 'number' &&
+          Number.isFinite(data.height) &&
           data.height > 80
         ) {
           const grcFrame = container.querySelector<HTMLIFrameElement>('#getrentacar_iframe');
-          if (grcFrame) {
-            const nextH = Math.max(260, Math.ceil(data.height));
+          if (grcFrame && event.source === grcFrame.contentWindow) {
+            const nextH = Math.min(2800, Math.max(260, Math.ceil(data.height)));
             grcFrame.style.minHeight = '0';
             grcFrame.style.height = `${nextH}px`;
             setManagedHeightPx(nextH);
@@ -173,7 +184,7 @@ export const ThirdPartyScriptWidget: React.FC<ThirdPartyScriptWidgetProps> = mem
             .forEach((node) => node.remove());
         }
       };
-    }, [scriptSrc]);
+    }, [scriptSrc, retryNonce]);
 
     return (
       <div className={`relative overflow-x-clip widget-stability-shell ${containerClassName}`}>
@@ -182,7 +193,7 @@ export const ThirdPartyScriptWidget: React.FC<ThirdPartyScriptWidgetProps> = mem
             aria-live="polite"
             className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center px-3"
           >
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#fcf9f2]/95 border border-[#d1a847]/45 text-[11px] text-[#2c405e]/85 tracking-wide shadow-sm">
+            <span className="text-xs text-[#2c405e]/85 tracking-wide bg-[#fcf9f2]/95 px-3 py-1 rounded-md">
               {loadingLabel}
             </span>
           </div>
@@ -191,10 +202,20 @@ export const ThirdPartyScriptWidget: React.FC<ThirdPartyScriptWidgetProps> = mem
         {failed && !loaded && (
           <div
             role="status"
-            className="rounded-xl bg-[#fcf9f2] border border-[#d1a847]/60 p-4 mb-3 text-center text-xs text-[#0b1d3a] flex items-center justify-center gap-2"
+            className="rounded-xl bg-[#f5ede0] border border-[#d1a847]/55 p-4 mb-3 text-center text-xs text-[#0b1d3a] flex flex-col sm:flex-row items-center justify-center gap-2.5"
           >
-            <AlertCircle className="w-4 h-4 text-[#9a7220] shrink-0" />
-            <span>{errorLabel}</span>
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-[#9a7220] shrink-0" />
+              <span>{errorLabel}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRetryNonce((n) => n + 1)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer shrink-0"
+            >
+              <RefreshCw className="w-3 h-3 text-[#d1a847]" />
+              <span>{RETRY_LABEL[lang]}</span>
+            </button>
           </div>
         )}
 

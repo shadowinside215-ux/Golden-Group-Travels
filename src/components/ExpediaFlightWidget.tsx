@@ -1,10 +1,17 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { MapPin, ShieldCheck } from 'lucide-react';
+import { MapPin, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Language } from '../assets/destinations';
 import { SEARCH_ENGINE_PACKS } from '../assets/searchEngineData';
 import { EXPEDIA_WIDGET_COPY } from '../assets/servicePagesData';
 import { EXPEDIA_FLIGHTS_WIDGET_CONFIG } from '../config/travelSuppliers';
 import { ensureExpediaScript, ensureExpediaStylesheet } from '../utils/expediaLoader';
+
+const RETRY_LABEL: Record<Language, string> = {
+  fr: 'Réessayer le chargement',
+  ar: 'إعادة المحاولة',
+  en: 'Retry loading',
+  es: 'Reintentar carga'
+};
 
 interface ExpediaFlightWidgetProps {
   lang: Language;
@@ -12,6 +19,7 @@ interface ExpediaFlightWidgetProps {
   whatsappInternational: string;
   displayPhone: string;
   compact?: boolean;
+  embedClean?: boolean;
 }
 
 function isCleanEmpty(value: string | null): boolean {
@@ -28,11 +36,13 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = memo(({
   onJumpToPlanner,
   whatsappInternational,
   displayPhone,
-  compact = false
+  compact = false,
+  embedClean = false
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [frameReady, setFrameReady] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
 
   const flightsPack = SEARCH_ENGINE_PACKS[lang].flights;
   const expediaCopy = EXPEDIA_WIDGET_COPY[lang];
@@ -61,6 +71,20 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = memo(({
         instanceId = el.getAttribute('data-instance') || instanceId;
         if (instanceId) {
           window.eg.widgets.elements[instanceId] = el;
+        }
+        existingFrame.addEventListener(
+          'load',
+          () => {
+            if (!cancelled) {
+              setFrameReady(true);
+              setLoadFailed(false);
+            }
+          },
+          { once: true }
+        );
+        if (existingFrame.getBoundingClientRect().height > 120) {
+          setFrameReady(true);
+          setLoadFailed(false);
         }
         return;
       }
@@ -201,7 +225,7 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = memo(({
       }
       element.removeAttribute('data-instance');
     };
-  }, []);
+  }, [retryNonce]);
 
   const titleRef = useRef(expediaCopy.flights.iframeTitle);
   titleRef.current = expediaCopy.flights.iframeTitle;
@@ -219,32 +243,34 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = memo(({
   };
 
   return (
-    <div className={compact ? 'space-y-3.5' : 'space-y-5'}>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="space-y-1 max-w-2xl">
-          <div className="text-[11px] uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
-            {flightsPack.expediaBadge}
+    <div className={compact || embedClean ? 'space-y-3.5' : 'space-y-5'}>
+      {!embedClean && (
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="space-y-1 max-w-2xl">
+            <div className="text-[11px] uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
+              {flightsPack.expediaBadge}
+            </div>
+            {!compact && (
+              <h3 className="font-serif-crest text-xl sm:text-2xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
+                {flightsPack.expediaTitle}
+              </h3>
+            )}
+            <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
+              {flightsPack.expediaSubtitle}
+            </p>
           </div>
-          {!compact && (
-            <h3 className="font-serif-crest text-xl sm:text-2xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
-              {flightsPack.expediaTitle}
-            </h3>
-          )}
-          <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
-            {flightsPack.expediaSubtitle}
-          </p>
-        </div>
 
-        <div className="inline-flex items-center gap-2 text-[11px] text-[#2c405e] bg-[#f5ede0]/90 border border-[#d1a847]/45 rounded-xl px-3 py-1.5 shrink-0">
-          <ShieldCheck className="w-4 h-4 text-[#c59b38] shrink-0" />
-          <span className="max-w-xs">{flightsPack.expediaNote}</span>
+          <div className="inline-flex items-center gap-2 text-[11px] text-[#2c405e] shrink-0">
+            <ShieldCheck className="w-4 h-4 text-[#c59b38] shrink-0" />
+            <span className="max-w-xs">{flightsPack.expediaNote}</span>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Official Expedia Flights-Only Widget Host (data-lobs="flights") */}
+      {/* Official Expedia Flights-Only Widget Host (data-lobs="flights", Strictly Untransformed & Stable) */}
       <div
-        className={`relative rounded-2xl bg-[#f5ede0]/75 border border-[#d1a847]/50 shadow-inner overflow-x-clip widget-stability-shell ${
-          compact ? 'px-2 py-2.5 sm:p-4' : 'p-2 sm:p-5 lg:p-6'
+        className={`relative rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/45 overflow-x-clip widget-stability-shell ${
+          compact ? 'px-2 py-2.5 sm:p-4' : 'p-2.5 sm:p-5 lg:p-6'
         }`}
       >
         <div
@@ -254,7 +280,7 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = memo(({
         >
           {!frameReady && !loadFailed && (
             <div className="pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center px-3">
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#fcf9f2]/95 border border-[#d1a847]/45 text-[11px] text-[#2c405e]/85 tracking-wide shadow-sm">
+              <span className="text-xs text-[#2c405e]/85 tracking-wide bg-[#fcf9f2]/95 px-3 py-1 rounded-md">
                 {expediaCopy.loadingLabel}
               </span>
             </div>
@@ -262,9 +288,17 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = memo(({
           {loadFailed && !frameReady && (
             <div
               role="status"
-              className="mb-3 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/60 p-3 text-center text-xs text-[#0b1d3a]"
+              className="mb-3 rounded-xl bg-[#f5ede0] border border-[#d1a847]/55 p-4 text-center space-y-2.5 text-xs text-[#0b1d3a]"
             >
-              {flightsPack.expediaNote}
+              <p>{flightsPack.expediaNote}</p>
+              <button
+                type="button"
+                onClick={() => setRetryNonce((n) => n + 1)}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
+                <span>{RETRY_LABEL[lang]}</span>
+              </button>
             </div>
           )}
           <div
@@ -280,37 +314,38 @@ export const ExpediaFlightWidget: React.FC<ExpediaFlightWidgetProps> = memo(({
         </div>
       </div>
 
-      {/* Agency Concierge Complementary Assistance Bar */}
-      <div className="rounded-xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/55 px-3.5 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        <div className="text-xs text-slate-200 leading-relaxed">
-          <span className="font-semibold text-[#fceda2]">{flightsPack.conciergeTitle}</span>{' '}
-          <span className="text-slate-300">{flightsPack.conciergeDesc}</span>
-        </div>
+      {!embedClean && (
+        <div className="rounded-xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/55 px-3.5 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="text-xs text-slate-200 leading-relaxed">
+            <span className="font-semibold text-[#fceda2]">{flightsPack.conciergeTitle}</span>{' '}
+            <span className="text-slate-300">{flightsPack.conciergeDesc}</span>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <a
-            href={buildDirectFlightQuoteUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors sm:whitespace-nowrap"
-          >
-            <span>
-              {flightsPack.agencyFlightQuoteBtn} ({displayPhone})
-            </span>
-          </a>
-
-          {onJumpToPlanner && (
-            <button
-              type="button"
-              onClick={onJumpToPlanner}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#071429] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap"
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <a
+              href={buildDirectFlightQuoteUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors sm:whitespace-nowrap"
             >
-              <MapPin className="w-3.5 h-3.5 text-[#d1a847]" />
-              <span>Google Maps</span>
-            </button>
-          )}
+              <span>
+                {flightsPack.agencyFlightQuoteBtn} ({displayPhone})
+              </span>
+            </a>
+
+            {onJumpToPlanner && (
+              <button
+                type="button"
+                onClick={onJumpToPlanner}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#071429] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <MapPin className="w-3.5 h-3.5 text-[#d1a847]" />
+                <span>Google Maps</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 });

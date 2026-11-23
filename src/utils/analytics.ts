@@ -1,7 +1,20 @@
 import type { ServiceId } from '../assets/destinations';
 
 export const GA4_MEASUREMENT_ID = 'G-453M4XZZCQ';
-export const GOOGLE_TAG_ID = 'GTM-NLJ83W9F';
+
+export type TrackablePage =
+  | 'home'
+  | ServiceId
+  | '/vols'
+  | '/hotels'
+  | '/hajj-omra'
+  | '/sejours'
+  | '/circuits-activites'
+  | '/circuits-activites/le-pouls-charmant-du-caire'
+  | '/voitures-transferts'
+  | '/visa'
+  | '/assurance'
+  | string;
 
 export type ServiceSelectionEventName =
   | 'flights_selected'
@@ -21,53 +34,41 @@ declare global {
   }
 }
 
-const CONSENT_STORAGE_KEY = 'ggt_analytics_consent';
-
 const SERVICE_CANONICAL_TITLES: Record<ServiceId, string> = {
-  'flight-bookings': 'Flight Bookings | Golden Group Travels',
-  'hotel-reservations': 'Hotel Reservations | Golden Group Travels',
+  'flight-bookings': 'Vols & Billetterie | Golden Group Travels',
+  'hotel-reservations': 'Hôtels | Golden Group Travels',
   'hajj-umrah': 'Hajj & Omra | Golden Group Travels',
-  'holiday-packages': 'Holiday Packages | Golden Group Travels',
-  'visa-assistance': 'Tours & Visa Assistance | Golden Group Travels',
-  'travel-insurance': 'Travel Insurance | Golden Group Travels'
+  'holiday-packages': 'Séjours Sur Mesure | Golden Group Travels',
+  'visa-assistance': 'Accompagnement Visa | Golden Group Travels',
+  'travel-insurance': 'Assurance Voyage | Golden Group Travels'
+};
+
+const ROUTE_CANONICAL_TITLES: Record<string, string> = {
+  '/': 'Golden Group Travels | Your Next Journey Starts Here',
+  '/vols': 'Vols & Billetterie | Golden Group Travels',
+  '/hotels': 'Hôtels | Golden Group Travels',
+  '/hajj-omra': 'Hajj & Omra | Golden Group Travels',
+  '/sejours': 'Séjours Sur Mesure | Golden Group Travels',
+  '/circuits-activites': 'Circuits & Activités | Golden Group Travels',
+  '/circuits-activites/le-pouls-charmant-du-caire':
+    'Le Pouls Charmant du Caire — Circuits Organisés | Golden Group Travels',
+  '/voitures-transferts': 'Voitures & Transferts Aéroport | Golden Group Travels',
+  '/visa': 'Accompagnement Visa | Golden Group Travels',
+  '/assurance': 'Assurance Voyage | Golden Group Travels'
 };
 
 let lastSelectionEventName: ServiceSelectionEventName | null = null;
 let lastSelectionTimestamp = 0;
 
 export function hasPrivacyOptOut(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return true;
   const gpc =
     (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true;
   const dnt = navigator.doNotTrack === '1' || window.doNotTrack === '1';
-  let storedDenied = false;
-  try {
-    storedDenied = window.localStorage.getItem(CONSENT_STORAGE_KEY) === 'denied';
-  } catch {
-    storedDenied = false;
-  }
-  return gpc || dnt || storedDenied || window['ga-disable-G-453M4XZZCQ'] === true;
+  return gpc || dnt || window['ga-disable-G-453M4XZZCQ'] === true;
 }
 
-export function updateAnalyticsConsent(granted: boolean): void {
-  if (typeof window === 'undefined') return;
-  window['ga-disable-G-453M4XZZCQ'] = !granted;
-  try {
-    window.localStorage.setItem(CONSENT_STORAGE_KEY, granted ? 'granted' : 'denied');
-  } catch {
-    // Ignore storage errors in restricted browsing modes
-  }
-  if (typeof window.gtag === 'function') {
-    window.gtag('consent', 'update', {
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-      analytics_storage: granted ? 'granted' : 'denied'
-    });
-  }
-}
-
-export function trackPageView(page: 'home' | ServiceId): void {
+export function trackPageView(page: TrackablePage): void {
   if (
     typeof window === 'undefined' ||
     typeof window.gtag !== 'function' ||
@@ -76,11 +77,28 @@ export function trackPageView(page: 'home' | ServiceId): void {
     return;
   }
 
-  const pagePath = page === 'home' ? '/' : `/#service/${page}`;
-  const pageTitle =
-    page === 'home'
-      ? 'Golden Group Travels | Your Next Journey Starts Here'
-      : SERVICE_CANONICAL_TITLES[page];
+  let pagePath = '/';
+  let pageTitle = ROUTE_CANONICAL_TITLES['/'];
+
+  if (page === 'home' || page === '/') {
+    pagePath = '/';
+    pageTitle = ROUTE_CANONICAL_TITLES['/'];
+  } else if (page.startsWith('/')) {
+    pagePath = page;
+    pageTitle = ROUTE_CANONICAL_TITLES[page] || 'Golden Group Travels';
+  } else if (page in SERVICE_CANONICAL_TITLES) {
+    const srvId = page as ServiceId;
+    const srvRoutes: Record<ServiceId, string> = {
+      'flight-bookings': '/vols',
+      'hotel-reservations': '/hotels',
+      'hajj-umrah': '/hajj-omra',
+      'holiday-packages': '/sejours',
+      'visa-assistance': '/visa',
+      'travel-insurance': '/assurance'
+    };
+    pagePath = srvRoutes[srvId];
+    pageTitle = SERVICE_CANONICAL_TITLES[srvId];
+  }
 
   window.gtag('event', 'page_view', {
     send_to: GA4_MEASUREMENT_ID,

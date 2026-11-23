@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
@@ -15,16 +16,18 @@ import {
 import { BrandLoadingScreen } from './components/BrandLoadingScreen';
 import { CinematicPlaneStage } from './components/CinematicPlaneStage';
 import { AnimatedServiceMedia } from './components/AnimatedServiceMedia';
-import { SERVICE_ICONS } from './components/ServiceIcons';
+import { HERO_CATEGORY_ICONS, SERVICE_ICONS } from './components/ServiceIcons';
 import { ServiceDetailPage } from './components/ServiceDetailPage';
+import { ServiceRoutePage } from './components/ServiceRoutePage';
+import { CairoTourDetailPage } from './components/CairoTourDetailPage';
 import { TravelPlannerMapSection } from './components/TravelPlannerMapSection';
-import { TravelSearchEngine } from './components/TravelSearchEngine';
+import { CAIRO_TOUR_ROUTE } from './data/cairoTourData';
 import {
-  SEARCH_CATEGORY_TO_SERVICE,
-  SERVICE_SECTION_IDS,
-  SearchCategoryId,
-  SERVICE_TO_SEARCH_CATEGORY
+  SERVICE_CATEGORY_ROUTES,
+  SERVICE_ID_ROUTES,
+  SearchCategoryId
 } from './config/travelSuppliers';
+import { SEARCH_ENGINE_PACKS } from './assets/searchEngineData';
 
 gsap.registerPlugin(ScrollTrigger);
 import {
@@ -35,7 +38,7 @@ import {
 } from './assets/destinations';
 import { SERVICE_PAGE_CHROME } from './assets/servicePagesData';
 import { LANGUAGES, translations } from './i18n';
-import { ServiceSelectionEventName, trackPageView, trackServiceSelection } from './utils/analytics';
+import { trackPageView } from './utils/analytics';
 
 const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
 const DISPLAY_PHONE = '0666-484815';
@@ -53,23 +56,15 @@ const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   </svg>
 );
 
-function parseHashPage(): 'home' | ServiceId {
-  if (typeof window === 'undefined') return 'home';
-  const raw = window.location.hash.replace(/^#/, '');
-  if (raw.startsWith('service/')) {
-    const id = raw.slice('service/'.length) as ServiceId;
-    if (SERVICE_ORDER.includes(id)) return id;
-  }
-  return 'home';
-}
-
 export default function App() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isHomeRoute = location.pathname === '/' || location.pathname === '';
+
   const [lang, setLang] = useState<Language>('fr');
   const [floatingLangOpen, setFloatingLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [activePage, setActivePage] = useState<'home' | ServiceId>('home');
-  const [activeSearchCategory, setActiveSearchCategory] = useState<SearchCategoryId>('flights');
   const [activeService, setActiveService] = useState<ServiceId>('hotel-reservations');
   const [destinationLocation, setDestinationLocation] = useState('');
   const [hotelName, setHotelName] = useState('');
@@ -78,8 +73,9 @@ export default function App() {
     lng: 39.8262
   });
 
-  const [showSplash, setShowSplash] = useState(true);
-  const [heroAnimationReady, setHeroAnimationReady] = useState(false);
+  // Splash plays only on direct entry to the homepage, never delaying dedicated service routes
+  const [showSplash, setShowSplash] = useState(() => isHomeRoute);
+  const [heroAnimationReady, setHeroAnimationReady] = useState(() => !isHomeRoute);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
 
   const handleSplashStartReveal = useCallback(() => {
@@ -99,33 +95,24 @@ export default function App() {
     document.documentElement.dir = t.dir;
   }, [lang, t.dir]);
 
-  // Always guarantee initial load opens on the Home hero screen (never jump directly into a service page)
+  // Support legacy #service/... hashes if bookmarked externally by redirecting to clean URL routes
   useEffect(() => {
     if (window.location.hash.startsWith('#service/')) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    }
-    window.scrollTo({ top: 0, behavior: 'auto' });
-
-    const onPopState = () => {
-      const next = parseHashPage();
-      setActivePage(next);
-      if (next !== 'home') {
-        setActiveService(next);
-        setMapFocusCoords(SERVICE_THEME_MEDIA[next].defaultCoordinates);
+      const legacyId = window.location.hash.slice('#service/'.length) as ServiceId;
+      if (SERVICE_ORDER.includes(legacyId)) {
+        navigate(SERVICE_ID_ROUTES[legacyId], { replace: true });
       }
-    };
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, []);
-
-  const lastTrackedPageRef = useRef<'home' | ServiceId>('home');
-  useEffect(() => {
-    if (activePage === lastTrackedPageRef.current) {
-      return;
     }
-    lastTrackedPageRef.current = activePage;
-    trackPageView(activePage);
-  }, [activePage]);
+  }, [navigate]);
+
+  // Track real pathname page views in GA4
+  const lastTrackedPathRef = useRef<string | null>(null);
+  useEffect(() => {
+    const normalizedPath = location.pathname || '/';
+    if (lastTrackedPathRef.current === normalizedPath) return;
+    lastTrackedPathRef.current = normalizedPath;
+    trackPageView(normalizedPath);
+  }, [location.pathname]);
 
   useEffect(() => {
     const onQuotaExceeded = () => setQuotaExceeded(true);
@@ -133,26 +120,7 @@ export default function App() {
     return () => window.removeEventListener('gmp-quota-exceeded', onQuotaExceeded);
   }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('reveal-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '0px 0px -48px 0px', threshold: 0.08 }
-    );
-
-    const els = document.querySelectorAll('.reveal-init');
-    els.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, [activePage]);
-
-  const scrollToId = (id: string) => {
+  const scrollToId = useCallback((id: string) => {
     setMobileMenuOpen(false);
     window.requestAnimationFrame(() => {
       window.setTimeout(() => {
@@ -171,109 +139,192 @@ export default function App() {
           top: targetTop,
           behavior: reduced ? 'auto' : 'smooth'
         });
-      }, 45);
+      }, 65);
     });
-  };
+  }, []);
 
+  // Scroll to top on route entry or scroll to requested section when returning to homepage
   useEffect(() => {
-    if (activePage !== 'home') return;
-    const servicesEl = document.getElementById('services');
-    if (!servicesEl) return;
+    const state = location.state as { scrollToId?: string } | null;
+    if (state?.scrollToId) {
+      scrollToId(state.scrollToId);
+      navigate(location.pathname, { replace: true, state: null });
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [location.pathname, location.state, navigate, scrollToId]);
 
-    const reduced =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) return;
+  /**
+   * Repeatable Bidirectional 3D Scroll Animations across the homepage (GSAP + ScrollTrigger).
+   * - Plays continuously when scrolling DOWN and smoothly reverses when scrolling UP (zero `once: true`).
+   * - Uses `gsap.matchMedia()` for desktop 3D vs mobile 2D restraint and `prefers-reduced-motion`.
+   */
+  useEffect(() => {
+    if (!isHomeRoute) return;
 
-    const isMobileViewport =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(max-width: 767px)').matches;
+    const mm = gsap.matchMedia();
 
-    const ctx = gsap.context(() => {
-      const cards = servicesEl.querySelectorAll<HTMLElement>('.gsap-service-card-3d');
-      cards.forEach((card, idx) => {
-        gsap.fromTo(
-          card,
-          isMobileViewport
-            ? { opacity: 0, y: 18 }
-            : {
-                opacity: 0,
-                y: 26,
-                scale: 0.97,
-                rotateX: 4,
-                transformPerspective: 1100
-              },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotateX: 0,
-            duration: isMobileViewport ? 0.55 : 0.72,
-            delay: isMobileViewport ? 0 : (idx % 3) * 0.06,
-            ease: 'power2.out',
-            clearProps: 'all',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top 88%',
-              once: true
+    mm.add(
+      {
+        isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
+        isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
+      },
+      (context) => {
+        const isDesktop = Boolean(context.conditions?.isDesktop);
+        const shiftY = isDesktop ? 28 : 16;
+
+        // 1. Section Headings (Nos Services + Planner) — bidirectional 3D lift
+        const headings = document.querySelectorAll<HTMLElement>('.ggt-scroll-heading');
+        headings.forEach((heading) => {
+          gsap.fromTo(
+            heading,
+            isDesktop
+              ? {
+                  opacity: 0.25,
+                  y: shiftY,
+                  scale: 0.96,
+                  rotateX: 6.5,
+                  transformPerspective: 1100
+                }
+              : { opacity: 0.35, y: shiftY },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              rotateX: 0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: heading,
+                start: 'top 94%',
+                end: 'top 62%',
+                scrub: 0.6
+              }
             }
-          }
-        );
-      });
-    }, servicesEl);
+          );
+        });
 
-    return () => ctx.revert();
-  }, [activePage]);
+        // 2. Gold Hairline Dividers — draw in horizontally down-scroll, retract on up-scroll
+        const dividers = document.querySelectorAll<HTMLElement>('.ggt-scroll-divider');
+        dividers.forEach((divider) => {
+          gsap.fromTo(
+            divider,
+            { scaleX: 0.14, opacity: 0.25, transformOrigin: 'center center' },
+            {
+              scaleX: 1,
+              opacity: 1,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: divider,
+                start: 'top 95%',
+                end: 'top 64%',
+                scrub: 0.5
+              }
+            }
+          );
+        });
 
-  const openPage = (page: 'home' | ServiceId, sectionIdAfter?: string) => {
-    setActivePage(page);
-    setMobileMenuOpen(false);
+        // 3. "Nos Services" 3D Cards — repeatable bidirectional depth emergence (zero once: true)
+        const serviceCards = document.querySelectorAll<HTMLElement>('.gsap-service-card-3d');
+        serviceCards.forEach((card, idx) => {
+          const colOffset = idx % 3;
+          const rotY = isDesktop ? (colOffset === 0 ? 5.5 : colOffset === 2 ? -5.5 : 0) : 0;
+          const shiftX = isDesktop ? (colOffset === 0 ? -18 : colOffset === 2 ? 18 : 0) : 0;
 
-    if (page === 'home') {
-      if (window.location.hash.startsWith('#service/')) {
-        window.history.pushState(null, '', window.location.pathname + window.location.search);
+          gsap.fromTo(
+            card,
+            isDesktop
+              ? {
+                  opacity: 0.28,
+                  y: 34,
+                  x: shiftX,
+                  scale: 0.94,
+                  rotateX: 6,
+                  rotateY: rotY,
+                  transformPerspective: 1100
+                }
+              : { opacity: 0.35, y: 20, scale: 0.97 },
+            {
+              opacity: 1,
+              y: 0,
+              x: 0,
+              scale: 1,
+              rotateX: 0,
+              rotateY: 0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: card,
+                start: 'top 95%',
+                end: 'top 64%',
+                scrub: 0.65
+              }
+            }
+          );
+        });
+
+        // 4. Footer Grid — subtle repeatable bidirectional entrance
+        const footerReveal = document.querySelector<HTMLElement>('.ggt-footer-reveal');
+        if (footerReveal) {
+          gsap.fromTo(
+            footerReveal,
+            { opacity: 0.35, y: isDesktop ? 24 : 14 },
+            {
+              opacity: 1,
+              y: 0,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: footerReveal,
+                start: 'top 96%',
+                end: 'top 72%',
+                scrub: 0.55
+              }
+            }
+          );
+        }
       }
+    );
+
+    return () => mm.revert();
+  }, [isHomeRoute]);
+
+  // Ensure homepage hero animation starts when returning to '/' after direct visit to a sub-route
+  useEffect(() => {
+    if (isHomeRoute && !showSplash) {
+      setHeroAnimationReady(true);
+    }
+  }, [isHomeRoute, showSplash]);
+
+  const navigateHome = (sectionIdAfter?: string) => {
+    setMobileMenuOpen(false);
+    if (isHomeRoute) {
       if (sectionIdAfter) {
         scrollToId(sectionIdAfter);
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } else {
-      setActiveService(page);
-      const mappedCategory = SERVICE_TO_SEARCH_CATEGORY[page];
-      if (mappedCategory) {
-        setActiveSearchCategory(mappedCategory);
-      }
-      setMapFocusCoords(SERVICE_THEME_MEDIA[page].defaultCoordinates);
-      if (page === 'hajj-umrah' && !destinationLocation.trim()) {
-        setDestinationLocation(t.horizonsSection.destinations.makkah.title);
-      }
-      window.history.pushState({ servicePage: page }, '', `#service/${page}`);
-      if (sectionIdAfter) {
-        scrollToId(sectionIdAfter);
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      navigate('/', { state: sectionIdAfter ? { scrollToId: sectionIdAfter } : null });
     }
   };
 
-  const HERO_CATEGORY_EVENTS: Record<SearchCategoryId, ServiceSelectionEventName> = {
-    flights: 'flights_selected',
-    hotels: 'hotels_selected',
-    umrah: 'umrah_selected',
-    holidays: 'holidays_selected',
-    tours: 'tours_selected',
-    'car-transfers': 'car_rentals_selected'
+  const navigateToPlanner = () => {
+    setMobileMenuOpen(false);
+    if (document.getElementById('planner')) {
+      scrollToId('planner');
+    } else {
+      navigate('/', { state: { scrollToId: 'planner' } });
+    }
   };
 
-  const handleHeroIconSelect = (category: SearchCategoryId) => {
-    setActiveSearchCategory(category);
-    setActiveService(SEARCH_CATEGORY_TO_SERVICE[category]);
-    if (category === 'umrah' && !destinationLocation.trim()) {
-      setDestinationLocation(t.horizonsSection.destinations.makkah.title);
-    }
-    trackServiceSelection(HERO_CATEGORY_EVENTS[category]);
-    scrollToId(SERVICE_SECTION_IDS[category]);
+  const navigateToCategoryRoute = (category: SearchCategoryId) => {
+    setMobileMenuOpen(false);
+    navigate(SERVICE_CATEGORY_ROUTES[category]);
+  };
+
+  const navigateToServiceRoute = (srvId: ServiceId) => {
+    setMobileMenuOpen(false);
+    setActiveService(srvId);
+    setMapFocusCoords(SERVICE_THEME_MEDIA[srvId].defaultCoordinates);
+    navigate(SERVICE_ID_ROUTES[srvId]);
   };
 
   return (
@@ -308,14 +359,14 @@ export default function App() {
         </div>
       )}
 
-      {/* Full-Viewport 3D GSAP Paper-Cutting Plane Opening Hero with Service Category Icons Only */}
-      {activePage === 'home' && (
+      {/* Full-Viewport 3D GSAP Paper-Cutting Plane Opening Hero with 6 Dedicated Service Links */}
+      {isHomeRoute && (
         <CinematicPlaneStage
           lang={lang}
           readyToAnimate={heroAnimationReady}
-          activeCategory={activeSearchCategory}
-          onSelectCategory={handleHeroIconSelect}
-          onExploreBelow={() => scrollToId('explore-travel-services')}
+          activeCategory={null}
+          onSelectCategory={navigateToCategoryRoute}
+          onExploreBelow={() => scrollToId('services')}
         />
       )}
 
@@ -374,12 +425,12 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-3 sm:px-8 h-[68px] sm:h-24 flex items-center justify-between gap-3 sm:gap-4 lg:gap-6">
           <button
             type="button"
-            onClick={() => openPage('home')}
+            onClick={() => navigateHome()}
             className="focus:outline-none cursor-pointer w-14 h-14 sm:w-20 sm:h-20 lg:w-[86px] lg:h-[86px] aspect-square shrink-0 rounded-xl overflow-hidden bg-[#041533] border border-[#d1a847]/55 shadow-md group transition-transform duration-300 hover:scale-105"
             aria-label="Golden Group Travels Home"
           >
             <img
-              src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+              src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
               alt="Golden Group - Travel Services & Events"
               referrerPolicy="no-referrer"
               className="w-full h-full object-contain"
@@ -391,40 +442,40 @@ export default function App() {
             className="hidden lg:flex items-center gap-6 text-xs font-semibold uppercase tracking-[0.16em] text-[#2c405e]"
           >
             <a
-              href="#home"
+              href="/"
               onClick={(e) => {
                 e.preventDefault();
-                openPage('home');
+                navigateHome();
               }}
               className="nav-editorial-link hover:text-[#0b1d3a] whitespace-nowrap shrink-0"
             >
               {chrome.homeNavLabel}
             </a>
             <a
-              href="#services"
+              href="/#services"
               onClick={(e) => {
                 e.preventDefault();
-                openPage('home', 'services');
+                navigateHome('services');
               }}
               className="nav-editorial-link hover:text-[#0b1d3a] whitespace-nowrap shrink-0"
             >
               {t.nav.services}
             </a>
             <a
-              href="#service/hajj-umrah"
+              href="/hajj-omra"
               onClick={(e) => {
                 e.preventDefault();
-                openPage('hajj-umrah');
+                navigateToCategoryRoute('umrah');
               }}
               className="nav-editorial-link hover:text-[#0b1d3a] whitespace-nowrap shrink-0"
             >
               {t.servicesSection.services['hajj-umrah'].label}
             </a>
             <a
-              href="#planner"
+              href="/#planner"
               onClick={(e) => {
                 e.preventDefault();
-                scrollToId('planner');
+                navigateToPlanner();
               }}
               className="nav-editorial-link hover:text-[#0b1d3a] whitespace-nowrap shrink-0"
             >
@@ -464,7 +515,7 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => scrollToId('planner')}
+              onClick={navigateToPlanner}
               className="px-4 py-2 rounded-lg bg-[#0b1d3a] text-[#fceda2] hover:bg-[#132d56] border border-[#d1a847]/50 text-xs font-semibold uppercase tracking-[0.14em] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               {t.nav.curateCta}
@@ -515,31 +566,28 @@ export default function App() {
             <nav className="flex flex-col space-y-1.5 text-xs font-semibold uppercase tracking-wider text-[#0b1d3a]">
               <button
                 type="button"
-                onClick={() => openPage('home')}
+                onClick={() => navigateHome()}
                 className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {chrome.homeNavLabel}
               </button>
               <button
                 type="button"
-                onClick={() => openPage('home', 'services')}
+                onClick={() => navigateHome('services')}
                 className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.services}
               </button>
               <button
                 type="button"
-                onClick={() => openPage('hajj-umrah')}
+                onClick={() => navigateToCategoryRoute('umrah')}
                 className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {t.servicesSection.services['hajj-umrah'].label}
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  scrollToId('planner');
-                }}
+                onClick={navigateToPlanner}
                 className="py-2 text-left rtl:text-right cursor-pointer"
               >
                 {t.nav.planner}
@@ -560,174 +608,256 @@ export default function App() {
       </header>
 
       <main className="flex-1 bg-cream-paper">
-        {activePage !== 'home' ? (
-          <ServiceDetailPage
-            serviceId={activePage}
-            t={t}
-            lang={lang}
-            isRtl={isRtl}
-            onSelectPage={(nextPage) => openPage(nextPage)}
-            destinationLocation={destinationLocation}
-            onDestinationLocationChange={setDestinationLocation}
-            hotelName={hotelName}
-            onHotelNameChange={setHotelName}
-            mapFocusCoords={mapFocusCoords}
-            onMapFocusCoordsChange={setMapFocusCoords}
-            onReturnToHero={() => openPage('home', 'hero-stage')}
-            whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
-            displayPhone={DISPLAY_PHONE}
-            agencyMapsUrl={GOOGLE_MAPS_URL}
-          />
-        ) : (
-          <>
-            {/* Dedicated Travel Services Search & Widget Sections Below Hero */}
-            <TravelSearchEngine
-              lang={lang}
-              isRtl={isRtl}
-              activeCategory={activeSearchCategory}
-              onCategoryChange={(cat) => {
-                setActiveSearchCategory(cat);
-                setActiveService(SEARCH_CATEGORY_TO_SERVICE[cat]);
-              }}
-              onSelectHeroOrSection={(cat) => scrollToId(SERVICE_SECTION_IDS[cat])}
-              onOpenServicePage={(srvId) => openPage(srvId)}
-              onJumpToPlanner={() => scrollToId('planner')}
-              whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
-              displayPhone={DISPLAY_PHONE}
-            />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                {/* Clean Widget-Free Homepage: "Nos Services" Section Connected to Dedicated Routes */}
+                <section
+                  id="services"
+                  className="py-14 sm:py-20 md:py-28 max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8"
+                >
+                  <div className="perspective-1200">
+                    <div className="ggt-scroll-heading max-w-3xl mx-auto text-center mb-10 sm:mb-16">
+                      <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
+                        {t.servicesSection.eyebrow}
+                      </p>
+                      <h2 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0b1d3a] tracking-wide [text-wrap:balance]">
+                        {t.servicesSection.title}
+                      </h2>
+                      <p className="mt-4 text-sm sm:text-base text-[#2c405e] leading-relaxed">
+                        {t.servicesSection.subtitle}
+                      </p>
+                      <div className="ggt-scroll-divider w-20 h-px bg-[#c59b38]/70 mx-auto mt-6" />
+                    </div>
+                  </div>
 
-            {/* Dedicated Services Overview — Animated Photography Cards Opening Each Service's Full Page */}
-            <section id="services" className="py-14 sm:py-20 md:py-28 max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
-              <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-16 reveal-init">
-                <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
-                  {t.servicesSection.eyebrow}
-                </p>
-                <h2 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0b1d3a] tracking-wide [text-wrap:balance]">
-                  {t.servicesSection.title}
-                </h2>
-                <p className="mt-4 text-sm sm:text-base text-[#2c405e] leading-relaxed">
-                  {t.servicesSection.subtitle}
-                </p>
-                <div className="w-20 h-px bg-[#c59b38]/70 mx-auto mt-6" />
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
+                    {SERVICE_ORDER.map((srvId, idx) => {
+                      const srv = t.servicesSection.services[srvId];
+                      const Icon = SERVICE_ICONS[srvId];
+                      const media = SERVICE_THEME_MEDIA[srvId];
+                      const isOmra = srvId === 'hajj-umrah';
+                      const indexTag = `0${idx + 1}`;
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
-                {SERVICE_ORDER.map((srvId, idx) => {
-                  const srv = t.servicesSection.services[srvId];
-                  const Icon = SERVICE_ICONS[srvId];
-                  const media = SERVICE_THEME_MEDIA[srvId];
-                  const isOmra = srvId === 'hajj-umrah';
-                  const indexTag = `0${idx + 1}`;
-
-                  return (
-                    <article
-                      key={srvId}
-                      id={`service-${srvId}`}
-                      className={`gsap-service-card-3d rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-all duration-300 hover:-translate-y-1 ${
-                        isOmra
-                          ? 'border-2 border-[#d1a847] shadow-[0_22px_50px_rgba(11,29,58,0.16)]'
-                          : 'border border-[#d1a847]/45 shadow-[0_16px_40px_rgba(11,29,58,0.09)] hover:border-[#c59b38]'
-                      }`}
-                    >
-                      {/* Clickable Animated Photography Header */}
-                      <button
-                        type="button"
-                        onClick={() => openPage(srvId)}
-                        className="relative w-full text-left cursor-pointer focus-visible:outline-2 focus-visible:outline-[#d1a847]"
-                      >
-                        <AnimatedServiceMedia
-                          src={media.image}
-                          alt={srv.headline}
-                          fallbackGradient={media.fallbackGradient}
-                          variant={idx % 2 === 0 ? 'slow' : 'alt'}
-                          aspectClass="aspect-[16/10]"
+                      return (
+                        <article
+                          key={srvId}
+                          id={`service-${srvId}`}
+                          className={`gsap-service-card-3d rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-all duration-300 hover:-translate-y-1 ${
+                            isOmra
+                              ? 'border-2 border-[#d1a847] shadow-[0_22px_50px_rgba(11,29,58,0.16)]'
+                              : 'border border-[#d1a847]/45 shadow-[0_16px_40px_rgba(11,29,58,0.09)] hover:border-[#c59b38]'
+                          }`}
                         >
-                          <div
-                            aria-hidden="true"
-                            className="absolute inset-0 bg-gradient-to-t from-[#071429]/90 via-[#0b1d3a]/25 to-transparent"
-                          />
-                          <div className="absolute bottom-3.5 sm:bottom-4 left-4 sm:left-5 right-4 sm:right-5 flex items-end justify-between gap-3 text-[#fcf9f2]">
-                            <div className="min-w-0">
-                              <div className="text-[11px] uppercase tracking-[0.22em] text-[#fceda2] font-semibold tabular-nums">
-                                {indexTag} · {t.servicesSection.provisionTag}
+                          {/* Clickable Animated Photography Header */}
+                          <button
+                            type="button"
+                            onClick={() => navigateToServiceRoute(srvId)}
+                            className="relative w-full text-left cursor-pointer focus-visible:outline-2 focus-visible:outline-[#d1a847]"
+                          >
+                            <AnimatedServiceMedia
+                              src={media.image}
+                              alt={srv.headline}
+                              fallbackGradient={media.fallbackGradient}
+                              variant={idx % 2 === 0 ? 'slow' : 'alt'}
+                              aspectClass="aspect-[16/10]"
+                            >
+                              <div
+                                aria-hidden="true"
+                                className="absolute inset-0 bg-gradient-to-t from-[#071429]/90 via-[#0b1d3a]/25 to-transparent"
+                              />
+                              <div className="absolute bottom-3.5 sm:bottom-4 left-4 sm:left-5 right-4 sm:right-5 flex items-end justify-between gap-3 text-[#fcf9f2]">
+                                <div className="min-w-0">
+                                  <div className="text-[11px] uppercase tracking-[0.22em] text-[#fceda2] font-semibold tabular-nums">
+                                    {indexTag} · {t.servicesSection.provisionTag}
+                                  </div>
+                                  <h3 className="font-serif-crest text-lg sm:text-2xl font-semibold mt-0.5">
+                                    {srv.label}
+                                  </h3>
+                                </div>
+                                <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#0b1d3a]/95 border border-[#d1a847] text-[#d1a847] flex items-center justify-center shrink-0 shadow-lg">
+                                  <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                                </span>
                               </div>
-                              <h3 className="font-serif-crest text-lg sm:text-2xl font-semibold mt-0.5">
-                                {srv.label}
-                              </h3>
+                            </AnimatedServiceMedia>
+                          </button>
+
+                          {/* Card Body & Open Dedicated Service Route */}
+                          <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between gap-5">
+                            <div className="space-y-3">
+                              <div className="text-sm font-semibold text-[#0b1d3a]">
+                                {srv.headline}
+                              </div>
+                              <p className="text-xs sm:text-sm text-[#2c405e] leading-[1.7]">
+                                {srv.description}
+                              </p>
+                              <ul className="space-y-2 pt-3 border-t border-[#d1a847]/25">
+                                {srv.includedDetails.map((detail, i) => (
+                                  <li
+                                    key={i}
+                                    className="flex items-start gap-2.5 text-xs text-[#0b1d3a]"
+                                  >
+                                    <Check className="w-3.5 h-3.5 text-[#c59b38] shrink-0 mt-0.5" />
+                                    <span>{detail}</span>
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-                            <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#0b1d3a]/95 border border-[#d1a847] text-[#d1a847] flex items-center justify-center shrink-0 shadow-lg">
-                              <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                            </span>
-                          </div>
-                        </AnimatedServiceMedia>
-                      </button>
 
-                      {/* Card Body & Open Full Page Action */}
-                      <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between gap-5">
-                        <div className="space-y-3">
-                          <div className="text-sm font-semibold text-[#0b1d3a]">
-                            {srv.headline}
+                            <button
+                              type="button"
+                              onClick={() => navigateToServiceRoute(srvId)}
+                              className="w-full inline-flex items-center justify-center text-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.12em] sm:tracking-[0.14em] transition-colors cursor-pointer"
+                            >
+                              <span className="sm:whitespace-nowrap">
+                                {chrome.openPageCta} · {srv.label}
+                              </span>
+                              <ArrowRight
+                                className={`w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
+                                  isRtl ? 'rotate-180' : ''
+                                }`}
+                              />
+                            </button>
                           </div>
-                          <p className="text-xs sm:text-sm text-[#2c405e] leading-[1.7]">
-                            {srv.description}
-                          </p>
-                          <ul className="space-y-2 pt-3 border-t border-[#d1a847]/25">
-                            {srv.includedDetails.map((detail, i) => (
-                              <li
-                                key={i}
-                                className="flex items-start gap-2.5 text-xs text-[#0b1d3a]"
-                              >
-                                <Check className="w-3.5 h-3.5 text-[#c59b38] shrink-0 mt-0.5" />
-                                <span>{detail}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                        </article>
+                      );
+                    })}
+                  </div>
 
+                  {/* Complementary Quick Access for Circuits & Activités (/circuits-activites) and Voitures & Transferts Aéroport (/voitures-transferts) */}
+                  <div className="mt-8 sm:mt-10 pt-7 border-t border-[#d1a847]/35 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    {(['tours', 'car-transfers'] as const).map((catId) => {
+                      const Icon = HERO_CATEGORY_ICONS[catId];
+                      const catMeta = SEARCH_ENGINE_PACKS[lang].categories[catId];
+                      return (
                         <button
+                          key={catId}
                           type="button"
-                          onClick={() => openPage(srvId)}
-                          className="w-full inline-flex items-center justify-center text-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.12em] sm:tracking-[0.14em] transition-colors cursor-pointer"
+                          onClick={() => navigateToCategoryRoute(catId)}
+                          className="gsap-service-card-3d group w-full rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 text-left rtl:text-right bg-[#fcf9f2] border border-[#d1a847]/45 shadow-[0_12px_30px_rgba(11,29,58,0.07)] hover:border-[#c59b38] transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
                         >
-                          <span className="sm:whitespace-nowrap">{chrome.openPageCta}</span>
-                          <ArrowRight
-                            className={`w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
-                              isRtl ? 'rotate-180' : ''
-                            }`}
-                          />
+                          <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                            <span className="w-12 h-12 rounded-full bg-[#071429] border-2 border-[#d1a847] text-[#fceda2] flex items-center justify-center shrink-0 shadow-md">
+                              <Icon className="w-6 h-6" />
+                            </span>
+                            <div className="min-w-0">
+                              <div className="text-[11px] uppercase tracking-[0.18em] text-[#9a7220] font-semibold">
+                                {catMeta.shortSub}
+                              </div>
+                              <div className="font-serif-crest text-base sm:text-lg font-semibold text-[#0b1d3a] truncate">
+                                {catMeta.tabLabel}
+                              </div>
+                            </div>
+                          </div>
+                          <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0b1d3a] group-hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-[11px] font-semibold uppercase tracking-[0.12em] shrink-0 whitespace-nowrap transition-colors">
+                            <span>{chrome.openPageCta}</span>
+                            <ArrowRight
+                              className={`w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
+                                isRtl ? 'rotate-180' : ''
+                              }`}
+                            />
+                          </span>
                         </button>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
+                      );
+                    })}
+                  </div>
+                </section>
 
-            {/* Hairline Gold Divider */}
-            <div className="max-w-5xl mx-auto px-8">
-              <div className="h-px bg-gradient-to-r from-transparent via-[#c59b38]/50 to-transparent" />
-            </div>
+                {/* Hairline Gold Divider */}
+                <div className="max-w-5xl mx-auto px-8">
+                  <div className="ggt-scroll-divider h-px bg-gradient-to-r from-transparent via-[#c59b38]/50 to-transparent" />
+                </div>
 
-            {/* Service-Dynamic Contact & Booking Form Connected with Google Maps */}
-            <TravelPlannerMapSection
-              t={t}
-              lang={lang}
-              isRtl={isRtl}
-              activeService={activeService}
-              onSelectService={setActiveService}
-              destinationLocation={destinationLocation}
-              onDestinationLocationChange={setDestinationLocation}
-              hotelName={hotelName}
-              onHotelNameChange={setHotelName}
-              mapFocusCoords={mapFocusCoords}
-              onMapFocusCoordsChange={setMapFocusCoords}
-              onReturnToHero={() => openPage('home', 'hero-stage')}
-              whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
-              displayPhone={DISPLAY_PHONE}
-              agencyMapsUrl={GOOGLE_MAPS_URL}
+                {/* Service-Dynamic Contact & Booking Form Connected with Google Maps */}
+                <TravelPlannerMapSection
+                  t={t}
+                  lang={lang}
+                  isRtl={isRtl}
+                  activeService={activeService}
+                  onSelectService={setActiveService}
+                  destinationLocation={destinationLocation}
+                  onDestinationLocationChange={setDestinationLocation}
+                  hotelName={hotelName}
+                  onHotelNameChange={setHotelName}
+                  mapFocusCoords={mapFocusCoords}
+                  onMapFocusCoordsChange={setMapFocusCoords}
+                  onReturnToHero={() => navigateHome('hero-stage')}
+                  whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                  displayPhone={DISPLAY_PHONE}
+                  agencyMapsUrl={GOOGLE_MAPS_URL}
+                />
+              </>
+            }
+          />
+
+          {/* 6 Dedicated Primary Service Routes */}
+          {(['flights', 'hotels', 'umrah', 'holidays', 'tours', 'car-transfers'] as SearchCategoryId[]).map(
+            (catId) => (
+              <Route
+                key={catId}
+                path={SERVICE_CATEGORY_ROUTES[catId]}
+                element={
+                  <ServiceRoutePage
+                    category={catId}
+                    lang={lang}
+                    isRtl={isRtl}
+                    whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                    displayPhone={DISPLAY_PHONE}
+                    onJumpToHomePlanner={navigateToPlanner}
+                  />
+                }
+              />
+            )
+          )}
+
+          {/* Dedicated Routes for Remaining "Nos Services" Cards */}
+          {(['visa-assistance', 'travel-insurance'] as const).map((srvId) => (
+            <Route
+              key={srvId}
+              path={SERVICE_ID_ROUTES[srvId]}
+              element={
+                <ServiceDetailPage
+                  serviceId={srvId}
+                  t={t}
+                  lang={lang}
+                  isRtl={isRtl}
+                  onSelectPage={(nextPage) =>
+                    nextPage === 'home' ? navigateHome() : navigateToServiceRoute(nextPage)
+                  }
+                  destinationLocation={destinationLocation}
+                  onDestinationLocationChange={setDestinationLocation}
+                  hotelName={hotelName}
+                  onHotelNameChange={setHotelName}
+                  mapFocusCoords={mapFocusCoords}
+                  onMapFocusCoordsChange={setMapFocusCoords}
+                  onReturnToHero={() => navigateHome('hero-stage')}
+                  whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                  displayPhone={DISPLAY_PHONE}
+                  agencyMapsUrl={GOOGLE_MAPS_URL}
+                />
+              }
             />
-          </>
-        )}
+          ))}
+
+          {/* Dedicated Route for Golden Group Travels Organized Cairo Tour */}
+          <Route
+            path={CAIRO_TOUR_ROUTE}
+            element={
+              <CairoTourDetailPage
+                lang={lang}
+                isRtl={isRtl}
+                whatsappInternational={WHATSAPP_PHONE_INTERNATIONAL}
+                displayPhone={DISPLAY_PHONE}
+                onJumpToHomePlanner={navigateToPlanner}
+              />
+            }
+          />
+
+          {/* Fallback Route -> Homepage */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       {/* Restored Floating Bottom-Left (or Bottom-Right in RTL) 4-Language Switcher */}
@@ -800,18 +930,18 @@ export default function App() {
         id="contact"
         className="bg-[#0b1d3a] text-[#f5ede0] border-t-2 border-[#d1a847]/55 pt-14 sm:pt-16 pb-24 sm:pb-20"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="ggt-footer-reveal max-w-7xl mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
             {/* Brand Column: Enlarged Official 1:1 Logo ONLY */}
             <div className="space-y-4">
               <button
                 type="button"
-                onClick={() => openPage('home', 'hero-stage')}
+                onClick={() => navigateHome('hero-stage')}
                 className="inline-block w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 aspect-square rounded-2xl overflow-hidden bg-[#041533] border-2 border-[#d1a847]/60 shadow-lg focus:outline-none cursor-pointer group transition-transform duration-300 hover:scale-105"
                 aria-label="Golden Group Travels"
               >
                 <img
-                  src="./assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
+                  src="/assets/aistudio/Golden_Group_Travel_Logo__1__824306ae.png"
                   alt="Golden Group - Travel Services & Events"
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-contain"
@@ -854,7 +984,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* 5 Main Services Column */}
+            {/* Services Column Connected to Dedicated Service Routes */}
             <div>
               <div className="font-serif-crest text-base font-semibold text-[#fceda2] tracking-wider uppercase mb-4">
                 {t.footer.servicesTitle}
@@ -864,13 +994,31 @@ export default function App() {
                   <li key={srvId}>
                     <button
                       type="button"
-                      onClick={() => openPage(srvId)}
+                      onClick={() => navigateToServiceRoute(srvId)}
                       className="hover:text-[#fceda2] transition-colors cursor-pointer"
                     >
                       {t.servicesSection.services[srvId].label}
                     </button>
                   </li>
                 ))}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => navigateToCategoryRoute('tours')}
+                    className="hover:text-[#fceda2] transition-colors cursor-pointer"
+                  >
+                    {SEARCH_ENGINE_PACKS[lang].categories.tours.tabLabel}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => navigateToCategoryRoute('car-transfers')}
+                    className="hover:text-[#fceda2] transition-colors cursor-pointer"
+                  >
+                    {SEARCH_ENGINE_PACKS[lang].categories['car-transfers'].tabLabel}
+                  </button>
+                </li>
               </ul>
             </div>
 
