@@ -929,9 +929,9 @@ export const ISTANBUL_HOLIDAY_COPY: Record<Language, IstanbulHolidayLocaleCopy> 
     itineraryWeatherNote: 'Note opérationnelle : l’ordre des visites peut être modifié en fonction des conditions météorologiques, jours fériés ou contraintes opérationnelles.',
 
     inclusionsEyebrow: 'Prestations incluses & non incluses',
-    inclusionsTitle: 'Ce que comprend le forfait de base',
+    inclusionsTitle: 'Le prix comprend',
     inclusionsBaseHeading: 'Inclus dans le séjour de base',
-    exclusionsBaseHeading: 'Non inclus dans le séjour de base',
+    exclusionsBaseHeading: 'Le prix ne comprend pas',
 
     vipEyebrow: 'Option facultative non incluse dans la base',
     vipTitle: 'Pack d’Istanbul VIP',
@@ -1049,7 +1049,7 @@ export const ISTANBUL_HOLIDAY_COPY: Record<Language, IstanbulHolidayLocaleCopy> 
     itineraryWeatherNote: 'ملاحظة تشغيلية: قد يتغير ترتيب الزيارات حسب الأحوال الجوية أو العطل الرسمية أو الظروف التنظيمية.',
 
     inclusionsEyebrow: 'ما يشمله العرض وما لا يشمله',
-    inclusionsTitle: 'تفاصيل الباقة الأساسية',
+    inclusionsTitle: 'السعر الأساسي يشمل',
     inclusionsBaseHeading: 'يشمله السعر الأساسي',
     exclusionsBaseHeading: 'لا يشمله السعر الأساسي',
 
@@ -1169,7 +1169,7 @@ export const ISTANBUL_HOLIDAY_COPY: Record<Language, IstanbulHolidayLocaleCopy> 
     itineraryWeatherNote: 'Operational notice: Activity order may change depending on weather, public holidays, or operational circumstances.',
 
     inclusionsEyebrow: 'Base Package Scope',
-    inclusionsTitle: 'Included vs. Excluded in Base Rate',
+    inclusionsTitle: 'The price includes',
     inclusionsBaseHeading: 'Included in Base Package',
     exclusionsBaseHeading: 'Not Included in Base Package',
 
@@ -1289,9 +1289,9 @@ export const ISTANBUL_HOLIDAY_COPY: Record<Language, IstanbulHolidayLocaleCopy> 
     itineraryWeatherNote: 'Nota operativa: el orden de actividades puede cambiar según clima, festivos o circunstancias operativas.',
 
     inclusionsEyebrow: 'Alcance del paquete base',
-    inclusionsTitle: 'Incluido vs. No incluido en la tarifa base',
+    inclusionsTitle: 'El precio incluye',
     inclusionsBaseHeading: 'Incluido en el paquete base',
-    exclusionsBaseHeading: 'No incluido en el paquete base',
+    exclusionsBaseHeading: 'El precio no incluye',
 
     vipEyebrow: 'Opción facultativa',
     vipTitle: 'Pack d’Istanbul VIP',

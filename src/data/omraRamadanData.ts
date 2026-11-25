@@ -225,6 +225,11 @@ export interface OmraRamadanLocaleCopy {
   discrepancyHeading: string;
   discrepancyBullets: string[];
 
+  tableEyebrow: string;
+  tableTitle: string;
+  tableSubtitle: string;
+  colOptionHotels: string;
+
   optionsEyebrow: string;
   optionsTitle: string;
   optionsSubtitle: string;
@@ -236,6 +241,13 @@ export interface OmraRamadanLocaleCopy {
   notOfferedDetail: string;
   selectRoomBtn: string;
   selectedRoomBtn: string;
+
+  inclusionsEyebrow: string;
+  inclusionsTitle: string;
+  inclusionsSubtitle: string;
+  inclusions: { key: 'duration' | 'madinah' | 'makkah'; title: string; detail: string }[];
+  unprintedTitle: string;
+  unprintedItems: string[];
 
   conditionsEyebrow: string;
   conditionsTitle: string;
@@ -307,6 +319,12 @@ export const OMRA_RAMADAN_COPY: Record<Language, OmraRamadanLocaleCopy> = {
       'Chambre 6 personnes (Option A — Marjan Al Shaer) : la grille tarifaire affiche « 126 000 », alors que la couverture annonce des tarifs à partir de 26 000 MAD. Ce tarif spécifique affiche « Tarif à confirmer » jusqu’à clarification officielle.'
     ],
 
+    tableEyebrow: 'Grille Tarifaire Officielle (MAD / personne)',
+    tableTitle: 'Tableau comparatif des Options A, B et C',
+    tableSubtitle:
+      'Cliquez sur une cellule tarifée du tableau ou sélectionnez votre option ci-dessous. Le tarif 6 personnes de l’Option A reste affiché comme « Tarif à confirmer ».',
+    colOptionHotels: 'Option & Hôtels',
+
     optionsEyebrow: 'Trois Options d’Hébergement Distinctes (MAD / pers.)',
     optionsTitle: 'Comparer les options d’hébergement et types de chambres',
     optionsSubtitle:
@@ -325,6 +343,37 @@ export const OMRA_RAMADAN_COPY: Record<Language, OmraRamadanLocaleCopy> = {
     notOfferedDetail: 'Non incluse dans cette option d’hébergement',
     selectRoomBtn: 'Choisir',
     selectedRoomBtn: 'Sélectionnée',
+
+    inclusionsEyebrow: 'Prestations Officiellement Confirmées',
+    inclusionsTitle: 'Le prix comprend',
+    inclusionsSubtitle:
+      'Éléments expressément annoncés sur les supports Omra Ramadan, sans ajout de prestations non confirmées.',
+    inclusions: [
+      {
+        key: 'duration',
+        title: 'Durée annoncée de 34 à 40 jours',
+        detail: 'Programme dédié au mois sacré de Ramadan (selon la durée annoncée sur la couverture).'
+      },
+      {
+        key: 'madinah',
+        title: 'Médine — Groupe Al Mokhtara',
+        detail: 'Hébergement à Médine sans petit-déjeuner (Options A, B et C).'
+      },
+      {
+        key: 'makkah',
+        title: 'Makkah — Selon l’option choisie',
+        detail: 'Marjan Al Shaer (~1 400 m du Haram) en Option A, Al Farabi (~900 m) en Option B ou Al Massa Grand en Option C.'
+      }
+    ],
+    unprintedTitle: 'Éléments non imprimés ou à clarifier · À confirmer auprès de l’agence',
+    unprintedItems: [
+      'Formule de repas / petits-déjeuners à Makkah : non précisée (à confirmer auprès de l’agence).',
+      'Billets d’avion aller-retour : non précisés sur les supports (à confirmer).',
+      'Frais et formalités de visa Omra : non précisés sur les supports (à confirmer).',
+      'Transferts terrestres et visites religieuses : non précisés (à confirmer).',
+      'Dates exactes de départ / retour (conflit 26 janv – 16 févr 2026 vs 2027/1448) : à confirmer.',
+      'Tarif chambre 6 personnes Option A (écart 126 000 vs 26 000 MAD) : à confirmer.'
+    ],
 
     conditionsEyebrow: 'Conditions d’inscription',
     conditionsTitle: 'Pièces requises & règles d’acompte',
@@ -425,6 +474,12 @@ export const OMRA_RAMADAN_COPY: Record<Language, OmraRamadanLocaleCopy> = {
       'غرفة 6 أشخاص (الخيار أ — مرجان الشعائر): يظهر الرقم «126,000» في الجدول مقابل «ابتداءً من 26,000 درهم» على الغلاف. تم تعليق عرض السعر وتصنيفه «Tarif à confirmer / قيد التأكيد» لحين توضيح الوكالة.'
     ],
 
+    tableEyebrow: 'جدول الأسعار الرسمي (درهم / للشخص)',
+    tableTitle: 'مقارنة خيارات الإقامة أ وب وج',
+    tableSubtitle:
+      'اضغط على أي تسعيرة متاحة لاختيارها. يظل سعر غرفة 6 أشخاص في الخيار أ مصنفاً «السعر قيد التأكيد».',
+    colOptionHotels: 'الخيار والفنادق',
+
     optionsEyebrow: 'ثلاثة خيارات إقامة منفصلة (درهم / للشخص)',
     optionsTitle: 'مقارنة خيارات الفنادق وأنواع الغرف',
     optionsSubtitle:
@@ -443,6 +498,37 @@ export const OMRA_RAMADAN_COPY: Record<Language, OmraRamadanLocaleCopy> = {
     notOfferedDetail: 'غير مدرجة في هذا الخيار',
     selectRoomBtn: 'اختيار',
     selectedRoomBtn: 'محددة',
+
+    inclusionsEyebrow: 'الخدمات المصرح بها رسمياً',
+    inclusionsTitle: 'السعر الأساسي يشمل',
+    inclusionsSubtitle:
+      'العناصر المذكورة صراحةً في نشرات عمرة رمضان دون إضافة خدمات غير مؤكدة.',
+    inclusions: [
+      {
+        key: 'duration',
+        title: 'مدة معلنة من 34 إلى 40 يوماً',
+        detail: 'برنامج عمرة لشهر رمضان المبارك وفق المدة المعلنة على الغلاف.'
+      },
+      {
+        key: 'madinah',
+        title: 'المدينة المنورة — مجموعة المختارة',
+        detail: 'إقامة في المدينة المنورة بدون وجبة إفطار في الخيارات أ وب وج.'
+      },
+      {
+        key: 'makkah',
+        title: 'مكة المكرمة — حسب الخيار المحدد',
+        detail: 'مرجان الشعائر (~1400م) في الخيار أ، الفارابي (~900م) في الخيار ب، أو الماسة جراند في الخيار ج.'
+      }
+    ],
+    unprintedTitle: 'تفاصيل غير مطبوعة أو تحتاج لتوضيح · قيد التأكيد لدى الوكالة',
+    unprintedItems: [
+      'وجبة الإفطار أو الوجبات في مكة المكرمة: غير محددة (يرجى التأكيد مع الوكالة).',
+      'تذاكر الطيران ذهاباً وإياباً: غير مذكورة في النشرات (قيد التأكيد).',
+      'رسوم وإجراءات تأشيرة العمرة: غير مذكورة في النشرات (قيد التأكيد).',
+      'التنقلات الداخلية والمزارات: غير مذكورة (قيد التأكيد).',
+      'تواريخ السفر الدقيقة (تضارب 26 يناير – 16 فبراير 2026 مع 2027/1448): قيد التأكيد.',
+      'تسعيرة غرفة 6 أشخاص في الخيار أ (تعارض 126,000 مقابل 26,000 درهم): قيد التأكيد.'
+    ],
 
     conditionsEyebrow: 'شروط التسجيل',
     conditionsTitle: 'الوثائق المطلوبة والتسبيق',
@@ -541,6 +627,12 @@ export const OMRA_RAMADAN_COPY: Record<Language, OmraRamadanLocaleCopy> = {
       'Six-Person Room (Option A — Marjan Al Shaer): Pricing sheet appears to show 126,000 while cover states starting at 26,000 MAD. This specific room figure is withheld and displayed as "Tarif à confirmer".'
     ],
 
+    tableEyebrow: 'Official Fare Matrix (MAD / person)',
+    tableTitle: 'Comparison across Options A, B & C',
+    tableSubtitle:
+      'Click any available cell or select an option below. Option A 6-person rate remains flagged as "Tarif à confirmer".',
+    colOptionHotels: 'Option & Hotels',
+
     optionsEyebrow: 'Three Separate Accommodation Options (MAD / pers.)',
     optionsTitle: 'Compare hotels, distances & verified room fares',
     optionsSubtitle:
@@ -559,6 +651,37 @@ export const OMRA_RAMADAN_COPY: Record<Language, OmraRamadanLocaleCopy> = {
     notOfferedDetail: 'Not offered in this accommodation option',
     selectRoomBtn: 'Select',
     selectedRoomBtn: 'Selected',
+
+    inclusionsEyebrow: 'Brochure-Verified Inclusions',
+    inclusionsTitle: 'The price includes',
+    inclusionsSubtitle:
+      'Items explicitly stated on the Omra Ramadan promotional screenshots, with unprinted items clearly flagged.',
+    inclusions: [
+      {
+        key: 'duration',
+        title: 'Advertised duration: 34 to 40 days',
+        detail: 'Dedicated Ramadan pilgrimage package per the advertised cover duration.'
+      },
+      {
+        key: 'madinah',
+        title: 'Madinah — Groupe Al Mokhtara',
+        detail: 'Madinah hotel stay without breakfast across Options A, B, and C.'
+      },
+      {
+        key: 'makkah',
+        title: 'Makkah — According to chosen option',
+        detail: 'Marjan Al Shaer (~1,400 m from Haram) in Option A, Al Farabi (~900 m) in Option B, or Al Massa Grand in Option C.'
+      }
+    ],
+    unprintedTitle: 'Unprinted or flagged items · Subject to agency confirmation',
+    unprintedItems: [
+      'Makkah breakfast or meals: not stated on the promotional material (confirm with agency).',
+      'Round-trip flights: not stated on the material (confirm with agency).',
+      'Umrah visa fees/processing: not stated on the material (confirm with agency).',
+      'Ground transfers and guided visits: not stated on the material (confirm with agency).',
+      'Exact travel dates (conflict between 26 Jan – 16 Feb 2026 and 2027/1448): confirm with agency.',
+      'Option A 6-person rate (126,000 vs 26,000 MAD discrepancy): confirm directly with agency.'
+    ],
 
     conditionsEyebrow: 'Registration Requirements',
     conditionsTitle: 'Documents & advance deposit policy',
@@ -659,6 +782,12 @@ export const OMRA_RAMADAN_COPY: Record<Language, OmraRamadanLocaleCopy> = {
       'Habitación de 6 personas (Opción A): el cartel muestra 126 000 frente a portada desde 26 000 MAD. Se retiene la cifra como «Tarif à confirmer».'
     ],
 
+    tableEyebrow: 'Tarifario Oficial (MAD / persona)',
+    tableTitle: 'Tabla comparativa de las Opciones A, B y C',
+    tableSubtitle:
+      'Haga clic en una tarifa disponible. La habitación de 6 personas de la Opción A figura como «Tarif à confirmer».',
+    colOptionHotels: 'Opción y Hoteles',
+
     optionsEyebrow: 'Tres Opciones de Alojamiento (MAD / pers.)',
     optionsTitle: 'Comparativa de hoteles y tipos de habitación',
     optionsSubtitle:
@@ -677,6 +806,37 @@ export const OMRA_RAMADAN_COPY: Record<Language, OmraRamadanLocaleCopy> = {
     notOfferedDetail: 'No incluida en esta opción',
     selectRoomBtn: 'Elegir',
     selectedRoomBtn: 'Seleccionada',
+
+    inclusionsEyebrow: 'Prestaciones Confirmadas',
+    inclusionsTitle: 'El precio incluye',
+    inclusionsSubtitle:
+      'Elementos expresamente confirmados en el material promocional de Omra Ramadan.',
+    inclusions: [
+      {
+        key: 'duration',
+        title: 'Duración anunciada de 34 a 40 días',
+        detail: 'Programa dedicado al mes de Ramadán según la duración anunciada en portada.'
+      },
+      {
+        key: 'madinah',
+        title: 'Medina — Groupe Al Mokhtara',
+        detail: 'Alojamiento en Medina sin desayuno en las Opciones A, B y C.'
+      },
+      {
+        key: 'makkah',
+        title: 'La Meca — Según opción elegida',
+        detail: 'Marjan Al Shaer (~1 400 m) en Opción A, Al Farabi (~900 m) en Opción B o Al Massa Grand en Opción C.'
+      }
+    ],
+    unprintedTitle: 'Detalles no impresos o por aclarar · Por confirmar con la agencia',
+    unprintedItems: [
+      'Desayuno o comidas en La Meca: no detallados (confirmar con la agencia).',
+      'Vuelos ida y vuelta: no detallados en el folleto (confirmar).',
+      'Visado de Umrah: no detallado en el folleto (confirmar).',
+      'Traslados y visitas guiadas: no detallados en el folleto (confirmar).',
+      'Fechas exactas (conflicto 26 ene – 16 feb 2026 vs 2027/1448): confirmar con la agencia.',
+      'Tarifa 6 personas Opción A (discrepancia 126 000 vs 26 000 MAD): confirmar con la agencia.'
+    ],
 
     conditionsEyebrow: 'Requisitos',
     conditionsTitle: 'Condiciones de inscripción',

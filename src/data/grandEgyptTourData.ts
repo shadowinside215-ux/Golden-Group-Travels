@@ -751,7 +751,7 @@ export const GRAND_EGYPT_COPY: Record<Language, GrandEgyptTourCopy> = {
     selectedBtn: 'مختار',
     onRequestBadge: 'السعر عند الطلب',
     inclusionsEyebrow: 'الخدمات المعلنة في العرض',
-    inclusionsTitle: 'السعر يشمل',
+    inclusionsTitle: 'السعر الأساسي يشمل',
     inclusionsSubtitle: 'كافة البنود المشمولة رسمياً في برنامج «حكاية مصر الكبرى»:',
     inclusions: [
       { key: 'visa', title: 'تأشيرة الدخول', detail: 'تأشيرة الدخول إلى مصر مشمولة.' },
@@ -988,7 +988,7 @@ export const GRAND_EGYPT_COPY: Record<Language, GrandEgyptTourCopy> = {
     selectedBtn: 'Selected',
     onRequestBadge: 'Tarif sur demande',
     inclusionsEyebrow: 'Advertised Package Inclusions',
-    inclusionsTitle: 'Le prix comprend (Included)',
+    inclusionsTitle: 'The price includes',
     inclusionsSubtitle: 'All official services covered in "L\'Épopée Égyptienne : 12 Jours Inoubliables":',
     inclusions: [
       { key: 'visa', title: 'Entry Visa', detail: 'Egypt entry visa included.' },
@@ -1043,7 +1043,7 @@ export const GRAND_EGYPT_COPY: Record<Language, GrandEgyptTourCopy> = {
       { key: 'guide', title: 'Local FR / AR Guide', detail: 'French- or Arabic-speaking local tourist guide.' }
     ],
     exclusionsEyebrow: 'Excluded Services',
-    exclusionsTitle: 'Le prix ne comprend pas (Not Included)',
+    exclusionsTitle: 'Not included in the price',
     exclusionsSubtitle:
       'Domestic flights are included in this tour, whereas international flights are strictly NOT included:',
     domesticVsIntlBannerTitle: 'Critical Flight Scope Distinction',
@@ -1240,7 +1240,7 @@ export const GRAND_EGYPT_COPY: Record<Language, GrandEgyptTourCopy> = {
     selectedBtn: 'Seleccionado',
     onRequestBadge: 'Tarif sur demande',
     inclusionsEyebrow: 'Servicios Oficiales',
-    inclusionsTitle: 'Le prix comprend (Incluye)',
+    inclusionsTitle: 'El precio incluye',
     inclusionsSubtitle: 'Prestaciones oficiales incluidas en «L\'Épopée Égyptienne : 12 Jours Inoubliables»:',
     inclusions: [
       { key: 'visa', title: 'Visado de entrada', detail: 'Visado de entrada a Egipto incluido.' },
@@ -1283,7 +1283,7 @@ export const GRAND_EGYPT_COPY: Record<Language, GrandEgyptTourCopy> = {
       { key: 'guide', title: 'Guía local FR / AR', detail: 'Guía local francófono o arabófono.' }
     ],
     exclusionsEyebrow: 'No Incluido',
-    exclusionsTitle: 'Le prix ne comprend pas',
+    exclusionsTitle: 'El precio no incluye',
     exclusionsSubtitle: 'Vuelos domésticos incluidos frente a vuelos internacionales NO incluidos:',
     domesticVsIntlBannerTitle: 'Distinción clave de vuelos',
     domesticSideTitle: 'Vuelos internos INCLUIDOS',

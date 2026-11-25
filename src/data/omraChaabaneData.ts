@@ -252,6 +252,13 @@ export interface OmraChaabaneOnlyLocaleCopy {
   selectRoomBtn: string;
   selectedRoomBtn: string;
 
+  inclusionsEyebrow: string;
+  inclusionsTitle: string;
+  inclusionsSubtitle: string;
+  inclusions: { key: 'madinah' | 'makkah' | 'breakfast'; title: string; detail: string }[];
+  unprintedTitle: string;
+  unprintedItems: string[];
+
   conditionsEyebrow: string;
   conditionsTitle: string;
   conditionsList: { key: 'passport' | 'photo' | 'deposit'; title: string; detail: string }[];
@@ -343,6 +350,39 @@ export const OMRA_CHAABANE_ONLY_COPY: Record<Language, OmraChaabaneOnlyLocaleCop
     unavailableDetail: 'Non proposée dans cette option',
     selectRoomBtn: 'Choisir',
     selectedRoomBtn: 'Sélectionnée',
+
+    inclusionsEyebrow: 'Prestations Officiellement Confirmées',
+    inclusionsTitle: 'Le prix comprend',
+    inclusionsSubtitle:
+      'Éléments expressément indiqués sur la brochure Omra Chaâbane, par option choisie.',
+    inclusions: [
+      {
+        key: 'madinah',
+        title: 'Hébergement à Médine',
+        detail:
+          'Al Mokhtara Al Aali (Options 1 & 2), Shakri Palace (Option 3) ou Massa Al Iman (Option 4).'
+      },
+      {
+        key: 'makkah',
+        title: 'Hébergement à Makkah',
+        detail:
+          'Al Multazam (Options 1 & 2), Ammar Grand (Option 3) ou Al Naeem (Option 4).'
+      },
+      {
+        key: 'breakfast',
+        title: 'Petit-déjeuner à Makkah (Options 2, 3 et 4 uniquement)',
+        detail:
+          'Inclus à Makkah uniquement pour les Options 2, 3 et 4 (non mentionné pour l’Option 1).'
+      }
+    ],
+    unprintedTitle: 'Éléments non imprimés sur la brochure · À confirmer auprès de l’agence',
+    unprintedItems: [
+      'Billets d’avion aller-retour : non précisés sur la brochure (à confirmer auprès de l’agence).',
+      'Frais et formalités de visa Omra : non précisés sur la brochure (à confirmer).',
+      'Transferts terrestres et visites guidées : non précisés sur la brochure (à confirmer).',
+      'Petit-déjeuner à Médine et autres repas : non précisés sur la brochure (à confirmer).',
+      'Année exacte de départ / retour (brochure 2026 / 1448 · 13 au 27 février) : à confirmer auprès de l’agence.'
+    ],
 
     conditionsEyebrow: 'Conditions d’inscription',
     conditionsTitle: 'Documents requis & versement de l’avance',
@@ -467,6 +507,39 @@ export const OMRA_CHAABANE_ONLY_COPY: Record<Language, OmraChaabaneOnlyLocaleCop
     selectRoomBtn: 'اختيار',
     selectedRoomBtn: 'محددة',
 
+    inclusionsEyebrow: 'الخدمات المصرح بها رسمياً',
+    inclusionsTitle: 'السعر الأساسي يشمل',
+    inclusionsSubtitle:
+      'العناصر المذكورة صراحةً في نشرة عمرة شعبان حسب الخيار الفندقي المحدد.',
+    inclusions: [
+      {
+        key: 'madinah',
+        title: 'الإقامة في المدينة المنورة',
+        detail:
+          'فندق المختارة العالي (الخياران 1 و2)، شكري بالاس (الخيار 3) أو ماسة الإيمان (الخيار 4).'
+      },
+      {
+        key: 'makkah',
+        title: 'الإقامة في مكة المكرمة',
+        detail:
+          'فندق الملتزم (الخياران 1 و2)، عمار جراند (الخيار 3) أو النعيم (الخيار 4).'
+      },
+      {
+        key: 'breakfast',
+        title: 'الإفطار في مكة المكرمة (الخيارات 2 و3 و4 فقط)',
+        detail:
+          'وجبة الإفطار مشمولة في مكة للخيارات 2 و3 و4 فقط، وغير مذكورة في الخيار 1.'
+      }
+    ],
+    unprintedTitle: 'تفاصيل غير مطبوعة في النشرة · قيد التأكيد لدى الوكالة',
+    unprintedItems: [
+      'تذاكر الطيران ذهاباً وإياباً: غير مذكورة في النشرة (يرجى التأكيد مع الوكالة).',
+      'رسوم وإجراءات تأشيرة العمرة: غير مذكورة في النشرة (يرجى التأكيد).',
+      'التنقلات الداخلية والمزارات الدينية: غير مذكورة في النشرة (يرجى التأكيد).',
+      'الإفطار في المدينة المنورة وباقي الوجبات: غير مذكورة في النشرة (يرجى التأكيد).',
+      'السنة الدقيقة للذهاب والعودة (2026 / 1448 · 13 إلى 27 فبراير): خاضعة لتأكيد الوكالة.'
+    ],
+
     conditionsEyebrow: 'شروط التسجيل',
     conditionsTitle: 'الوثائق المطلوبة وأداء التسبيق',
     conditionsList: [
@@ -585,6 +658,39 @@ export const OMRA_CHAABANE_ONLY_COPY: Record<Language, OmraChaabaneOnlyLocaleCop
     unavailableDetail: 'Not offered in this accommodation option',
     selectRoomBtn: 'Select',
     selectedRoomBtn: 'Selected',
+
+    inclusionsEyebrow: 'Brochure-Verified Inclusions',
+    inclusionsTitle: 'The price includes',
+    inclusionsSubtitle:
+      'Elements explicitly printed on the Omra Chaâbane brochure according to the selected option.',
+    inclusions: [
+      {
+        key: 'madinah',
+        title: 'Madinah hotel accommodation',
+        detail:
+          'Al Mokhtara Al Aali (Options 1 & 2), Shakri Palace (Option 3), or Massa Al Iman (Option 4).'
+      },
+      {
+        key: 'makkah',
+        title: 'Makkah hotel accommodation',
+        detail:
+          'Al Multazam (Options 1 & 2), Ammar Grand (Option 3), or Al Naeem (Option 4).'
+      },
+      {
+        key: 'breakfast',
+        title: 'Breakfast in Makkah (Options 2, 3 & 4 only)',
+        detail:
+          'Breakfast in Makkah is expressly included only on Options 2, 3, and 4 (not listed on Option 1).'
+      }
+    ],
+    unprintedTitle: 'Unprinted items · Subject to agency confirmation',
+    unprintedItems: [
+      'Round-trip flights: not stated on the brochure (confirm directly with the agency).',
+      'Umrah visa handling/fees: not stated on the brochure (confirm with agency).',
+      'Ground transfers and guided visits: not stated on the brochure (confirm with agency).',
+      'Madinah breakfast and other meals: not stated on the brochure (confirm with agency).',
+      'Exact departure/return year (2026 / 1448 vs 13–27 February): confirm directly with the agency.'
+    ],
 
     conditionsEyebrow: 'Registration Conditions',
     conditionsTitle: 'Required documents & advance deposit rule',
@@ -707,6 +813,39 @@ export const OMRA_CHAABANE_ONLY_COPY: Record<Language, OmraChaabaneOnlyLocaleCop
     unavailableDetail: 'No disponible en esta opción',
     selectRoomBtn: 'Elegir',
     selectedRoomBtn: 'Seleccionada',
+
+    inclusionsEyebrow: 'Prestaciones Confirmadas en Folleto',
+    inclusionsTitle: 'El precio incluye',
+    inclusionsSubtitle:
+      'Elementos impresos expresamente en el folleto Omra Chaâbane según la opción elegida.',
+    inclusions: [
+      {
+        key: 'madinah',
+        title: 'Alojamiento en Medina',
+        detail:
+          'Al Mokhtara Al Aali (Opciones 1 y 2), Shakri Palace (Opción 3) o Massa Al Iman (Opción 4).'
+      },
+      {
+        key: 'makkah',
+        title: 'Alojamiento en La Meca',
+        detail:
+          'Al Multazam (Opciones 1 y 2), Ammar Grand (Opción 3) o Al Naeem (Opción 4).'
+      },
+      {
+        key: 'breakfast',
+        title: 'Desayuno en La Meca (solo Opciones 2, 3 y 4)',
+        detail:
+          'El desayuno en La Meca figura incluido únicamente en las Opciones 2, 3 y 4 (no figura en la Opción 1).'
+      }
+    ],
+    unprintedTitle: 'Detalles no impresos en el folleto · Por confirmar con la agencia',
+    unprintedItems: [
+      'Vuelos ida y vuelta: no detallados en el folleto (confirmar con la agencia).',
+      'Visado de Umrah: no detallado en el folleto (confirmar con la agencia).',
+      'Traslados y visitas guiadas: no detallados en el folleto (confirmar con la agencia).',
+      'Desayuno en Medina u otras comidas: no detallados en el folleto (confirmar con la agencia).',
+      'Año exacto de salida y regreso (2026 / 1448 · 13 al 27 de febrero): confirmar con la agencia.'
+    ],
 
     conditionsEyebrow: 'Requisitos',
     conditionsTitle: 'Condiciones de inscripción',

@@ -173,6 +173,11 @@ export interface OmraChaabaneLocaleCopy {
   overviewTitle: string;
   overviewText: string;
 
+  tableEyebrow: string;
+  tableTitle: string;
+  tableSubtitle: string;
+  colOptionHotels: string;
+
   optionsEyebrow: string;
   optionsTitle: string;
   optionsSubtitle: string;
@@ -186,6 +191,13 @@ export interface OmraChaabaneLocaleCopy {
   unavailableQuintupleDetail: string;
   selectRoomBtn: string;
   selectedRoomBtn: string;
+
+  inclusionsEyebrow: string;
+  inclusionsTitle: string;
+  inclusionsSubtitle: string;
+  inclusions: { key: 'duration' | 'madinah' | 'makkah'; title: string; detail: string }[];
+  unprintedTitle: string;
+  unprintedItems: string[];
 
   conditionsEyebrow: string;
   conditionsTitle: string;
@@ -263,6 +275,12 @@ export const OMRA_CHAABANE_COPY: Record<Language, OmraChaabaneLocaleCopy> = {
     overviewText:
       'Offre distincte de Omra Rajab et Omra Istanbul. Choisissez ci-dessous entre l’Option A (à partir de 18 500 MAD en Quintuple) et l’Option B (sans Quintuple) selon le niveau hôtelier et la formule de petit-déjeuner souhaitée à Médine et à Makkah.',
 
+    tableEyebrow: 'Grille Tarifaire Officielle (MAD / personne)',
+    tableTitle: 'Tableau comparatif des Options A et B',
+    tableSubtitle:
+      'Cliquez sur un tarif du tableau ou sélectionnez votre option ci-dessous. La chambre Quintuple n’est pas proposée dans l’Option B.',
+    colOptionHotels: 'Option & Hôtels',
+
     optionsEyebrow: 'Deux Formules d’Hébergement Séparées',
     optionsTitle: 'Sélectionnez votre option d’hébergement et type de chambre',
     optionsSubtitle:
@@ -282,6 +300,36 @@ export const OMRA_CHAABANE_COPY: Record<Language, OmraChaabaneLocaleCopy> = {
     unavailableQuintupleDetail: 'Non disponible sur la grille officielle de l’Option B',
     selectRoomBtn: 'Choisir',
     selectedRoomBtn: 'Sélectionnée',
+
+    inclusionsEyebrow: 'Prestations Officiellement Confirmées',
+    inclusionsTitle: 'Le prix comprend',
+    inclusionsSubtitle:
+      'Éléments expressément annoncés pour l’offre Omra Chaâbane & Ramadan, selon l’option choisie.',
+    inclusions: [
+      {
+        key: 'duration',
+        title: 'Séjour spirituel de 21 nuits',
+        detail: '12 nuits durant Chaâbane et 9 nuits durant Ramadan (total : 21 nuits).'
+      },
+      {
+        key: 'madinah',
+        title: 'Médine — Groupe Al Mokhtara',
+        detail: 'Sans petit-déjeuner en Option A ; avec petit-déjeuner en Option B.'
+      },
+      {
+        key: 'makkah',
+        title: 'Makkah — Petit-déjeuner inclus',
+        detail: 'Abraj Al Tayseer avec petit-déjeuner (Option A) ou Al Massa Grand avec petit-déjeuner (Option B).'
+      }
+    ],
+    unprintedTitle: 'Éléments non imprimés sur la brochure · À confirmer auprès de l’agence',
+    unprintedItems: [
+      'Billets d’avion aller-retour : non précisés sur la brochure (à confirmer auprès de l’agence).',
+      'Frais et formalités de visa Omra : non précisés sur la brochure (à confirmer).',
+      'Transferts terrestres et visites religieuses : non précisés sur la brochure (à confirmer).',
+      'Déjeuner / dîner (hors petits-déjeuners mentionnés) : non précisés (à confirmer).',
+      'Dates grégoriennes exactes 2027 / 1448 (écart avec 26 janv – 16 févr 2026) : à confirmer.'
+    ],
 
     conditionsEyebrow: 'Pièces & Engagements',
     conditionsTitle: 'Conditions d’inscription officielles',
@@ -387,6 +435,12 @@ export const OMRA_CHAABANE_COPY: Record<Language, OmraChaabaneLocaleCopy> = {
     overviewText:
       'عرض مستقل عن عمرة رجب وعمرة إسطنبول. اختر بين خيار الإقامة أ (يبدأ من 18,500 درهم في الخماسية) أو خيار الإقامة ب (لا تتوفر فيه الغرفة الخماسية) حسب الفندق ونظام الإفطار.',
 
+    tableEyebrow: 'جدول الأسعار الرسمي (درهم / للشخص)',
+    tableTitle: 'مقارنة خيارات الإقامة أ وب',
+    tableSubtitle:
+      'اضغط على أي سعر متاح لاختياره. الغرفة الخماسية غير مدرجة في خيار الإقامة ب.',
+    colOptionHotels: 'الخيار والفنادق',
+
     optionsEyebrow: 'خياران منفصلان للإقامة',
     optionsTitle: 'اختر باقة الإقامة ونوع الغرفة',
     optionsSubtitle:
@@ -406,6 +460,36 @@ export const OMRA_CHAABANE_COPY: Record<Language, OmraChaabaneLocaleCopy> = {
     unavailableQuintupleDetail: 'غير مدرجة في جدول أسعار خيار الإقامة ب',
     selectRoomBtn: 'اختيار',
     selectedRoomBtn: 'محددة',
+
+    inclusionsEyebrow: 'الخدمات المصرح بها رسمياً',
+    inclusionsTitle: 'السعر الأساسي يشمل',
+    inclusionsSubtitle:
+      'العناصر المذكورة صراحةً في نشرة عمرة شعبان ورمضان حسب خيار الإقامة المحدد.',
+    inclusions: [
+      {
+        key: 'duration',
+        title: 'مدة الإقامة الإجمالية: 21 ليلة',
+        detail: '12 ليلة خلال شعبان و9 ليالٍ خلال رمضان (المجموع 21 ليلة).'
+      },
+      {
+        key: 'madinah',
+        title: 'المدينة المنورة — مجموعة المختارة',
+        detail: 'بدون وجبة إفطار في الخيار أ، ومع وجبة الإفطار في الخيار ب.'
+      },
+      {
+        key: 'makkah',
+        title: 'مكة المكرمة — شامل وجبة الإفطار',
+        detail: 'أبراج التيسير مع الإفطار (الخيار أ) أو الماسة جراند مع الإفطار (الخيار ب).'
+      }
+    ],
+    unprintedTitle: 'تفاصيل غير مطبوعة في النشرة · قيد التأكيد لدى الوكالة',
+    unprintedItems: [
+      'تذاكر الطيران ذهاباً وإياباً: غير مذكورة في النشرة (يرجى التأكيد مع الوكالة).',
+      'رسوم وإجراءات تأشيرة العمرة: غير مذكورة في النشرة (يرجى التأكيد).',
+      'التنقلات الداخلية والمزارات: غير مذكورة في النشرة (يرجى التأكيد).',
+      'وجبات الغداء أو العشاء (خارج الإفطار المحدد): غير مذكورة (يرجى التأكيد).',
+      'التواريخ الميلادية الدقيقة لسنة 2027 / 1448 هـ (تعارض مع 26 يناير – 16 فبراير 2026): قيد التأكيد.'
+    ],
 
     conditionsEyebrow: 'الوثائق والالتزامات',
     conditionsTitle: 'شروط التسجيل الرسمية',
@@ -510,6 +594,12 @@ export const OMRA_CHAABANE_COPY: Record<Language, OmraChaabaneLocaleCopy> = {
     overviewText:
       'This offer is completely separate from Omra Rajab and Omra Istanbul. Compare Accommodation Option A (from 18,500 MAD Quintuple) and Option B (no Quintuple tier) with exact Madinah/Makkah hotel and breakfast conditions.',
 
+    tableEyebrow: 'Official Fare Matrix (MAD / person)',
+    tableTitle: 'Comparison across Options A and B',
+    tableSubtitle:
+      'Click any available price cell or select an accommodation option below. Quintuple occupancy is not offered under Option B.',
+    colOptionHotels: 'Option & Hotels',
+
     optionsEyebrow: 'Two Separate Accommodation Options',
     optionsTitle: 'Choose accommodation package & room type',
     optionsSubtitle:
@@ -529,6 +619,36 @@ export const OMRA_CHAABANE_COPY: Record<Language, OmraChaabaneLocaleCopy> = {
     unavailableQuintupleDetail: 'Not offered in Option B pricing table',
     selectRoomBtn: 'Select',
     selectedRoomBtn: 'Selected',
+
+    inclusionsEyebrow: 'Brochure-Verified Inclusions',
+    inclusionsTitle: 'The price includes',
+    inclusionsSubtitle:
+      'Elements explicitly confirmed for Omra Chaâbane & Ramadan according to the chosen accommodation option.',
+    inclusions: [
+      {
+        key: 'duration',
+        title: '21-night total stay',
+        detail: '12 nights during Chaâbane and 9 nights during Ramadan (total: 21 nights).'
+      },
+      {
+        key: 'madinah',
+        title: 'Madinah — Groupe Al Mokhtara',
+        detail: 'Without breakfast in Option A; with breakfast included in Option B.'
+      },
+      {
+        key: 'makkah',
+        title: 'Makkah — Breakfast included',
+        detail: 'Abraj Al Tayseer with breakfast (Option A) or Al Massa Grand with breakfast (Option B).'
+      }
+    ],
+    unprintedTitle: 'Unprinted items · Subject to agency confirmation',
+    unprintedItems: [
+      'Round-trip flights: not stated on the promotional material (confirm with the agency).',
+      'Umrah visa handling/fees: not stated on the material (confirm with agency).',
+      'Ground transfers and guided visits: not stated on the material (confirm with agency).',
+      'Lunch/dinner beyond stated breakfasts: not stated on the material (confirm with agency).',
+      'Exact 2027 / 1448 Gregorian dates (conflict with 26 Jan – 16 Feb 2026): confirm directly with agency.'
+    ],
 
     conditionsEyebrow: 'Requirements',
     conditionsTitle: 'Official registration conditions',
@@ -634,6 +754,12 @@ export const OMRA_CHAABANE_COPY: Record<Language, OmraChaabaneLocaleCopy> = {
     overviewText:
       'Programa independiente de Omra Rajab y Omra Istanbul. Compare las Opciones A y B con sus hoteles y regímenes exactos en Medina y La Meca.',
 
+    tableEyebrow: 'Tarifario Oficial (MAD / persona)',
+    tableTitle: 'Tabla comparativa de las Opciones A y B',
+    tableSubtitle:
+      'Haga clic en una tarifa disponible. La habitación Quíntuple no se ofrece en la Opción B.',
+    colOptionHotels: 'Opción y Hoteles',
+
     optionsEyebrow: 'Dos Opciones de Alojamiento Separadas',
     optionsTitle: 'Seleccione opción y tipo de habitación',
     optionsSubtitle:
@@ -653,6 +779,36 @@ export const OMRA_CHAABANE_COPY: Record<Language, OmraChaabaneLocaleCopy> = {
     unavailableQuintupleDetail: 'No incluida en la tabla de la Opción B',
     selectRoomBtn: 'Elegir',
     selectedRoomBtn: 'Seleccionada',
+
+    inclusionsEyebrow: 'Prestaciones Confirmadas',
+    inclusionsTitle: 'El precio incluye',
+    inclusionsSubtitle:
+      'Elementos expresamente confirmados para Omra Chaâbane & Ramadan según la opción elegida.',
+    inclusions: [
+      {
+        key: 'duration',
+        title: 'Estancia total de 21 noches',
+        detail: '12 noches durante Chaâbane y 9 noches durante Ramadán (total: 21 noches).'
+      },
+      {
+        key: 'madinah',
+        title: 'Medina — Groupe Al Mokhtara',
+        detail: 'Sin desayuno en la Opción A; con desayuno en la Opción B.'
+      },
+      {
+        key: 'makkah',
+        title: 'La Meca — Desayuno incluido',
+        detail: 'Abraj Al Tayseer con desayuno (Opción A) o Al Massa Grand con desayuno (Opción B).'
+      }
+    ],
+    unprintedTitle: 'Detalles no impresos en el folleto · Por confirmar con la agencia',
+    unprintedItems: [
+      'Vuelos ida y vuelta: no detallados en el folleto (confirmar con la agencia).',
+      'Visado de Umrah: no detallado en el folleto (confirmar con la agencia).',
+      'Traslados terrestres y visitas guiadas: no detallados en el folleto (confirmar).',
+      'Almuerzos o cenas adicionales: no detallados en el folleto (confirmar).',
+      'Fechas gregorianas exactas 2027 / 1448 (conflicto con 26 ene – 16 feb 2026): confirmar con la agencia.'
+    ],
 
     conditionsEyebrow: 'Requisitos',
     conditionsTitle: 'Condiciones oficiales de inscripción',

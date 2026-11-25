@@ -47,7 +47,6 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
 
   const [progress, setProgress] = useState(0);
   const [planeFinished, setPlaneFinished] = useState(false);
-  const [activeCityIdx, setActiveCityIdx] = useState(0);
   const [webglReady, setWebglReady] = useState(true);
 
   const readyToAnimateRef = useRef(readyToAnimate);
@@ -84,7 +83,6 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
 
       autoSlideStateRef.current.nextIdx = chosenNext;
       autoSlideStateRef.current.mix = 0;
-      setActiveCityIdx(chosenNext);
 
       if (mixTween) mixTween.kill();
       mixTween = gsap.to(autoSlideStateRef.current, {
@@ -521,7 +519,6 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
   }, []);
 
   const isLandscapeDominant = progress > 0.62;
-  const activeSlide = WORLD_CITY_SLIDES[activeCityIdx] || WORLD_CITY_SLIDES[0];
   const categoryLabels = SEARCH_ENGINE_PACKS[lang].categories;
 
   return (
@@ -555,19 +552,19 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
         }}
       />
 
-      {/* Bottom subtle legibility scrim once random cities start auto-cycling */}
+      {/* Bottom subtle legibility scrim for Explore CTA */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-48 z-[5] transition-opacity duration-700"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-32 z-[5] transition-opacity duration-700"
         style={{
           opacity: planeFinished ? 1 : 0,
           background:
-            'linear-gradient(0deg, rgba(7,20,41,0.76) 0%, rgba(7,20,41,0.32) 55%, rgba(7,20,41,0) 100%)'
+            'linear-gradient(0deg, rgba(7,20,41,0.58) 0%, rgba(7,20,41,0.22) 55%, rgba(7,20,41,0) 100%)'
         }}
       />
 
-      {/* Hero Overlay: Logo + Discover Tags top, Circular Service Icons only, City Caption + Explore Journeys CTA bottom */}
-      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-3 sm:px-8 lg:px-10 pt-3.5 sm:pt-7 pb-5 sm:pb-9 flex flex-col justify-between gap-3 sm:gap-5 pointer-events-none">
+      {/* Hero Overlay: Logo + Discover Tags top, Circular Service Icons only, Explore Journeys CTA bottom */}
+      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-3 sm:px-8 lg:px-10 pt-3.5 sm:pt-7 pb-5 sm:pb-8 flex flex-col justify-between gap-4 sm:gap-6 pointer-events-none">
         {/* Top Row: Official Golden Group 1:1 Logo & Micro-Tags */}
         <div className="w-full flex items-center justify-between gap-4">
           <a
@@ -675,8 +672,8 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
           </nav>
         </div>
 
-        {/* Bottom Center: Auto World City Caption + Explore Journeys CTA */}
-        <div className="flex flex-col items-center gap-2 pb-1 pointer-events-auto">
+        {/* Bottom Center: Explore Journeys CTA */}
+        <div className="flex flex-col items-center pb-1 sm:pb-2 pointer-events-auto">
           <div
             className="text-center transition-all duration-700 max-w-full"
             style={{
@@ -684,25 +681,10 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
               transform: progress > 0.78 ? 'translateY(0)' : 'translateY(10px)'
             }}
           >
-            {planeFinished ? (
-              <div className="space-y-1">
-                <div className="font-serif-crest text-sm min-[380px]:text-base sm:text-lg tracking-[0.18em] uppercase text-[#fceda2] drop-shadow-[0_1px_8px_rgba(7,20,41,0.95)]">
-                  {activeSlide.title[lang]}
-                </div>
-                <p className="text-xs sm:text-sm text-[#fcf9f2]/95 tracking-wide drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)]">
-                  {activeSlide.subtitle[lang]}
-                </p>
-              </div>
-            ) : (
-              <p className="text-[11px] uppercase tracking-[0.26em] text-[#fcf9f2] drop-shadow-[0_1px_6px_rgba(7,20,41,0.9)]">
-                {t.hero.worldHorizonsLabel}
-              </p>
-            )}
-
             <button
               type="button"
               onClick={onExploreBelow}
-              className="mt-2.5 sm:mt-3 max-w-full inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]/80 text-xs font-semibold tracking-wider uppercase hover:bg-[#132d56] shadow-[0_10px_28px_rgba(7,20,41,0.45)] transition-all hover:scale-105 cursor-pointer whitespace-normal sm:whitespace-nowrap text-center"
+              className="max-w-full inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-full bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]/80 text-xs font-semibold tracking-wider uppercase hover:bg-[#132d56] shadow-[0_10px_28px_rgba(7,20,41,0.45)] transition-all hover:scale-105 cursor-pointer whitespace-normal sm:whitespace-nowrap text-center"
             >
               <span>{t.hero.exploreCta}</span>
               <ArrowDown className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />

@@ -20,7 +20,8 @@ import {
   ShieldCheck,
   Ticket,
   Users,
-  Utensils
+  Utensils,
+  XCircle
 } from 'lucide-react';
 import { Language } from '../assets/destinations';
 import {
@@ -918,6 +919,22 @@ export const EgyptExcursionsDetailPage: React.FC<EgyptExcursionsDetailPageProps>
                 })}
               </div>
             </div>
+          </div>
+
+          {/* Exclusions & Optional Supplements Clarifications */}
+          <div className="ggt-egypt-exc-card rounded-2xl bg-[#fcf9f2] border border-amber-500/55 p-5 sm:p-6 space-y-3 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#0b1d3a]">
+              <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+              <span>{copy.exclusionsBlockTitle}</span>
+            </div>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs text-[#2c405e]">
+              {copy.exclusionsItems.map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                  <XCircle className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

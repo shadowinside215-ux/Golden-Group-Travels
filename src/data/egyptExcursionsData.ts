@@ -512,6 +512,8 @@ export interface EgyptExcursionsLocaleCopy {
   transferInclusionsTitle: string;
   transferInclusionsBadge: string;
   transferInclusionsList: { key: 'airportTransport' | 'enArAssist'; title: string; detail: string }[];
+  exclusionsBlockTitle: string;
+  exclusionsItems: string[];
 
   conditionsSectionEyebrow: string;
   conditionsSectionTitle: string;
@@ -632,7 +634,7 @@ export const EGYPT_EXCURSIONS_COPY: Record<Language, EgyptExcursionsLocaleCopy> 
     lunchBannerText: 'Le déjeuner reste strictement optionnel (+25 USD / personne) et n’est jamais inclus automatiquement dans les tarifs de base ci-dessus.',
 
     inclusionsSectionEyebrow: 'Détail des prestations incluses',
-    inclusionsSectionTitle: 'Ce qui est inclus selon le type de service',
+    inclusionsSectionTitle: 'Le prix comprend',
     inclusionsSectionSubtitle: 'Golden Group Travels distingue clairement l’encadrement des visites guidées et l’assistance dédiée aux transferts aéroport.',
     visitsInclusionsTitle: 'Excursions et visites touristiques',
     visitsInclusionsBadge: '5 circuits de visite',
@@ -666,6 +668,13 @@ export const EGYPT_EXCURSIONS_COPY: Record<Language, EgyptExcursionsLocaleCopy> 
         title: 'Assistance anglophone ou arabophone',
         detail: 'Accueil et coordination assurés par notre représentant anglophone ou arabophone (sans guide francophone sur ce transfert).'
       }
+    ],
+    exclusionsBlockTitle: 'Le prix ne comprend pas & suppléments optionnels',
+    exclusionsItems: [
+      'Supplément déjeuner optionnel (+25 USD / personne) non inclus dans le tarif de base (non applicable au transfert aéroport seul).',
+      'Groupes de taille différente de 2, 4 ou 6 personnes (1, 3, 5, 7+ voyageurs) : tarif sur demande.',
+      'Prestations après le 31 décembre 2026 : tarif sur demande.',
+      'Transfert aéroport : assistance anglophone ou arabophone uniquement (sans guide francophone).'
     ],
 
     conditionsSectionEyebrow: 'Conditions officielles d’application',
@@ -803,7 +812,7 @@ export const EGYPT_EXCURSIONS_COPY: Record<Language, EgyptExcursionsLocaleCopy> 
     lunchBannerText: 'وجبة الغداء خيار إضافي (+25 USD / شخص) ولا تُضاف تلقائياً إلى الأسعار الأساسية.',
 
     inclusionsSectionEyebrow: 'تفاصيل الخدمات المشمولة',
-    inclusionsSectionTitle: 'ما يشمله السعر حسب نوع الخدمة',
+    inclusionsSectionTitle: 'السعر الأساسي يشمل',
     inclusionsSectionSubtitle: 'توضح Golden Group Travels الفرق بين مرافقة الجولات السياحية والمساعدة الخاصة بنقل المطار.',
     visitsInclusionsTitle: 'الجولات والمزارات السياحية',
     visitsInclusionsBadge: '5 جولات سياحية',
@@ -837,6 +846,13 @@ export const EGYPT_EXCURSIONS_COPY: Record<Language, EgyptExcursionsLocaleCopy> 
         title: 'مساعدة باللغتين الإنجليزية أو العربية',
         detail: 'استقبال ومساعدة عبر مندوب ناطق بالإنجليزية أو العربية (لا يشمل مرشداً فرنسياً).'
       }
+    ],
+    exclusionsBlockTitle: 'السعر لا يشمل والإضافات الاختيارية',
+    exclusionsItems: [
+      'مكمل وجبة الغداء الاختياري (+25 USD / شخص) غير مدمج في السعر الأساسي (ولا ينطبق على نقل المطار فقط).',
+      'المجموعات التي يختلف عددها عن 2 أو 4 أو 6 مسافرين (1، 3، 5، 7+): السعر عند الطلب.',
+      'المواعيد بعد 31 ديسمبر 2026: السعر عند الطلب.',
+      'خدمة نقل المطار تشمل مساعدة بالإنجليزية أو العربية فقط (دون مرشد سياحي فرنسي).'
     ],
 
     conditionsSectionEyebrow: 'الشروط التعاقدية الرسمية',
@@ -974,7 +990,7 @@ export const EGYPT_EXCURSIONS_COPY: Record<Language, EgyptExcursionsLocaleCopy> 
     lunchBannerText: 'Lunch is strictly optional (+25 USD / person) and is never automatically included in the base excursion prices.',
 
     inclusionsSectionEyebrow: 'Service Inclusions',
-    inclusionsSectionTitle: 'What is included per service type',
+    inclusionsSectionTitle: 'The price includes',
     inclusionsSectionSubtitle: 'We clearly separate sightseeing excursion inclusions from airport transfer assistance.',
     visitsInclusionsTitle: 'Guided Excursions & Visits',
     visitsInclusionsBadge: '5 sightseeing excursions',
@@ -1008,6 +1024,13 @@ export const EGYPT_EXCURSIONS_COPY: Record<Language, EgyptExcursionsLocaleCopy> 
         title: 'English- or Arabic-speaking assistance',
         detail: 'Meet-and-assist provided by English- or Arabic-speaking staff (no French-speaking guide on airport transfers).'
       }
+    ],
+    exclusionsBlockTitle: 'Not included & optional supplements',
+    exclusionsItems: [
+      'Optional lunch supplement (+25 USD / person) excluded from base rates (not applicable to airport transfer only).',
+      'Group sizes other than 2, 4, or 6 travelers (1, 3, 5, 7+): Price on request.',
+      'Dates after December 31, 2026: Price on request.',
+      'Airport transfer includes English- or Arabic-speaking assistance only (no French tourist guide).'
     ],
 
     conditionsSectionEyebrow: 'Official Conditions',
@@ -1145,7 +1168,7 @@ export const EGYPT_EXCURSIONS_COPY: Record<Language, EgyptExcursionsLocaleCopy> 
     lunchBannerText: 'El almuerzo es totalmente opcional (+25 USD / persona) y nunca se incluye automáticamente en los precios base.',
 
     inclusionsSectionEyebrow: 'Detalles incluidos',
-    inclusionsSectionTitle: 'Qué incluye cada tipo de servicio',
+    inclusionsSectionTitle: 'El precio incluye',
     inclusionsSectionSubtitle: 'Distinguimos claramente la asistencia del traslado aeroportuario de los servicios incluidos en excursiones guiadas.',
     visitsInclusionsTitle: 'Excursiones y visitas guiadas',
     visitsInclusionsBadge: '5 excursiones',
@@ -1179,6 +1202,13 @@ export const EGYPT_EXCURSIONS_COPY: Record<Language, EgyptExcursionsLocaleCopy> 
         title: 'Asistencia en inglés o árabe',
         detail: 'Recepción y asistencia por personal de habla inglesa o árabe (sin guía francófono).'
       }
+    ],
+    exclusionsBlockTitle: 'El precio no incluye y suplementos opcionales',
+    exclusionsItems: [
+      'Suplemento de almuerzo opcional (+25 USD / persona) no incluido en la tarifa base (no aplica al traslado aeropuerto solo).',
+      'Grupos distintos de 2, 4 o 6 personas (1, 3, 5, 7+ viajeros): Precio bajo consulta.',
+      'Fechas posteriores al 31 de diciembre de 2026: Precio bajo consulta.',
+      'El traslado aeropuerto incluye únicamente asistencia en inglés o árabe (sin guía francófono).'
     ],
 
     conditionsSectionEyebrow: 'Condiciones oficiales',

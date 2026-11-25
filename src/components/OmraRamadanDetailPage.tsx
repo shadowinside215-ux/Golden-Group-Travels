@@ -11,6 +11,7 @@ import {
   Building2,
   Calendar,
   Camera,
+  Check,
   Coffee,
   CreditCard,
   ExternalLink,
@@ -53,6 +54,12 @@ interface OmraRamadanDetailPageProps {
   displayPhone: string;
   onJumpToHomePlanner: () => void;
 }
+
+const RAMADAN_INCLUSION_ICONS = {
+  duration: Calendar,
+  madinah: Building2,
+  makkah: Building2
+} as const;
 
 export const OmraRamadanDetailPage: React.FC<OmraRamadanDetailPageProps> = ({
   lang,
@@ -241,6 +248,16 @@ export const OmraRamadanDetailPage: React.FC<OmraRamadanDetailPageProps> = ({
         setSelectedOptionId(nextOptId);
       }
     });
+  };
+
+  const handleTableCellSelect = (
+    optId: OmraRamadanOptionId,
+    roomId: OmraRamadanRoomType
+  ) => {
+    if (optId !== selectedOptionId) {
+      handleOptionSwitch(optId);
+    }
+    setSelectedRoomType(roomId);
   };
 
   const formatMad = (amount: number) => `${amount.toLocaleString('fr-FR')} MAD`;
@@ -460,6 +477,130 @@ export const OmraRamadanDetailPage: React.FC<OmraRamadanDetailPageProps> = ({
                 ))}
               </ul>
             </div>
+          </div>
+        </section>
+
+        <div className="ggt-omra-ram-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/60 to-transparent" />
+
+        {/* SECTION 2B: DESKTOP COMPARISON TABLE */}
+        <section className="space-y-5">
+          <div className="ggt-omra-ram-heading space-y-1.5 max-w-3xl">
+            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
+              {copy.tableEyebrow}
+            </div>
+            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
+              {copy.tableTitle}
+            </h2>
+            <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
+              {copy.tableSubtitle}
+            </p>
+          </div>
+
+          <div className="hidden md:block overflow-x-auto rounded-2xl border-2 border-[#d1a847]/65 bg-[#fcf9f2] shadow-[0_14px_34px_rgba(11,29,58,0.08)]">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-[#0b1d3a] text-[#fceda2] text-xs">
+                  <th className="py-4 px-5 text-start font-semibold uppercase tracking-[0.14em]">
+                    {copy.colOptionHotels}
+                  </th>
+                  {OMRA_RAMADAN_ROOM_ORDER.map((roomId) => (
+                    <th key={roomId} className="py-4 px-3 text-center font-semibold">
+                      <div className="uppercase tracking-[0.1em]">
+                        {copy.roomLabels[roomId].name}
+                      </div>
+                      <div className="text-[11px] font-normal text-slate-300 mt-0.5">
+                        {copy.roomLabels[roomId].capacity}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#d1a847]/25">
+                {OMRA_RAMADAN_OPTIONS.map((opt) => {
+                  const isRowActive = opt.id === selectedOptionId;
+                  return (
+                    <tr
+                      key={opt.id}
+                      className={isRowActive ? 'bg-[#f5ede0]/70' : 'hover:bg-[#f5ede0]/45'}
+                    >
+                      <td className="py-4 px-5 align-top">
+                        <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9a7220]">
+                          {opt.code[lang]}
+                        </div>
+                        <div className="text-xs font-bold text-[#0b1d3a] mt-1">
+                          {copy.madinahCityLabel} : {opt.madinahHotel[lang]}
+                          <span className="ms-1.5 inline-flex items-center px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-bold">
+                            {opt.madinahMealNote[lang]}
+                          </span>
+                        </div>
+                        <div className="text-xs font-semibold text-[#2c405e] mt-0.5">
+                          {copy.makkahCityLabel} : {opt.makkahHotel[lang]}
+                          {opt.makkahDistanceNote && (
+                            <span className="ms-1.5 inline-flex items-center px-2 py-0.5 rounded bg-[#ede1ce] text-[#0b1d3a] text-[10px] font-semibold">
+                              {opt.makkahDistanceNote[lang]}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      {OMRA_RAMADAN_ROOM_ORDER.map((roomId) => {
+                        const roomState = opt.rooms[roomId];
+                        if (roomState.kind === 'not_offered') {
+                          return (
+                            <td key={roomId} className="py-3 px-2.5 text-center">
+                              <div className="py-2.5 px-2.5 rounded-xl bg-slate-100 border border-slate-300 text-slate-500 text-xs font-semibold">
+                                {copy.notOfferedLabel}
+                              </div>
+                            </td>
+                          );
+                        }
+
+                        const isCellSelected =
+                          selectedOptionId === opt.id && selectedRoomType === roomId;
+
+                        if (roomState.kind === 'needs_confirmation') {
+                          return (
+                            <td key={roomId} className="py-3 px-2.5 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleTableCellSelect(opt.id, roomId)}
+                                className={`ggt-card-3d-select w-full py-2.5 px-2.5 rounded-xl border transition-all cursor-pointer ${
+                                  isCellSelected
+                                    ? 'bg-amber-400 text-[#0b1d3a] border-amber-500 shadow-sm font-bold'
+                                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-400/75 font-semibold'
+                                }`}
+                              >
+                                <div className="text-xs font-bold leading-snug">
+                                  {copy.rateToConfirmLabel}
+                                </div>
+                              </button>
+                            </td>
+                          );
+                        }
+
+                        return (
+                          <td key={roomId} className="py-3 px-2.5 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleTableCellSelect(opt.id, roomId)}
+                              className={`ggt-card-3d-select w-full py-2.5 px-2.5 rounded-xl border transition-all cursor-pointer ${
+                                isCellSelected
+                                  ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847] shadow-sm font-bold'
+                                  : 'bg-white hover:bg-[#ede1ce] text-[#0b1d3a] border-[#d1a847]/45 font-semibold'
+                              }`}
+                            >
+                              <div className="font-serif-crest text-base tabular-nums">
+                                {formatMad(roomState.amountMad)}
+                              </div>
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -702,6 +843,60 @@ export const OmraRamadanDetailPage: React.FC<OmraRamadanDetailPageProps> = ({
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        <div className="ggt-omra-ram-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/60 to-transparent" />
+
+        {/* SECTION 3B: STANDARDIZED INCLUSIONS ("Le prix comprend") */}
+        <section className="space-y-6">
+          <div className="ggt-omra-ram-heading space-y-1.5 max-w-3xl">
+            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
+              {copy.inclusionsEyebrow}
+            </div>
+            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
+              {copy.inclusionsTitle}
+            </h2>
+            <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
+              {copy.inclusionsSubtitle}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+            {copy.inclusions.map((item) => {
+              const ItemIcon = RAMADAN_INCLUSION_ICONS[item.key];
+              return (
+                <div
+                  key={item.key}
+                  className="ggt-omra-ram-card rounded-2xl bg-[#fcf9f2] border-2 border-[#d1a847]/55 p-5 shadow-sm flex items-start gap-4"
+                >
+                  <span className="w-10 h-10 rounded-xl bg-[#071429] border border-[#d1a847] text-[#fceda2] flex items-center justify-center shrink-0">
+                    <ItemIcon className="w-5 h-5" />
+                  </span>
+                  <div className="space-y-1">
+                    <h3 className="font-serif-crest text-base sm:text-lg font-semibold text-[#0b1d3a]">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-[#2c405e] leading-relaxed">{item.detail}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="ggt-omra-ram-card rounded-2xl bg-[#fcf9f2] border border-amber-500/60 p-5 sm:p-6 space-y-3 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#0b1d3a]">
+              <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+              <span>{copy.unprintedTitle}</span>
+            </div>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs text-[#2c405e]">
+              {copy.unprintedItems.map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                  <Check className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

@@ -677,7 +677,7 @@ export const CAIRO_TOUR_COPY: Record<Language, CairoTourLocaleCopy> = {
     usdCurrencyNotice:
       'الأسعار الرسمية معتمدة حصرياً بالدولار الأمريكي (USD) وغير محولة إلى الدرهم. لا تشمل الطيران الدولي.',
     inclusionsEyebrow: 'الخدمات المعلنة',
-    inclusionsTitle: 'السعر يشمل',
+    inclusionsTitle: 'السعر الأساسي يشمل',
     inclusionsSubtitle: 'البنود التسعة المشمولة رسمياً في باقة «نبض القاهرة الساحرة»:',
     inclusions: [
       { key: 'visa', title: 'تأشيرة الدخول', detail: 'تأشيرة الدخول إلى مصر وفق الضوابط المعتمدة.' },
@@ -874,7 +874,7 @@ export const CAIRO_TOUR_COPY: Record<Language, CairoTourLocaleCopy> = {
     usdCurrencyNotice:
       'Published official rates are strictly in USD (never converted to MAD). International flights are excluded.',
     inclusionsEyebrow: 'What Is Included',
-    inclusionsTitle: 'Included in the Price',
+    inclusionsTitle: 'The price includes',
     inclusionsSubtitle: 'All 9 official items covered in "Le Pouls Charmant du Caire":',
     inclusions: [
       { key: 'visa', title: 'Entry Visa', detail: 'Egypt entry visa included in the package.' },

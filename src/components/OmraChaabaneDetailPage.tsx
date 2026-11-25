@@ -11,6 +11,7 @@ import {
   Building2,
   Calendar,
   Camera,
+  Check,
   Coffee,
   CreditCard,
   ExternalLink,
@@ -52,6 +53,12 @@ interface OmraChaabaneDetailPageProps {
   displayPhone: string;
   onJumpToHomePlanner: () => void;
 }
+
+const CHAABANE_INCLUSION_ICONS = {
+  madinah: Building2,
+  makkah: Building2,
+  breakfast: Coffee
+} as const;
 
 export const OmraChaabaneDetailPage: React.FC<OmraChaabaneDetailPageProps> = ({
   lang,
@@ -753,6 +760,60 @@ export const OmraChaabaneDetailPage: React.FC<OmraChaabaneDetailPageProps> = ({
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        <div className="ggt-omra-ch-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/60 to-transparent" />
+
+        {/* SECTION 4B: STANDARDIZED INCLUSIONS ("Le prix comprend") */}
+        <section className="space-y-6">
+          <div className="ggt-omra-ch-heading space-y-1.5 max-w-3xl">
+            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
+              {copy.inclusionsEyebrow}
+            </div>
+            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
+              {copy.inclusionsTitle}
+            </h2>
+            <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
+              {copy.inclusionsSubtitle}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+            {copy.inclusions.map((item) => {
+              const ItemIcon = CHAABANE_INCLUSION_ICONS[item.key];
+              return (
+                <div
+                  key={item.key}
+                  className="ggt-omra-ch-card rounded-2xl bg-[#fcf9f2] border-2 border-[#d1a847]/55 p-5 shadow-sm flex items-start gap-4"
+                >
+                  <span className="w-10 h-10 rounded-xl bg-[#071429] border border-[#d1a847] text-[#fceda2] flex items-center justify-center shrink-0">
+                    <ItemIcon className="w-5 h-5" />
+                  </span>
+                  <div className="space-y-1">
+                    <h3 className="font-serif-crest text-base sm:text-lg font-semibold text-[#0b1d3a]">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs text-[#2c405e] leading-relaxed">{item.detail}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="ggt-omra-ch-card rounded-2xl bg-[#fcf9f2] border border-amber-500/60 p-5 sm:p-6 space-y-3 shadow-sm">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#0b1d3a]">
+              <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+              <span>{copy.unprintedTitle}</span>
+            </div>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs text-[#2c405e]">
+              {copy.unprintedItems.map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2 leading-relaxed">
+                  <Check className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

@@ -19,6 +19,7 @@ import { TravelSearchEngine } from './TravelSearchEngine';
 import { UmrahPackageSection } from './UmrahPackageSection';
 import { CairoTourSection } from './CairoTourSection';
 import { IstanbulHolidaySection } from './IstanbulHolidaySection';
+import { EuropeBeneluxHolidaySection } from './EuropeBeneluxHolidaySection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -538,6 +539,8 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
           <>
             <div className="ggt-route-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/65 to-transparent" />
             <IstanbulHolidaySection lang={lang} isRtl={isRtl} />
+            <div className="ggt-route-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/55 to-transparent" />
+            <EuropeBeneluxHolidaySection lang={lang} isRtl={isRtl} />
           </>
         )}
 
