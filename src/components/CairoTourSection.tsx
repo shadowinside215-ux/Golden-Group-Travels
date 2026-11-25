@@ -1,7 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   AlertTriangle,
   ArrowRight,
@@ -27,8 +25,7 @@ import {
   EGYPT_EXCURSIONS_IMAGES,
   EGYPT_EXCURSIONS_ROUTE
 } from '../data/egyptExcursionsData';
-
-gsap.registerPlugin(ScrollTrigger);
+import { setupWindowPopScroll3D } from '../utils/tab3DMotion';
 
 interface CairoTourSectionProps {
   lang: Language;
@@ -44,59 +41,11 @@ export const CairoTourSection: React.FC<CairoTourSectionProps> = ({ lang, isRtl 
   useEffect(() => {
     const root = sectionRef.current;
     if (!root) return;
-
-    const mm = gsap.matchMedia();
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
-        isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
-      },
-      (context) => {
-        const isDesktop = Boolean(context.conditions?.isDesktop);
-
-        const heading = root.querySelector<HTMLElement>('.ggt-cairo-sec-heading');
-        if (heading) {
-          gsap.fromTo(
-            heading,
-            isDesktop
-              ? { opacity: 0.45, y: 16, rotateX: 4.5, transformPerspective: 1100 }
-              : { opacity: 0.45, y: 10 },
-            {
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: heading, start: 'top 96%', end: 'top 79%', scrub: 0.12 }
-            }
-          );
-        }
-
-        root.querySelectorAll<HTMLElement>('.ggt-cairo-showcase-card').forEach((card) => {
-          gsap.fromTo(
-            card,
-            isDesktop
-              ? { opacity: 0.45, y: 20, scale: 0.97, rotateX: 4, transformPerspective: 1200 }
-              : { opacity: 0.45, y: 12, scale: 0.98 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
-      }
-    );
-
-    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 180);
-    return () => {
-      window.clearTimeout(refreshId);
-      mm.revert();
-    };
+    return setupWindowPopScroll3D(root, {
+      headings: '.ggt-cairo-sec-heading',
+      cards: '.ggt-cairo-showcase-card',
+      refreshDelayMs: 180
+    });
   }, [lang]);
 
   return (

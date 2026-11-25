@@ -36,8 +36,7 @@ import {
   OMRA_CHAABANE_ONLY_META,
   OMRA_CHAABANE_ONLY_ROUTE
 } from '../data/omraChaabaneData';
-
-gsap.registerPlugin(ScrollTrigger);
+import { setupWindowPopScroll3D } from '../utils/tab3DMotion';
 
 interface UmrahPackageSectionProps {
   lang: Language;
@@ -124,59 +123,15 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
   const ramadanCopy = OMRA_RAMADAN_COPY[lang];
   const chaabaneOnlyCopy = OMRA_CHAABANE_ONLY_COPY[lang];
 
-  // Bidirectional ScrollTrigger animations for all five unified cards
+  // 3D Window Pop-Out ScrollTrigger animations for all five unified cards
   useEffect(() => {
     const container = rootRef.current;
     if (!container) return;
-
-    const mm = gsap.matchMedia();
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
-        isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
-      },
-      (context) => {
-        const isDesktop = Boolean(context.conditions?.isDesktop);
-
-        container.querySelectorAll<HTMLElement>('.ggt-umrah-reveal-left').forEach((el) => {
-          gsap.fromTo(
-            el,
-            { opacity: 0.45, x: isDesktop ? -18 : -8 },
-            {
-              opacity: 1,
-              x: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: el, start: 'top 96%', end: 'top 79%', scrub: 0.12 }
-            }
-          );
-        });
-
-        container.querySelectorAll<HTMLElement>('.ggt-umrah-card-3d').forEach((card) => {
-          gsap.fromTo(
-            card,
-            isDesktop
-              ? { opacity: 0.45, y: 18, scale: 0.97, rotateX: 4, transformPerspective: 1100 }
-              : { opacity: 0.45, y: 12, scale: 0.98 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
-      }
-    );
-
-    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 160);
-    return () => {
-      window.clearTimeout(refreshId);
-      mm.revert();
-    };
+    return setupWindowPopScroll3D(container, {
+      headings: '.ggt-umrah-reveal-left',
+      cards: '.ggt-umrah-card-3d',
+      refreshDelayMs: 160
+    });
   }, [lang]);
 
   return (

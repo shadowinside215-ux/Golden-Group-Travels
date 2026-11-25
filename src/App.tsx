@@ -58,7 +58,7 @@ import {
 import { SERVICE_PAGE_CHROME } from './assets/servicePagesData';
 import { LANGUAGES, translations } from './i18n';
 import { trackPageView } from './utils/analytics';
-import { prefersReducedMotion, pulseSelection3D } from './utils/tab3DMotion';
+import { prefersReducedMotion, pulseSelection3D, setupWindowPopScroll3D } from './utils/tab3DMotion';
 
 const WHATSAPP_PHONE_INTERNATIONAL = '212666484815';
 const DISPLAY_PHONE = '0666-484815';
@@ -232,140 +232,19 @@ export default function App() {
   }, [floatingLangOpen]);
 
   /**
-   * Repeatable Bidirectional 3D Scroll Animations across the homepage (GSAP + ScrollTrigger).
-   * - Plays continuously when scrolling DOWN and smoothly reverses when scrolling UP (zero `once: true`).
-   * - Uses `gsap.matchMedia()` for desktop 3D vs mobile 2D restraint and `prefers-reduced-motion`.
+   * Advanced Bidirectional 3D Window Pop-Out Scroll Choreography (GSAP + ScrollTrigger).
+   * - Pops service windows forward out of depth with staggered row emergence & gold bloom.
+   * - Reverses smoothly when scrolling up (`onLeaveBack`), with `fastScrollEnd` responsiveness.
    */
   useEffect(() => {
     if (!isHomeRoute) return;
-
-    const mm = gsap.matchMedia();
-
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
-        isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
-      },
-      (context) => {
-        const isDesktop = Boolean(context.conditions?.isDesktop);
-        const shiftY = isDesktop ? 18 : 10;
-
-        // 1. Section Headings (Nos Services + Planner) — fast, responsive bidirectional 3D lift
-        const headings = document.querySelectorAll<HTMLElement>('.ggt-scroll-heading');
-        headings.forEach((heading) => {
-          gsap.fromTo(
-            heading,
-            isDesktop
-              ? {
-                  opacity: 0.45,
-                  y: shiftY,
-                  scale: 0.98,
-                  rotateX: 5,
-                  transformPerspective: 1100
-                }
-              : { opacity: 0.45, y: shiftY },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: heading,
-                start: 'top 96%',
-                end: 'top 78%',
-                scrub: 0.12
-              }
-            }
-          );
-        });
-
-        // 2. Gold Hairline Dividers — snappy horizontal draw down/up
-        const dividers = document.querySelectorAll<HTMLElement>('.ggt-scroll-divider');
-        dividers.forEach((divider) => {
-          gsap.fromTo(
-            divider,
-            { scaleX: 0.2, opacity: 0.35, transformOrigin: 'center center' },
-            {
-              scaleX: 1,
-              opacity: 1,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: divider,
-                start: 'top 96%',
-                end: 'top 80%',
-                scrub: 0.1
-              }
-            }
-          );
-        });
-
-        // 3. "Nos Services" 3D Cards — fast GPU-composited bidirectional depth emergence
-        const serviceCards = document.querySelectorAll<HTMLElement>('.gsap-service-card-3d');
-        serviceCards.forEach((card, idx) => {
-          const colOffset = idx % 3;
-          const rotY = isDesktop ? (colOffset === 0 ? 4.5 : colOffset === 2 ? -4.5 : 0) : 0;
-          const shiftX = isDesktop ? (colOffset === 0 ? -12 : colOffset === 2 ? 12 : 0) : 0;
-
-          gsap.fromTo(
-            card,
-            isDesktop
-              ? {
-                  opacity: 0.45,
-                  y: 22,
-                  x: shiftX,
-                  scale: 0.96,
-                  rotateX: 5,
-                  rotateY: rotY,
-                  transformPerspective: 1100
-                }
-              : { opacity: 0.45, y: 14, scale: 0.98 },
-            {
-              opacity: 1,
-              y: 0,
-              x: 0,
-              scale: 1,
-              rotateX: 0,
-              rotateY: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: card,
-                start: 'top 96%',
-                end: 'top 78%',
-                scrub: 0.12
-              }
-            }
-          );
-        });
-
-        // 4. Footer Grid — crisp bidirectional entrance
-        const footerReveal = document.querySelector<HTMLElement>('.ggt-footer-reveal');
-        if (footerReveal) {
-          gsap.fromTo(
-            footerReveal,
-            { opacity: 0.45, y: isDesktop ? 16 : 10 },
-            {
-              opacity: 1,
-              y: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: footerReveal,
-                start: 'top 97%',
-                end: 'top 82%',
-                scrub: 0.12
-              }
-            }
-          );
-        }
-      }
-    );
-
-    return () => mm.revert();
-  }, [isHomeRoute]);
+    return setupWindowPopScroll3D(document, {
+      headings: '.ggt-scroll-heading',
+      dividers: '.ggt-scroll-divider',
+      cards: '.gsap-service-card-3d, .ggt-footer-reveal',
+      refreshDelayMs: 180
+    });
+  }, [isHomeRoute, lang]);
 
   // Ensure homepage hero animation starts when returning to '/' after direct visit to a sub-route
   useEffect(() => {

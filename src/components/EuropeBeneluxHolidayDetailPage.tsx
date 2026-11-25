@@ -40,7 +40,7 @@ import {
   EuropeRoomType
 } from '../data/europeBeneluxHolidayData';
 import { trackServiceSelection } from '../utils/analytics';
-import { prefersReducedMotion, pulseSelection3D } from '../utils/tab3DMotion';
+import { prefersReducedMotion, pulseSelection3D, setupWindowPopScroll3D } from '../utils/tab3DMotion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -142,66 +142,31 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
     const root = pageRef.current;
     if (!root) return;
 
-    const mm = gsap.matchMedia();
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
-        isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
-      },
-      (context) => {
-        const isDesktop = Boolean(context.conditions?.isDesktop);
-
-        const hero = root.querySelector<HTMLElement>('.ggt-eur-hero');
-        if (hero) {
-          gsap.fromTo(
-            hero,
-            isDesktop
-              ? { opacity: 0, y: 18, scale: 0.985, rotateX: 3.5, transformPerspective: 1200 }
-              : { opacity: 0, y: 10 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateX: 0,
-              duration: 0.5,
-              ease: 'power3.out',
-              force3D: true,
-              clearProps: 'transform,opacity'
-            }
-          );
-        }
-
-        const sections = root.querySelectorAll<HTMLElement>('.ggt-eur-reveal');
-        sections.forEach((sec) => {
-          gsap.fromTo(
-            sec,
-            isDesktop
-              ? { opacity: 0.4, y: 18, scale: 0.98, rotateX: 3.5, transformPerspective: 1100 }
-              : { opacity: 0.4, y: 10 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: sec,
-                start: 'top 95%',
-                end: 'top 76%',
-                scrub: 0.12
-              }
-            }
-          );
-        });
+    if (!prefersReducedMotion()) {
+      const hero = root.querySelector<HTMLElement>('.ggt-eur-hero');
+      if (hero) {
+        gsap.fromTo(
+          hero,
+          { opacity: 0, y: 22, scale: 0.96, rotateX: 5, transformPerspective: 1250 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotateX: 0,
+            duration: 0.56,
+            ease: 'back.out(1.15)',
+            force3D: true,
+            clearProps: 'transform,opacity'
+          }
+        );
       }
-    );
+    }
 
-    const refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 200);
-    return () => {
-      window.clearTimeout(refreshTimer);
-      mm.revert();
-    };
+    return setupWindowPopScroll3D(root, {
+      headings: '.ggt-eur-heading',
+      cards: '.ggt-eur-card',
+      refreshDelayMs: 200
+    });
   }, [lang]);
 
   const handleSelectCell = (depId: EuropeDepartureId, room: EuropeRoomType) => {
@@ -403,7 +368,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
         {/* SECTION 2: MANDATORY AIRLINE & BAGGAGE DISCREPANCY NOTICE */}
         <section
           aria-label={copy.airlineDiscrepancyTitle}
-          className="ggt-eur-reveal rounded-2xl bg-amber-50 border-2 border-amber-400 p-5 sm:p-6 shadow-sm"
+          className="ggt-eur-card rounded-2xl bg-amber-50 border-2 border-amber-400 p-5 sm:p-6 shadow-sm"
         >
           <div className="flex items-start gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0">
@@ -421,8 +386,8 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
         </section>
 
         {/* SECTION 3: EXACT PRICING & DEPARTURE MATRIX */}
-        <section className="ggt-eur-reveal space-y-6">
-          <div className="space-y-1.5 max-w-3xl">
+        <section className="space-y-6">
+          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
             <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
               {copy.pricingEyebrow}
             </div>
@@ -435,7 +400,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
           </div>
 
           {/* Desktop Interactive Pricing Table */}
-          <div className="hidden md:block rounded-2xl overflow-hidden bg-[#fcf9f2] border border-[#d1a847]/65 shadow-[0_14px_34px_rgba(11,29,58,0.08)]">
+          <div className="ggt-eur-card hidden md:block rounded-2xl overflow-hidden bg-[#fcf9f2] border border-[#d1a847]/65 shadow-[0_14px_34px_rgba(11,29,58,0.08)]">
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-[#0b1d3a] text-[#fceda2] text-xs uppercase tracking-[0.14em]">
@@ -503,7 +468,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
               return (
                 <div
                   key={dep.id}
-                  className={`rounded-2xl p-4 bg-[#fcf9f2] border transition-colors space-y-3 ${
+                  className={`ggt-eur-card rounded-2xl p-4 bg-[#fcf9f2] border transition-colors space-y-3 ${
                     isSelectedDep
                       ? 'border-2 border-[#0b1d3a] shadow-md'
                       : 'border-[#d1a847]/60'
@@ -557,8 +522,8 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
         </section>
 
         {/* SECTION 4: HOTELS (6 NIGHTS) & FLIGHT SCHEDULES */}
-        <section className="ggt-eur-reveal space-y-6">
-          <div className="space-y-1.5 max-w-3xl">
+        <section className="space-y-6">
+          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
             <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
               {copy.hotelsFlightsEyebrow}
             </div>
@@ -569,7 +534,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Hotels Column */}
-            <div className="lg:col-span-7 rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-6 space-y-5 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
+            <div className="ggt-eur-card lg:col-span-7 rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-6 space-y-5 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
               <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d1a847]/30">
                 <div className="flex items-center gap-2 font-serif-crest text-xl font-semibold text-[#0b1d3a]">
                   <Building2 className="w-5 h-5 text-[#c59b38]" />
@@ -614,7 +579,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
             </div>
 
             {/* Flights & Pending Baggage Column */}
-            <div className="lg:col-span-5 rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/70 p-5 sm:p-6 space-y-4 flex flex-col justify-between shadow-[0_18px_42px_rgba(4,12,28,0.22)]">
+            <div className="ggt-eur-card lg:col-span-5 rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/70 p-5 sm:p-6 space-y-4 flex flex-col justify-between shadow-[0_18px_42px_rgba(4,12,28,0.22)]">
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d1a847]/30">
                   <div className="flex items-center gap-2 font-serif-crest text-xl font-semibold text-[#fcf9f2]">
@@ -684,9 +649,9 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
         {/* SECTION 5: INTERACTIVE EXPANDABLE 7-DAY ITINERARY */}
         <section
           id="paris-benelux-itinerary"
-          className="ggt-eur-reveal space-y-6"
+          className="space-y-6"
         >
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="ggt-eur-heading flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-1.5 max-w-3xl">
               <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
                 {copy.itineraryEyebrow}
@@ -723,7 +688,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
               return (
                 <article
                   key={dayItem.day}
-                  className={`rounded-2xl overflow-hidden bg-[#fcf9f2] border transition-all duration-200 ${
+                  className={`ggt-eur-card rounded-2xl overflow-hidden bg-[#fcf9f2] border transition-all duration-200 ${
                     isOpen
                       ? 'border-2 border-[#d1a847] shadow-[0_16px_38px_rgba(11,29,58,0.1)]'
                       : 'border-[#d1a847]/50 hover:border-[#c59b38]'
@@ -766,7 +731,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
                   </button>
 
                   {isOpen && (
-                    <div className="border-t border-[#d1a847]/30 bg-[#fcf9f2] p-5 sm:p-6 space-y-4">
+                    <div className="animate-search-panel-in border-t border-[#d1a847]/30 bg-[#fcf9f2] p-5 sm:p-6 space-y-4">
                       <ul className="space-y-2.5">
                         {dayItem.highlights[lang].map((point, idx) => (
                           <li
@@ -794,8 +759,8 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
         </section>
 
         {/* SECTION 6: INCLUSIONS & EXCLUSIONS */}
-        <section className="ggt-eur-reveal space-y-6">
-          <div className="space-y-1.5 max-w-3xl">
+        <section className="space-y-6">
+          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
             <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
               {copy.inclusionsEyebrow}
             </div>
@@ -806,7 +771,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
             {/* Inclusions */}
-            <div className="rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-7 space-y-4 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
+            <div className="ggt-eur-card rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-7 space-y-4 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
               <h3 className="font-serif-crest text-xl font-semibold text-[#0b1d3a] pb-3 border-b border-[#d1a847]/30 flex items-center gap-2">
                 <Check className="w-5 h-5 text-emerald-700" />
                 <span>{copy.priceIncludesHeading}</span>
@@ -825,7 +790,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
             </div>
 
             {/* Exclusions */}
-            <div className="rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-7 space-y-4 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
+            <div className="ggt-eur-card rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-7 space-y-4 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
               <h3 className="font-serif-crest text-xl font-semibold text-[#0b1d3a] pb-3 border-b border-[#d1a847]/30 flex items-center gap-2">
                 <XCircle className="w-5 h-5 text-rose-700" />
                 <span>{copy.priceExcludesHeading}</span>
@@ -846,8 +811,8 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
         </section>
 
         {/* SECTION 7: CHILDREN & FAMILY PRICING POLICY */}
-        <section className="ggt-eur-reveal space-y-6">
-          <div className="space-y-1.5 max-w-3xl">
+        <section className="space-y-6">
+          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
             <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
               {copy.childPolicyEyebrow}
             </div>
@@ -860,7 +825,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
             {EUROPE_BENELUX_CHILD_POLICIES.map((pol) => (
               <div
                 key={pol.id}
-                className="rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 space-y-3 flex flex-col justify-between shadow-sm"
+                className="ggt-eur-card rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 space-y-3 flex flex-col justify-between shadow-sm"
               >
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#9a7220]">
@@ -884,8 +849,8 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
         </section>
 
         {/* SECTION 8: WHATSAPP RESERVATION INQUIRY & SUMMARY */}
-        <section id="paris-benelux-inquiry" className="ggt-eur-reveal space-y-6">
-          <div className="space-y-1.5 max-w-3xl">
+        <section id="paris-benelux-inquiry" className="space-y-6">
+          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
             <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
               {copy.inquiryEyebrow}
             </div>
@@ -899,7 +864,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Inquiry Form */}
-            <div className="lg:col-span-8 rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-8 shadow-[0_16px_40px_rgba(11,29,58,0.08)]">
+            <div className="ggt-eur-card lg:col-span-8 rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-8 shadow-[0_16px_40px_rgba(11,29,58,0.08)]">
               {submittedWhatsappUrl ? (
                 <div className="space-y-5 py-4 text-center sm:text-start">
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 border border-emerald-300">

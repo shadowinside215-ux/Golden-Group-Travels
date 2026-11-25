@@ -40,7 +40,9 @@ import {
 } from '../data/cairoTourData';
 import { trackServiceSelection } from '../utils/analytics';
 import {
+  prefersReducedMotion,
   pulseSelection3D,
+  setupWindowPopScroll3D,
   switchTabWithTimeline,
   useReplayable3DPanel,
   useSlidingTabIndicator
@@ -252,119 +254,38 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
     travelersCount
   ]);
 
-  // Repeatable Bidirectional 3D GSAP ScrollTrigger Animations
+  // 3D Window Pop-Out Bidirectional GSAP ScrollTrigger Animations
   useEffect(() => {
     const root = pageRootRef.current;
     if (!root) return;
 
-    const mm = gsap.matchMedia();
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
-        isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
-      },
-      (context) => {
-        const isDesktop = Boolean(context.conditions?.isDesktop);
-
-        const heroContent = root.querySelector<HTMLElement>('.ggt-cairo-hero-enter');
-        if (heroContent) {
-          gsap.fromTo(
-            heroContent,
-            isDesktop
-              ? { opacity: 0, y: 22, rotateX: 5, transformPerspective: 1200 }
-              : { opacity: 0, y: 14 },
-            {
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
-              duration: 0.65,
-              ease: 'power3.out',
-              clearProps: 'transform,opacity'
-            }
-          );
-        }
-
-        root.querySelectorAll<HTMLElement>('.ggt-cairo-divider').forEach((divider) => {
-          gsap.fromTo(
-            divider,
-            { scaleX: 0.2, opacity: 0.35, transformOrigin: 'center center' },
-            {
-              scaleX: 1,
-              opacity: 1,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: divider, start: 'top 96%', end: 'top 80%', scrub: 0.1 }
-            }
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>('.ggt-cairo-heading-3d').forEach((heading) => {
-          gsap.fromTo(
-            heading,
-            isDesktop
-              ? { opacity: 0.45, y: 18, scale: 0.98, rotateX: 5, transformPerspective: 1100 }
-              : { opacity: 0.45, y: 10 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: heading, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>('.ggt-cairo-card-3d').forEach((card, idx) => {
-          const rotY = isDesktop ? (idx % 2 === 0 ? 4 : -4) : 0;
-          gsap.fromTo(
-            card,
-            isDesktop
-              ? { opacity: 0.45, y: 18, scale: 0.97, rotateY: rotY, transformPerspective: 1100 }
-              : { opacity: 0.45, y: 12, scale: 0.98 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateY: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
-
-        const heritageImg = root.querySelector<HTMLElement>('.ggt-cairo-photo-reveal');
-        if (heritageImg) {
-          gsap.fromTo(
-            heritageImg,
-            isDesktop
-              ? { opacity: 0.45, scale: 0.96, rotateY: -4.5, transformPerspective: 1100 }
-              : { opacity: 0.45, scale: 0.98 },
-            {
-              opacity: 1,
-              scale: 1,
-              rotateY: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: heritageImg,
-                start: 'top 96%',
-                end: 'top 76%',
-                scrub: 0.14
-              }
-            }
-          );
-        }
+    if (!prefersReducedMotion()) {
+      const heroContent = root.querySelector<HTMLElement>('.ggt-cairo-hero-enter');
+      if (heroContent) {
+        gsap.fromTo(
+          heroContent,
+          { opacity: 0, y: 22, scale: 0.96, rotateX: 5, transformPerspective: 1250 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotateX: 0,
+            duration: 0.58,
+            ease: 'back.out(1.15)',
+            force3D: true,
+            clearProps: 'transform,opacity'
+          }
+        );
       }
-    );
+    }
 
-    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 220);
-    return () => {
-      window.clearTimeout(refreshId);
-      mm.revert();
-    };
+    return setupWindowPopScroll3D(root, {
+      dividers: '.ggt-cairo-divider',
+      headings: '.ggt-cairo-heading-3d',
+      cards: '.ggt-cairo-card-3d',
+      media: '.ggt-cairo-photo-reveal',
+      refreshDelayMs: 220
+    });
   }, [lang]);
 
   const handleSelectHotelAndJump = (

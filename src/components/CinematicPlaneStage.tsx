@@ -369,15 +369,20 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
 
     const afterDraw = (cb: () => void) => {
       const gl = renderer.getContext() as WebGL2RenderingContext;
-      if (!gl || typeof gl.fenceSync !== 'function') {
+      if (!gl || gl.isContextLost() || typeof gl.fenceSync !== 'function') {
         frameId = window.setTimeout(cb, 80);
         return;
       }
       const sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
       gl.flush();
+      let polls = 0;
       const poll = () => {
+        if (disposed || gl.isContextLost()) {
+          if (sync) gl.deleteSync(sync);
+          return;
+        }
         const state = sync && gl.getSyncParameter(sync, gl.SYNC_STATUS);
-        if (state === gl.UNSIGNALED) {
+        if (state === gl.UNSIGNALED && ++polls < 40) {
           frameId = window.setTimeout(poll, 5);
         } else {
           if (sync) gl.deleteSync(sync);

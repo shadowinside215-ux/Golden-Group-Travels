@@ -13,7 +13,7 @@ import {
   SearchCategoryId
 } from '../config/travelSuppliers';
 import { trackServiceSelection, ServiceSelectionEventName } from '../utils/analytics';
-import { prefersReducedMotion, useSlidingTabIndicator } from '../utils/tab3DMotion';
+import { prefersReducedMotion, setupWindowPopScroll3D, useSlidingTabIndicator } from '../utils/tab3DMotion';
 import { HERO_CATEGORY_ICONS } from './ServiceIcons';
 import { TravelSearchEngine } from './TravelSearchEngine';
 import { UmrahPackageSection } from './UmrahPackageSection';
@@ -365,45 +365,17 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
             );
           }
         }
-
-        root.querySelectorAll<HTMLElement>('.ggt-route-divider').forEach((divider) => {
-          gsap.fromTo(
-            divider,
-            { scaleX: 0.2, opacity: 0.35, transformOrigin: 'center center' },
-            {
-              scaleX: 1,
-              opacity: 1,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: divider, start: 'top 96%', end: 'top 80%', scrub: 0.1 }
-            }
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>('.ggt-route-card-3d').forEach((card, idx) => {
-          const rotY = isDesktop ? (idx % 2 === 0 ? 4 : -4) : 0;
-          gsap.fromTo(
-            card,
-            isDesktop
-              ? { opacity: 0.45, y: 18, scale: 0.97, rotateY: rotY, transformPerspective: 1100 }
-              : { opacity: 0.45, y: 12, scale: 0.98 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateY: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
       }
     );
 
-    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 220);
+    const cleanScroll3D = setupWindowPopScroll3D(root, {
+      dividers: '.ggt-route-divider',
+      cards: '.ggt-route-card-3d',
+      refreshDelayMs: 220
+    });
+
     return () => {
-      window.clearTimeout(refreshId);
+      cleanScroll3D();
       mm.revert();
     };
   }, [category]);

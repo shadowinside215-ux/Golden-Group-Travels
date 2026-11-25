@@ -60,7 +60,7 @@
             var ownOrigin =
               typeof window !== 'undefined' && window.location ? window.location.origin : '';
             var isThirdPartyStack =
-              /tpemb|tpembars|localrent|getrentacar|expedia|klook|tiqets|wegotrip|kiwitaxi|intui|googletagmanager|google-analytics|maps\.googleapis/i.test(
+              /tpemb|tpembars|tp\.media|aviasales|hotellook|travelpayouts|localrent|getrentacar|expedia|klook|kkday|tiqets|wegotrip|kiwitaxi|intui|googletagmanager|google-analytics|googleapis\.com|gstatic\.com|@vis__gl_react-google-maps/i.test(
                 stack
               );
             var isOwnOriginOnly = Boolean(
@@ -159,6 +159,7 @@
         var script = document.createElement('script');
         script.async = true;
         script.src = 'https://tpembars.com/NjAzMTc2.js?t=603176';
+        script.onerror = function () {};
         document.head.appendChild(script);
       })();
     </script>

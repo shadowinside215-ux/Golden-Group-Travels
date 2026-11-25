@@ -1,5 +1,9 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 export function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined') return false;
@@ -166,10 +170,8 @@ export function useReplayable3DPanel(
     const desktop = isDesktopViewport();
 
     const ctx = gsap.context(() => {
-      // Kill any in-flight tweens from a previous rapid tab click
       gsap.killTweensOf([panel, ...staggerNodes, ...widgetFadeNodes]);
 
-      // Only apply 3D transforms to the panel root if it does not directly contain a live third-party iframe/widget
       const containsProtectedWidget = Boolean(
         panel.querySelector('.widget-stability-shell, [data-widget-protected="true"]')
       );
@@ -235,7 +237,6 @@ export function useReplayable3DPanel(
         );
       }
 
-      // Opacity-only reveal on widget-safe wrappers (strictly NO transform/scale/rotate)
       if (widgetFadeNodes.length > 0) {
         gsap.fromTo(
           widgetFadeNodes,
@@ -305,7 +306,6 @@ export function switchTabWithTimeline({
   });
 
   if (isWidgetSafe) {
-    // Opacity-only outgoing ease when element surrounds live partner widgets
     tl.to(outgoingEl, {
       opacity: 0.2,
       duration: 0.13,
@@ -348,3 +348,406 @@ export function pulseSelection3D(el: HTMLElement | null) {
     }
   );
 }
+
+export interface WindowPopScrollConfig {
+  cards?: string;
+  headings?: string;
+  dividers?: string;
+  media?: string;
+  refreshDelayMs?: number;
+}
+
+function isProtectedWidgetNode(el: HTMLElement): boolean {
+  return Boolean(
+    el.classList.contains('widget-stability-shell') ||
+      el.closest('.widget-stability-shell') ||
+      el.closest('[data-widget-protected="true"]') ||
+      el.querySelector('.widget-stability-shell, [data-widget-protected="true"]')
+  );
+}
+
+/**
+ * Advanced GSAP ScrollTrigger engine creating silky-smooth 3D "windows popping out"
+ * spatial depth on scroll, with staggered row emergence, champagne-gold bloom,
+ * reverse tuck on scroll-up, fastScrollEnd responsiveness, and strict widget protection.
+ */
+export function setupWindowPopScroll3D(
+  root: HTMLElement | Document,
+  config: WindowPopScrollConfig
+): () => void {
+  const { cards, headings, dividers, media, refreshDelayMs = 160 } = config;
+  const mm = gsap.matchMedia();
+
+  const queryNodes = (selector?: string): HTMLElement[] => {
+    if (!selector) return [];
+    return Array.from(root.querySelectorAll<HTMLElement>(selector));
+  };
+
+  mm.add(
+    {
+      isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
+      isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
+    },
+    (context) => {
+      const isDesktop = Boolean(context.conditions?.isDesktop);
+      const viewportH = window.innerHeight || 800;
+
+      // 1. Floating 3D Cards / Windows ("windows popping out")
+      const cardNodes = queryNodes(cards).filter((el) => !isProtectedWidgetNode(el));
+      if (cardNodes.length > 0) {
+        const belowFoldCards: HTMLElement[] = [];
+        const aboveOrInViewCards: HTMLElement[] = [];
+
+        cardNodes.forEach((el, idx) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top >= viewportH * 0.93) {
+            belowFoldCards.push(el);
+            gsap.set(
+              el,
+              isDesktop
+                ? {
+                    opacity: 0,
+                    y: 44,
+                    scale: 0.87,
+                    rotateX: 11,
+                    rotateY: idx % 2 === 0 ? -3 : 3,
+                    z: -48,
+                    transformPerspective: 1300,
+                    transformOrigin: '50% 60%'
+                  }
+                : {
+                    opacity: 0,
+                    y: 22,
+                    scale: 0.92,
+                    transformOrigin: '50% 60%'
+                  }
+            );
+          } else {
+            aboveOrInViewCards.push(el);
+          }
+        });
+
+        if (aboveOrInViewCards.length > 0) {
+          gsap.fromTo(
+            aboveOrInViewCards,
+            isDesktop
+              ? {
+                  opacity: 0.15,
+                  y: 24,
+                  scale: 0.93,
+                  rotateX: 6,
+                  transformPerspective: 1300
+                }
+              : { opacity: 0.25, y: 12, scale: 0.96 },
+            {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              rotateX: 0,
+              rotateY: 0,
+              z: 0,
+              duration: 0.56,
+              stagger: 0.055,
+              ease: 'back.out(1.2)',
+              force3D: true,
+              overwrite: 'auto',
+              onStart: () =>
+                aboveOrInViewCards.forEach((el) => el.classList.add('ggt-window-popped'))
+            }
+          );
+        }
+
+        if (belowFoldCards.length > 0) {
+          ScrollTrigger.batch(belowFoldCards, {
+            start: 'top 93%',
+            end: 'bottom 5%',
+            fastScrollEnd: true,
+            onEnter: (batch) => {
+              const els = batch as HTMLElement[];
+              gsap.to(els, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                rotateY: 0,
+                z: 0,
+                duration: isDesktop ? 0.58 : 0.44,
+                ease: 'back.out(1.24)',
+                stagger: { each: 0.06, from: 'start' },
+                force3D: true,
+                overwrite: 'auto',
+                onStart: () => els.forEach((el) => el.classList.add('ggt-window-popped'))
+              });
+            },
+            onLeave: (batch) => {
+              gsap.set(batch, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                rotateY: 0,
+                z: 0
+              });
+            },
+            onEnterBack: (batch) => {
+              const els = batch as HTMLElement[];
+              gsap.to(els, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                rotateY: 0,
+                z: 0,
+                duration: 0.45,
+                ease: 'expo.out',
+                stagger: { each: 0.045, from: 'end' },
+                force3D: true,
+                overwrite: 'auto',
+                onStart: () => els.forEach((el) => el.classList.add('ggt-window-popped'))
+              });
+            },
+            onLeaveBack: (batch) => {
+              const els = batch as HTMLElement[];
+              els.forEach((el) => el.classList.remove('ggt-window-popped'));
+              gsap.to(
+                els,
+                isDesktop
+                  ? {
+                      opacity: 0,
+                      y: 36,
+                      scale: 0.88,
+                      rotateX: 10,
+                      z: -42,
+                      duration: 0.26,
+                      ease: 'power2.in',
+                      stagger: 0.025,
+                      force3D: true,
+                      overwrite: 'auto'
+                    }
+                  : {
+                      opacity: 0,
+                      y: 18,
+                      scale: 0.93,
+                      duration: 0.22,
+                      ease: 'power2.in',
+                      force3D: true,
+                      overwrite: 'auto'
+                    }
+              );
+            }
+          });
+        }
+      }
+
+      // 2. Editorial Headings — Crisp 3D Tilt Emergence
+      const headingNodes = queryNodes(headings).filter((el) => !isProtectedWidgetNode(el));
+      if (headingNodes.length > 0) {
+        const belowHeadings: HTMLElement[] = [];
+        headingNodes.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top >= viewportH * 0.94) {
+            belowHeadings.push(el);
+            gsap.set(
+              el,
+              isDesktop
+                ? {
+                    opacity: 0,
+                    y: 26,
+                    scale: 0.94,
+                    rotateX: 9,
+                    transformPerspective: 1150,
+                    transformOrigin: '50% 50%'
+                  }
+                : { opacity: 0, y: 14, scale: 0.96 }
+            );
+          }
+        });
+
+        if (belowHeadings.length > 0) {
+          ScrollTrigger.batch(belowHeadings, {
+            start: 'top 93%',
+            fastScrollEnd: true,
+            onEnter: (batch) => {
+              gsap.to(batch, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                duration: 0.52,
+                ease: 'expo.out',
+                stagger: 0.05,
+                force3D: true,
+                overwrite: 'auto'
+              });
+            },
+            onEnterBack: (batch) => {
+              gsap.to(batch, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                duration: 0.4,
+                ease: 'expo.out',
+                force3D: true,
+                overwrite: 'auto'
+              });
+            },
+            onLeaveBack: (batch) => {
+              gsap.to(
+                batch,
+                isDesktop
+                  ? {
+                      opacity: 0,
+                      y: 22,
+                      scale: 0.95,
+                      rotateX: 8,
+                      duration: 0.24,
+                      ease: 'power2.in',
+                      force3D: true,
+                      overwrite: 'auto'
+                    }
+                  : {
+                      opacity: 0,
+                      y: 12,
+                      scale: 0.97,
+                      duration: 0.2,
+                      ease: 'power2.in',
+                      force3D: true,
+                      overwrite: 'auto'
+                    }
+              );
+            }
+          });
+        }
+      }
+
+      // 3. Champagne Gold Dividers — Expanding Laser Beam
+      const dividerNodes = queryNodes(dividers);
+      if (dividerNodes.length > 0) {
+        const belowDividers: HTMLElement[] = [];
+        dividerNodes.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top >= viewportH * 0.95) {
+            belowDividers.push(el);
+            gsap.set(el, { scaleX: 0.06, opacity: 0.12, transformOrigin: 'center center' });
+          }
+        });
+
+        if (belowDividers.length > 0) {
+          ScrollTrigger.batch(belowDividers, {
+            start: 'top 94%',
+            fastScrollEnd: true,
+            onEnter: (batch) => {
+              gsap.to(batch, {
+                scaleX: 1,
+                opacity: 1,
+                duration: 0.56,
+                ease: 'expo.out',
+                force3D: true,
+                overwrite: 'auto'
+              });
+            },
+            onLeaveBack: (batch) => {
+              gsap.to(batch, {
+                scaleX: 0.06,
+                opacity: 0.12,
+                duration: 0.24,
+                ease: 'power2.in',
+                force3D: true,
+                overwrite: 'auto'
+              });
+            }
+          });
+        }
+      }
+
+      // 4. Showcase / Feature Photography Windows
+      const mediaNodes = queryNodes(media).filter((el) => !isProtectedWidgetNode(el));
+      if (mediaNodes.length > 0) {
+        const belowMedia: HTMLElement[] = [];
+        mediaNodes.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top >= viewportH * 0.94) {
+            belowMedia.push(el);
+            gsap.set(
+              el,
+              isDesktop
+                ? {
+                    opacity: 0.12,
+                    y: 28,
+                    scale: 0.9,
+                    rotateX: 6,
+                    rotateY: -4,
+                    z: -32,
+                    transformPerspective: 1300
+                  }
+                : { opacity: 0.2, y: 16, scale: 0.95 }
+            );
+          }
+        });
+
+        if (belowMedia.length > 0) {
+          ScrollTrigger.batch(belowMedia, {
+            start: 'top 93%',
+            fastScrollEnd: true,
+            onEnter: (batch) => {
+              gsap.to(batch, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotateX: 0,
+                rotateY: 0,
+                z: 0,
+                duration: 0.64,
+                ease: 'expo.out',
+                force3D: true,
+                overwrite: 'auto'
+              });
+            },
+            onLeaveBack: (batch) => {
+              gsap.to(
+                batch,
+                isDesktop
+                  ? {
+                      opacity: 0.12,
+                      y: 24,
+                      scale: 0.91,
+                      rotateX: 5,
+                      rotateY: -3,
+                      duration: 0.26,
+                      ease: 'power2.in',
+                      force3D: true,
+                      overwrite: 'auto'
+                    }
+                  : {
+                      opacity: 0.2,
+                      y: 14,
+                      scale: 0.95,
+                      duration: 0.22,
+                      ease: 'power2.in',
+                      force3D: true,
+                      overwrite: 'auto'
+                    }
+              );
+            }
+          });
+        }
+      }
+    }
+  );
+
+  let reverted = false;
+  const refreshId = window.setTimeout(() => {
+    if (!reverted) {
+      ScrollTrigger.refresh();
+    }
+  }, refreshDelayMs);
+
+  return () => {
+    reverted = true;
+    window.clearTimeout(refreshId);
+    queryNodes(cards).forEach((el) => el.classList.remove('ggt-window-popped'));
+    mm.revert();
+  };
+}
+

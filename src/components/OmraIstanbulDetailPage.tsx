@@ -41,6 +41,7 @@ import {
 import { trackServiceSelection } from '../utils/analytics';
 import {
   pulseSelection3D,
+  setupWindowPopScroll3D,
   switchTabWithTimeline,
   useReplayable3DPanel,
   useSlidingTabIndicator
@@ -159,76 +160,16 @@ export const OmraIstanbulDetailPage: React.FC<OmraIstanbulDetailPageProps> = ({
     };
   }, []);
 
-  // Bidirectional ScrollTrigger motion matching OmraChaabaneDetailPage
+  // 3D Window Pop-Out ScrollTrigger motion — smooth down and up
   useEffect(() => {
     const root = pageRootRef.current;
     if (!root) return;
-
-    const mm = gsap.matchMedia();
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
-        isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
-      },
-      (context) => {
-        const isDesktop = Boolean(context.conditions?.isDesktop);
-
-        root.querySelectorAll<HTMLElement>('.ggt-omra-ist-heading').forEach((heading) => {
-          gsap.fromTo(
-            heading,
-            isDesktop
-              ? { opacity: 0.45, y: 16, rotateX: 4, transformPerspective: 1100 }
-              : { opacity: 0.45, y: 10 },
-            {
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: heading, start: 'top 95%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>('.ggt-omra-ist-card').forEach((card) => {
-          gsap.fromTo(
-            card,
-            isDesktop
-              ? { opacity: 0.55, y: 18, scale: 0.98, rotateX: 3.5, transformPerspective: 1100 }
-              : { opacity: 0.55, y: 10, scale: 0.99 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 95%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>('.ggt-omra-ist-divider').forEach((line) => {
-          gsap.fromTo(
-            line,
-            { scaleX: 0.25, opacity: 0.25, transformOrigin: 'center center' },
-            {
-              scaleX: 1,
-              opacity: 1,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: line, start: 'top 95%', end: 'top 80%', scrub: 0.1 }
-            }
-          );
-        });
-      }
-    );
-
-    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 180);
-    return () => {
-      window.clearTimeout(refreshId);
-      mm.revert();
-    };
+    return setupWindowPopScroll3D(root, {
+      headings: '.ggt-omra-ist-heading',
+      cards: '.ggt-omra-ist-card',
+      dividers: '.ggt-omra-ist-divider',
+      refreshDelayMs: 180
+    });
   }, [lang]);
 
   const handleOptionSwitch = (nextOptId: OmraIstanbulOptionId) => {

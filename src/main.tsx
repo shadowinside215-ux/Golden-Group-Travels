@@ -54,7 +54,7 @@ window.addEventListener(
     const stack =
       reason && typeof reason === 'object' && 'stack' in reason ? String(reason.stack ?? '') : '';
     const isThirdPartyStack =
-      /tpemb|tpembars|localrent|getrentacar|expedia|klook|tiqets|wegotrip|kiwitaxi|intui|googletagmanager|google-analytics|maps\.googleapis/i.test(
+      /tpemb|tpembars|tp\.media|aviasales|hotellook|travelpayouts|localrent|getrentacar|expedia|klook|kkday|tiqets|wegotrip|kiwitaxi|intui|googletagmanager|google-analytics|googleapis\.com|gstatic\.com|@vis__gl_react-google-maps/i.test(
         stack
       );
     const isOwnOriginOnly = Boolean(

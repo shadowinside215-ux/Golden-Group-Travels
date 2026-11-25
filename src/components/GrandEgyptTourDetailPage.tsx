@@ -39,7 +39,7 @@ import {
   evaluateGrandEgyptDates
 } from '../data/grandEgyptTourData';
 import { trackServiceSelection } from '../utils/analytics';
-import { pulseSelection3D, useReplayable3DPanel } from '../utils/tab3DMotion';
+import { prefersReducedMotion, pulseSelection3D, setupWindowPopScroll3D, useReplayable3DPanel } from '../utils/tab3DMotion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -178,114 +178,38 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
     };
   }, [dateEval.status, travelersCount, selectedHotel, selectedOccupancy, includeSingleSupplement]);
 
-  // Snappy bidirectional 3D ScrollTrigger animations on decorative imagery, cards & headings only
-  // (Never obscures or lags numeric pricing tables/badges)
+  // 3D Window Pop-Out ScrollTrigger animations on decorative imagery, cards & headings
   useEffect(() => {
     const root = pageRootRef.current;
     if (!root) return;
 
-    const mm = gsap.matchMedia();
-    mm.add(
-      {
-        isDesktop: '(min-width: 768px) and (prefers-reduced-motion: no-preference)',
-        isMobile: '(max-width: 767px) and (prefers-reduced-motion: no-preference)'
-      },
-      (context) => {
-        const isDesktop = Boolean(context.conditions?.isDesktop);
-
-        const heroEl = root.querySelector<HTMLElement>('.ggt-egypt-hero-enter');
-        if (heroEl) {
-          gsap.fromTo(
-            heroEl,
-            isDesktop
-              ? { opacity: 0, y: 18, rotateX: 4, transformPerspective: 1200 }
-              : { opacity: 0, y: 12 },
-            {
-              opacity: 1,
-              y: 0,
-              rotateX: 0,
-              force3D: true,
-              duration: 0.52,
-              ease: 'power3.out',
-              clearProps: 'transform,opacity'
-            }
-          );
-        }
-
-        root.querySelectorAll<HTMLElement>('.ggt-egypt-divider').forEach((divider) => {
-          gsap.fromTo(
-            divider,
-            { scaleX: 0.2, opacity: 0.35, transformOrigin: 'center center' },
-            {
-              scaleX: 1,
-              opacity: 1,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: divider, start: 'top 96%', end: 'top 80%', scrub: 0.1 }
-            }
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>('.ggt-egypt-heading-3d').forEach((heading) => {
-          gsap.fromTo(
-            heading,
-            isDesktop
-              ? { opacity: 0.45, y: 16, scale: 0.98, rotateX: 4.5, transformPerspective: 1100 }
-              : { opacity: 0.45, y: 10 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateX: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: heading, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>('.ggt-egypt-card-3d').forEach((card, idx) => {
-          const rotY = isDesktop ? (idx % 2 === 0 ? 4 : -4) : 0;
-          gsap.fromTo(
-            card,
-            isDesktop
-              ? { opacity: 0.45, y: 18, scale: 0.97, rotateY: rotY, transformPerspective: 1100 }
-              : { opacity: 0.45, y: 12, scale: 0.98 },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotateY: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: card, start: 'top 96%', end: 'top 78%', scrub: 0.12 }
-            }
-          );
-        });
-
-        root.querySelectorAll<HTMLElement>('.ggt-egypt-stage-img').forEach((imgWrap) => {
-          gsap.fromTo(
-            imgWrap,
-            isDesktop
-              ? { scale: 0.95, rotateY: -4, transformPerspective: 1100 }
-              : { scale: 0.98 },
-            {
-              scale: 1,
-              rotateY: 0,
-              force3D: true,
-              ease: 'none',
-              scrollTrigger: { trigger: imgWrap, start: 'top 96%', end: 'top 76%', scrub: 0.12 }
-            }
-          );
-        });
+    if (!prefersReducedMotion()) {
+      const heroEl = root.querySelector<HTMLElement>('.ggt-egypt-hero-enter');
+      if (heroEl) {
+        gsap.fromTo(
+          heroEl,
+          { opacity: 0, y: 22, scale: 0.96, rotateX: 5, transformPerspective: 1250 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotateX: 0,
+            force3D: true,
+            duration: 0.56,
+            ease: 'back.out(1.15)',
+            clearProps: 'transform,opacity'
+          }
+        );
       }
-    );
+    }
 
-    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 180);
-    return () => {
-      window.clearTimeout(refreshId);
-      mm.revert();
-    };
+    return setupWindowPopScroll3D(root, {
+      dividers: '.ggt-egypt-divider',
+      headings: '.ggt-egypt-heading-3d',
+      cards: '.ggt-egypt-card-3d',
+      media: '.ggt-egypt-stage-img',
+      refreshDelayMs: 180
+    });
   }, [lang]);
 
   const handleSelectHotelRow = (

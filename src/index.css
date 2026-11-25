@@ -334,9 +334,52 @@
 .ggt-egypt-divider,
 .ggt-egypt-card-3d,
 .ggt-egypt-stage-img,
+.ggt-egypt-exc-heading,
+.ggt-egypt-exc-card,
+.ggt-egypt-exc-divider,
+.ggt-ist-sec-heading,
+.ggt-ist-showcase-card,
+.ggt-ist-heading,
+.ggt-ist-card,
+.ggt-ist-divider,
+.ggt-eur-sec-heading,
+.ggt-eur-showcase-card,
+.ggt-eur-reveal,
+.ggt-eur-card,
+.ggt-omra-ch-heading,
+.ggt-omra-ch-card,
+.ggt-omra-ch-divider,
+.ggt-omra-cr-heading,
+.ggt-omra-cr-card,
+.ggt-omra-cr-divider,
+.ggt-omra-ram-heading,
+.ggt-omra-ram-card,
+.ggt-omra-ram-divider,
+.ggt-omra-raj-heading,
+.ggt-omra-raj-card,
+.ggt-omra-raj-divider,
+.ggt-omra-ist-heading,
+.ggt-omra-ist-card,
+.ggt-omra-ist-divider,
 .ggt-footer-reveal {
   will-change: transform, opacity;
   backface-visibility: hidden;
+}
+
+@keyframes ggtWindowRimBloom {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(209, 168, 71, 0));
+  }
+  42% {
+    filter: drop-shadow(0 18px 34px rgba(209, 168, 71, 0.22));
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(209, 168, 71, 0));
+  }
+}
+
+.ggt-window-popped {
+  animation: ggtWindowRimBloom 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -357,8 +400,40 @@
   .ggt-egypt-divider,
   .ggt-egypt-card-3d,
   .ggt-egypt-stage-img,
+  .ggt-egypt-exc-heading,
+  .ggt-egypt-exc-card,
+  .ggt-egypt-exc-divider,
+  .ggt-ist-sec-heading,
+  .ggt-ist-showcase-card,
+  .ggt-ist-heading,
+  .ggt-ist-card,
+  .ggt-ist-divider,
+  .ggt-eur-sec-heading,
+  .ggt-eur-showcase-card,
+  .ggt-eur-reveal,
+  .ggt-eur-card,
+  .ggt-omra-ch-heading,
+  .ggt-omra-ch-card,
+  .ggt-omra-ch-divider,
+  .ggt-omra-cr-heading,
+  .ggt-omra-cr-card,
+  .ggt-omra-cr-divider,
+  .ggt-omra-ram-heading,
+  .ggt-omra-ram-card,
+  .ggt-omra-ram-divider,
+  .ggt-omra-raj-heading,
+  .ggt-omra-raj-card,
+  .ggt-omra-raj-divider,
+  .ggt-omra-ist-heading,
+  .ggt-omra-ist-card,
+  .ggt-omra-ist-divider,
   .ggt-footer-reveal {
     will-change: auto;
+  }
+
+  .ggt-window-popped {
+    animation: none;
+    filter: none;
   }
 }
 
