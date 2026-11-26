@@ -22,7 +22,6 @@ export interface ServicePageChrome {
   openPageCta: string;
   highlightsTitle: string;
   processTitle: string;
-  galleryTitle: string;
   bookNowCta: string;
   omraToggleHint: string;
   allServicesNavLabel: string;
@@ -32,44 +31,40 @@ export interface ServicePageChrome {
 export const SERVICE_PAGE_CHROME: Record<Language, ServicePageChrome> = {
   fr: {
     backToHome: 'Retour à l’Accueil',
-    openPageCta: 'Découvrir la Page Dédiée',
+    openPageCta: 'Découvrir',
     highlightsTitle: 'Prestations & Avantages Inclus',
     processTitle: 'Comment Nous Organisons Votre Demande',
-    galleryTitle: 'Atmosphères & Destinations Associées',
-    bookNowCta: 'Planifier & Localiser sur Google Maps',
+    bookNowCta: 'Planifier sur Google Maps',
     omraToggleHint: 'Afficher / Masquer la Calligraphie',
     allServicesNavLabel: 'Nos Services',
     homeNavLabel: 'Accueil'
   },
   ar: {
     backToHome: 'العودة إلى الرئيسية',
-    openPageCta: 'عرض الصفحة الكاملة للخدمة',
+    openPageCta: 'استكشاف',
     highlightsTitle: 'المميزات والخدمات المشمولة',
     processTitle: 'كيف ننظّم رحلتك خطوة بخطوة',
-    galleryTitle: 'أجواء ومعالم مختارة',
-    bookNowCta: 'احجز وحدد على خرائط جوجل',
+    bookNowCta: 'احجز عبر خرائط جوجل',
     omraToggleHint: 'إظهار / إخفاء التلبية بالخط الذهبي',
     allServicesNavLabel: 'خدماتنا',
     homeNavLabel: 'الرئيسية'
   },
   en: {
     backToHome: 'Back to Home',
-    openPageCta: 'Explore Full Service Page',
+    openPageCta: 'Explore',
     highlightsTitle: 'Included Privileges & Details',
     processTitle: 'How Our Desk Coordinates Your Service',
-    galleryTitle: 'Visual Inspiration',
-    bookNowCta: 'Plan & Locate on Google Maps',
+    bookNowCta: 'Plan on Google Maps',
     omraToggleHint: 'Toggle Gold Calligraphy',
     allServicesNavLabel: 'Services',
     homeNavLabel: 'Home'
   },
   es: {
     backToHome: 'Volver al Inicio',
-    openPageCta: 'Ver Página Completa',
+    openPageCta: 'Explorar',
     highlightsTitle: 'Servicios y Ventajas Incluidas',
     processTitle: 'Cómo Organizamos Tu Solicitud',
-    galleryTitle: 'Galería Visual',
-    bookNowCta: 'Planificar y Ubicar en Google Maps',
+    bookNowCta: 'Planificar en Google Maps',
     omraToggleHint: 'Mostrar / Ocultar Caligrafía',
     allServicesNavLabel: 'Servicios',
     homeNavLabel: 'Inicio'
@@ -185,9 +180,9 @@ export const SERVICE_PAGE_DETAILS: Record<
             'Saisie soignée des formulaires consulaires officiels et rédaction claire de votre projet de voyage.'
         },
         {
-          title: 'Réservations Conformes & Assurance',
+          title: 'Réservations Conformes au Dossier',
           detail:
-            'Émission d’itinéraires de vol, vouchers d’hôtel et assurance voyage répondant aux critères d’ambassade.'
+            'Émission d’itinéraires de vol et vouchers d’hôtel répondant aux critères d’ambassade.'
         },
         {
           title: 'Localisation Consulats & Agence',
@@ -438,7 +433,7 @@ export const SERVICE_PAGE_DETAILS: Record<
     'visa-assistance': {
       tagline: 'مرافقة متخصصة لتجهيز ملفات تأشيرات شنغن، العمرة، بريطانيا، الإمارات وأمريكا',
       overview:
-        'نُعدّ ملف التأشيرة الخاص بك بدقة واحترافية عالية لتفادي أي نقص في الوثائق: مراجعة كاملة للأوراق، تعبئة الاستمارات، حجز المواعيد في TLScontact أو VFS Global، وتأمين السفر وحجوزات الفنادق والطيران المطابقة.',
+        'نُعدّ ملف التأشيرة الخاص بك بدقة واحترافية عالية لتفادي أي نقص في الوثائق: مراجعة كاملة للأوراق، تعبئة الاستمارات، حجز المواعيد في TLScontact أو VFS Global، وتجهيز حجوزات الفنادق والطيران المطابقة.',
       highlights: [
         {
           title: 'مراجعة دقيقة لقائمة الوثائق',
@@ -451,9 +446,9 @@ export const SERVICE_PAGE_DETAILS: Record<
             'تعبئة الاستمارات القنصلية وتنسيق مواعيد الإيداع في المراكز المعتمدة.'
         },
         {
-          title: 'إرفاق الحجوزات والتأمين المطابق',
+          title: 'إرفاق الحجوزات المطابقة للملف',
           detail:
-            'تجهيز حجوزات الطيران والفنادق وبوليصة التأمين المعتمدة للملف القنصلي.'
+            'تجهيز حجوزات الطيران والفنادق المعتمدة للملف القنصلي.'
         },
         {
           title: 'موقع المراكز ووكالتنا على الخريطة',
@@ -704,7 +699,7 @@ export const SERVICE_PAGE_DETAILS: Record<
     'visa-assistance': {
       tagline: 'Structured Preparation for Schengen, El Omra, Turkey, UAE, UK & US Visas',
       overview:
-        'Navigating embassy checklists demands precision. Our specialists audit your supporting documents, prepare consular forms, arrange appointments with VFS Global or TLScontact, and assemble compliant travel insurance plus flight and hotel reservations.',
+        'Navigating embassy checklists demands precision. Our specialists audit your supporting documents, prepare consular forms, arrange appointments with VFS Global or TLScontact, and assemble compliant flight and hotel reservations.',
       highlights: [
         {
           title: 'Complete Document Audit',
@@ -717,9 +712,9 @@ export const SERVICE_PAGE_DETAILS: Record<
             'Careful completion of official embassy forms and scheduling at authorized visa centers.'
         },
         {
-          title: 'Compliant Itinerary & Insurance',
+          title: 'Compliant Itinerary & Reservations',
           detail:
-            'Matched flight itineraries, hotel vouchers, and €30,000+ embassy-compliant insurance policies.'
+            'Matched flight itineraries and hotel vouchers aligned with embassy visa checklist requirements.'
         },
         {
           title: 'Maps Center & Agency Locator',
@@ -970,7 +965,7 @@ export const SERVICE_PAGE_DETAILS: Record<
     'visa-assistance': {
       tagline: 'Preparación Integral para Visados Schengen, El Omra, EAU, Reino Unido y EE. UU.',
       overview:
-        'Revisamos cada requisito documental, cumplimentamos los formularios consulares, gestionamos citas en TLScontact o VFS Global y emitimos reservas y seguros conformes a cada embajada.',
+        'Revisamos cada requisito documental, cumplimentamos los formularios consulares, gestionamos citas en TLScontact o VFS Global y preparamos reservas de vuelo y hotel conformes a cada embajada.',
       highlights: [
         {
           title: 'Revisión Completa de Documentos',
@@ -983,9 +978,9 @@ export const SERVICE_PAGE_DETAILS: Record<
             'Tramitación de citas y preparación ordenada de formularios consulares.'
         },
         {
-          title: 'Reservas y Seguro Conforme',
+          title: 'Reservas Conformes al Expediente',
           detail:
-            'Itinerarios de vuelo, hoteles y pólizas Schengen válidos para la embajada.'
+            'Itinerarios de vuelo y confirmaciones hoteleras válidos para la embajada.'
         },
         {
           title: 'Mapa de Centros y Agencia',
@@ -1166,12 +1161,12 @@ export interface ExpediaWidgetCopy {
 
 export const EXPEDIA_WIDGET_COPY: Record<Language, ExpediaWidgetCopy> = {
   fr: {
-    eyebrow: 'Recherche en Direct · Partenaire Expedia Group',
+    eyebrow: 'Disponibilités en Direct · Expedia Group',
     partnerNote:
-      'Comparez les tarifs et disponibilités en temps réel via notre moteur partenaire Expedia Group.',
+      'Comparez les tarifs et disponibilités en temps réel avec Expedia Group.',
     redirectHint: 'Ouverture sécurisée des résultats sur Expedia dans un nouvel onglet',
     conciergeFallback: 'Ou demandez un devis personnalisé à notre agence de Salé',
-    loadingLabel: 'Chargement du module de recherche Expedia…',
+    loadingLabel: 'Chargement des offres Expedia…',
     flights: {
       title: 'Rechercher Vos Vols en Direct',
       description:
@@ -1186,12 +1181,12 @@ export const EXPEDIA_WIDGET_COPY: Record<Language, ExpediaWidgetCopy> = {
     }
   },
   ar: {
-    eyebrow: 'بحث مباشر · شريك Expedia Group',
+    eyebrow: 'توافر مباشر · Expedia Group',
     partnerNote:
-      'قارن الأسعار والتوافر الفوري عبر محرك البحث الشريك لمجموعة Expedia Group.',
+      'قارن الأسعار والتوافر الفوري مباشرة عبر شريكنا Expedia Group.',
     redirectHint: 'تُفتح نتائج البحث عبر موقع Expedia في علامة تبويب جديدة',
     conciergeFallback: 'أو اطلب عرض سعر مخصص من وكالتنا بسلا',
-    loadingLabel: 'جاري تحميل أداة البحث من Expedia…',
+    loadingLabel: 'جاري تحميل عروض Expedia…',
     flights: {
       title: 'ابحث عن رحلات الطيران مباشرة',
       description:
@@ -1206,12 +1201,12 @@ export const EXPEDIA_WIDGET_COPY: Record<Language, ExpediaWidgetCopy> = {
     }
   },
   en: {
-    eyebrow: 'Live Availability · Expedia Group Partner',
+    eyebrow: 'Live Availability · Expedia Group',
     partnerNote:
-      'Compare live schedules, fares, and stays through our official Expedia Group search widget.',
+      'Compare live schedules, fares, and stays directly with Expedia Group.',
     redirectHint: 'Results open securely on Expedia in a new tab',
     conciergeFallback: 'Or request personalized booking assistance from our Salé desk',
-    loadingLabel: 'Loading Expedia search widget…',
+    loadingLabel: 'Loading Expedia availability…',
     flights: {
       title: 'Search Live Flight Options',
       description:
@@ -1226,12 +1221,12 @@ export const EXPEDIA_WIDGET_COPY: Record<Language, ExpediaWidgetCopy> = {
     }
   },
   es: {
-    eyebrow: 'Búsqueda en Tiempo Real · Socio Expedia Group',
+    eyebrow: 'Disponibilidad en Tiempo Real · Expedia Group',
     partnerNote:
-      'Compara disponibilidad y tarifas en directo mediante nuestro buscador asociado de Expedia Group.',
+      'Compara disponibilidad y tarifas en directo a través de Expedia Group.',
     redirectHint: 'Los resultados se abren de forma segura en Expedia en una nueva pestaña',
     conciergeFallback: 'O solicita asistencia personalizada a nuestro equipo en Salé',
-    loadingLabel: 'Cargando el buscador de Expedia…',
+    loadingLabel: 'Cargando ofertas de Expedia…',
     flights: {
       title: 'Buscar Vuelos en Tiempo Real',
       description:

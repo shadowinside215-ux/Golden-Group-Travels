@@ -608,32 +608,32 @@ export default function App() {
                 >
                   <div className="perspective-1200">
                     <div className="ggt-scroll-heading max-w-3xl mx-auto text-center mb-10 sm:mb-16">
-                      <p className="text-xs uppercase tracking-[0.26em] text-[#9a7220] font-semibold mb-3">
-                        {t.servicesSection.eyebrow}
-                      </p>
                       <h2 className="font-serif-crest text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0b1d3a] tracking-wide [text-wrap:balance]">
                         {t.servicesSection.title}
                       </h2>
-                      <p className="mt-4 text-sm sm:text-base text-[#2c405e] leading-relaxed">
-                        {t.servicesSection.subtitle}
-                      </p>
                       <div className="ggt-scroll-divider w-20 h-px bg-[#c59b38]/70 mx-auto mt-6" />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 sm:gap-7 items-stretch">
                     {SERVICE_ORDER.map((srvId, idx) => {
                       const srv = t.servicesSection.services[srvId];
                       const Icon = SERVICE_ICONS[srvId];
                       const media = SERVICE_THEME_MEDIA[srvId];
                       const isOmra = srvId === 'hajj-umrah';
                       const indexTag = `0${idx + 1}`;
+                      const gridSpanClass =
+                        idx < 3
+                          ? 'md:col-span-1 lg:col-span-2'
+                          : idx === 3
+                          ? 'md:col-span-1 lg:col-span-3'
+                          : 'md:col-span-2 lg:col-span-3';
 
                       return (
                         <article
                           key={srvId}
                           id={`service-${srvId}`}
-                          className={`gsap-service-card-3d rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-[border-color,box-shadow] duration-200 ${
+                          className={`gsap-service-card-3d ${gridSpanClass} rounded-2xl overflow-hidden flex flex-col bg-[#fcf9f2] transition-[border-color,box-shadow] duration-200 ${
                             isOmra
                               ? 'border-2 border-[#d1a847] shadow-[0_22px_50px_rgba(11,29,58,0.16)]'
                               : 'border border-[#d1a847]/45 shadow-[0_16px_40px_rgba(11,29,58,0.09)] hover:border-[#c59b38]'
@@ -697,9 +697,9 @@ export default function App() {
                             <button
                               type="button"
                               onClick={() => navigateToServiceRoute(srvId)}
-                              className="ggt-btn-3d-return w-full inline-flex items-center justify-center text-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.12em] sm:tracking-[0.14em] cursor-pointer"
+                              className="ggt-btn-3d-return w-full min-h-[44px] inline-flex items-center justify-center text-center gap-2 px-4 py-3 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.1em] sm:tracking-[0.12em] leading-snug cursor-pointer"
                             >
-                              <span className="sm:whitespace-nowrap">
+                              <span className="whitespace-normal text-center">
                                 {chrome.openPageCta} · {srv.label}
                               </span>
                               <ArrowRight
@@ -724,22 +724,22 @@ export default function App() {
                           key={catId}
                           type="button"
                           onClick={() => navigateToCategoryRoute(catId)}
-                          className="gsap-service-card-3d ggt-btn-3d-return group w-full rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 text-left rtl:text-right bg-[#fcf9f2] border border-[#d1a847]/45 shadow-[0_12px_30px_rgba(11,29,58,0.07)] hover:border-[#c59b38] cursor-pointer"
+                          className="gsap-service-card-3d ggt-btn-3d-return group w-full rounded-2xl p-4 sm:p-5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 text-left rtl:text-right bg-[#fcf9f2] border border-[#d1a847]/45 shadow-[0_12px_30px_rgba(11,29,58,0.07)] hover:border-[#c59b38] cursor-pointer"
                         >
-                          <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                          <div className="flex items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
                             <span className="w-12 h-12 rounded-full bg-[#071429] border-2 border-[#d1a847] text-[#fceda2] flex items-center justify-center shrink-0 shadow-md">
                               <Icon className="ggt-tab-icon w-6 h-6" />
                             </span>
                             <div className="min-w-0">
-                              <div className="text-[11px] uppercase tracking-[0.18em] text-[#9a7220] font-semibold">
+                              <div className="text-[11px] uppercase tracking-[0.16em] text-[#9a7220] font-semibold">
                                 {catMeta.shortSub}
                               </div>
-                              <div className="font-serif-crest text-base sm:text-lg font-semibold text-[#0b1d3a] truncate">
+                              <div className="font-serif-crest text-base sm:text-lg font-semibold text-[#0b1d3a] leading-snug">
                                 {catMeta.tabLabel}
                               </div>
                             </div>
                           </div>
-                          <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0b1d3a] group-hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-[11px] font-semibold uppercase tracking-[0.12em] shrink-0 whitespace-nowrap transition-colors">
+                          <span className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-4 py-2.5 min-h-[42px] rounded-xl bg-[#0b1d3a] group-hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/55 text-[11px] font-semibold uppercase tracking-[0.1em] shrink-0 leading-snug transition-colors">
                             <span>{chrome.openPageCta}</span>
                             <ArrowRight
                               className={`ggt-forward-arrow w-3.5 h-3.5 text-[#d1a847] shrink-0 ${
@@ -800,8 +800,8 @@ export default function App() {
             )
           )}
 
-          {/* Dedicated Routes for Remaining "Nos Services" Cards */}
-          {(['visa-assistance', 'travel-insurance'] as const).map((srvId) => (
+          {/* Dedicated Routes for Remaining Active "Nos Services" Cards */}
+          {(['visa-assistance'] as const).map((srvId) => (
             <Route
               key={srvId}
               path={SERVICE_ID_ROUTES[srvId]}
@@ -828,6 +828,9 @@ export default function App() {
               }
             />
           ))}
+
+          {/* Travel Insurance temporarily hidden from public access */}
+          <Route path="/assurance" element={<Navigate to="/" replace />} />
 
           {/* Dedicated Route for Golden Group Travels Organized Cairo Tour */}
           <Route

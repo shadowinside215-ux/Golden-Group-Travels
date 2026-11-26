@@ -135,10 +135,10 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
           <button
             type="button"
             onClick={() => onSelectPage('home')}
-            className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] shadow-sm cursor-pointer whitespace-nowrap shrink-0"
+            className="ggt-btn-3d-return inline-flex items-center justify-center text-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] leading-snug shadow-sm cursor-pointer max-w-full"
           >
             <ArrowLeft
-              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] shrink-0 ${isRtl ? 'rotate-180' : ''}`}
             />
             <span>{chrome.backToHome}</span>
           </button>
@@ -242,7 +242,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowOmraCalligraphy((prev) => !prev)}
-                  className="ggt-tab-3d w-full sm:w-auto justify-center text-center px-4 py-2.5 sm:py-3 rounded-xl bg-[#0b1d3a]/90 hover:bg-[#132d56] border border-[#d1a847]/70 text-[#fceda2] text-xs font-semibold uppercase tracking-wider cursor-pointer sm:whitespace-nowrap"
+                  className="ggt-tab-3d w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center text-center px-4 py-2.5 sm:py-3 rounded-xl bg-[#0b1d3a]/90 hover:bg-[#132d56] border border-[#d1a847]/70 text-[#fceda2] text-xs font-semibold uppercase tracking-wider leading-snug cursor-pointer"
                 >
                   {chrome.omraToggleHint}
                 </button>
@@ -251,7 +251,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
               <button
                 type="button"
                 onClick={scrollToPlanner}
-                className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center text-center gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.15em] shadow-lg cursor-pointer sm:whitespace-nowrap"
+                className="ggt-btn-3d-return w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center text-center gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] leading-snug shadow-lg cursor-pointer"
               >
                 <MapPin className="w-4 h-4 shrink-0" />
                 <span>{chrome.bookNowCta}</span>
@@ -421,16 +421,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
         </section>
 
         {/* Animated Photography Gallery Strip (3 Curated Animated Frames) */}
-        <section className="space-y-6">
-          <div className="space-y-1.5">
-            <div className="text-xs uppercase tracking-[0.24em] text-[#9a7220] font-semibold">
-              {serviceMeta.label}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a]">
-              {chrome.galleryTitle}
-            </h2>
-          </div>
-
+        <section>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {media.galleryImages.map((imgSrc, idx) => (
               <AnimatedServiceMedia
@@ -472,10 +463,10 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({
         <button
           type="button"
           onClick={() => onSelectPage('home')}
-          className="ggt-btn-3d-return inline-flex items-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md cursor-pointer"
+          className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-6 py-2.5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md cursor-pointer whitespace-normal text-center leading-snug"
         >
           <ArrowLeft
-            className={`ggt-return-arrow w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+            className={`ggt-return-arrow w-4 h-4 text-[#d1a847] shrink-0 ${isRtl ? 'rotate-180' : ''}`}
           />
           <span>{chrome.backToHome}</span>
         </button>

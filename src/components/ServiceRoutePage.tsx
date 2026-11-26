@@ -47,25 +47,25 @@ interface RouteHeaderCopy {
 
 const ROUTE_COPY: Record<Language, RouteHeaderCopy> = {
   fr: {
-    eyebrow: 'Espace Service Dédié · Golden Group Travels',
+    eyebrow: 'Golden Group Travels',
     backToHome: 'Retour à l’accueil',
     descriptions: {
       flights:
         'Recherchez et comparez les vols internationaux en temps réel auprès de nos partenaires officiels ou demandez un devis multi-destinations à notre agence.',
       hotels:
-        'Explorez des hôtels, riads et établissements vérifiés dans le monde entier via notre moteur hôtelier officiel.',
+        'Explorez des hôtels, riads et établissements vérifiés dans le monde entier avec réservation en direct.',
       umrah:
-        'Découvrez nos deux programmes officiels distincts — Omra Rajab (à partir de 14 500 MAD / personne) et Omra Istanbul (à partir de 18 500 MAD / personne) — et demandez les disponibilités directement auprès de notre agence à Salé.',
+        'Découvrez nos cinq programmes officiels — Omra Chaâbane, Omra Rajab, Omra Istanbul, Omra Chaâbane & Ramadan et Omra Ramadan — et confirmez les disponibilités directement auprès de notre agence à Salé.',
       holidays:
         'Concevez votre séjour ou voyage organisé sur mesure (vol, hébergement, transferts et programme) avec l’accompagnement de nos conseillers.',
       tours:
         'Accédez aux catalogues complets d’activités et circuits Klook & KKday, demandez un circuit privé sur WhatsApp ou explorez nos sélections partenaires.',
       'car-transfers':
-        'Comparez les véhicules de location via nos moteurs partenaires ou réservez votre transfert privé porte-à-porte depuis l’aéroport.'
+        'Comparez les véhicules de location auprès de nos partenaires ou réservez votre transfert privé porte-à-porte depuis l’aéroport.'
     },
     sejoursExtras: {
       eyebrow: 'Savoir-Faire Golden Group',
-      title: 'Des Séjours Sur Mesure Sans Forfaits Fictifs',
+      title: 'Des Séjours Sur Mesure Adaptés à Vos Dates',
       subtitle:
         'Chaque proposition est assemblée en direct selon vos dates réelles, votre aéroport de départ et vos préférences d’hôtel.',
       cards: [
@@ -96,15 +96,15 @@ const ROUTE_COPY: Record<Language, RouteHeaderCopy> = {
     }
   },
   ar: {
-    eyebrow: 'صفحة الخدمة المخصصة · جولدن جروب',
+    eyebrow: 'جولدن جروب للسفر',
     backToHome: 'العودة إلى الرئيسية',
     descriptions: {
       flights:
         'ابحث وقارن رحلات الطيران الدولية مباشرة عبر شركائنا الرسميين أو اطلب عرض سعر مخصصاً من وكالتنا.',
       hotels:
-        'تصفح الفنادق والإقامات الموثوقة حول العالم عبر محرك البحث الفندقي الرسمي.',
+        'تصفح الفنادق والإقامات الموثوقة حول العالم مع إمكانية الحجز المباشر.',
       umrah:
-        'اطلع على برنامجينا الرسميين المنفصلين — عمرة رجب (ابتداءً من 14,500 درهم / للشخص) وعمرة إسطنبول (ابتداءً من 18,500 درهم / للشخص) — وتواصل مباشرة مع وكالتنا بسلا.',
+        'اطلع على برامجنا الرسمية الخمسة — عمرة شعبان، وعمرة رجب، وعمرة إسطنبول، وعمرة شعبان ورمضان، وعمرة رمضان — وتواصل مباشرة مع وكالتنا بسلا.',
       holidays:
         'صمّم رحلتك وعطلتك المتكاملة حسب التواريخ والميزانية المفضلة مع مستشاري جولدن جروب.',
       tours:
@@ -114,7 +114,7 @@ const ROUTE_COPY: Record<Language, RouteHeaderCopy> = {
     },
     sejoursExtras: {
       eyebrow: 'خبرة جولدن جروب',
-      title: 'عطلات مفصّلة دون عروض وهمية',
+      title: 'عطلات مفصّلة حسب تواريخكم',
       subtitle: 'يتم إعداد كل عرض بناءً على التوافر الفعلي لتواريخ سفرك.',
       cards: [
         {
@@ -136,26 +136,26 @@ const ROUTE_COPY: Record<Language, RouteHeaderCopy> = {
       hotels: 'التوفر والتأكيد مباشرة عبر شريك الحجز الفندقي.',
       umrah: 'تنظيم وإشراف مباشر من وكالة جولدن جروب بسلا.',
       holidays: 'عروض عطلات يتم التحقق من توفرها مباشرة مع مستشارينا.',
-      tours: 'تذاكر وأنشطة عبر شركائنا الرسميين دون أسعار مختلقة.',
+      tours: 'تذاكر وأنشطة رسمية عبر شركائنا المعتمدين Klook وKKday وTiqets وWeGoTrip.',
       'car-transfers': 'تأجير السيارات والنقل يتم مباشرة عبر كل مزوّد مختص.'
     }
   },
   en: {
-    eyebrow: 'Dedicated Service Page · Golden Group Travels',
+    eyebrow: 'Golden Group Travels',
     backToHome: 'Back to Home',
     descriptions: {
       flights:
         'Search and compare live international flight fares with our official partners or request a multi-city itinerary from our agency.',
       hotels:
-        'Browse verified hotels and accommodations worldwide through our official live hotel search partner.',
+        'Browse verified hotels and accommodations worldwide with live hotel search and booking.',
       umrah:
-        'Explore our two separate official offerings — Omra Rajab (from 14,500 MAD / person) and Omra Istanbul (from 18,500 MAD / person) — and confirm availability directly with our Salé team.',
+        'Explore our five official offerings — Omra Chaâbane, Omra Rajab, Omra Istanbul, Omra Chaâbane & Ramadan, and Omra Ramadan — and confirm availability directly with our Salé team.',
       holidays:
         'Request a tailor-made holiday package combining flights, chosen stays, and private transfers.',
       tours:
         'Access full Klook & KKday activity catalogs, send a private tour request on WhatsApp, or browse partner highlights below.',
       'car-transfers':
-        'Compare global and local car rental engines or book a private door-to-door airport transfer.'
+        'Compare global and local car rental options or book a private door-to-door airport transfer.'
     },
     sejoursExtras: {
       eyebrow: 'Golden Group Craftsmanship',
@@ -181,21 +181,21 @@ const ROUTE_COPY: Record<Language, RouteHeaderCopy> = {
       flights: 'Fares and bookings are processed directly by official flight partners.',
       hotels: 'Rates and availability come directly from our official hotel partner.',
       umrah: 'Coordinated directly by Golden Group Travels in Salé.',
-      holidays: 'Real availability verified directly by our advisors—zero synthetic prices.',
+      holidays: 'Real availability verified directly by our travel advisors.',
       tours: 'Official partner portals and curated selections from Klook, KKday, Tiqets, and WeGoTrip.',
       'car-transfers': 'Live availability and booking terms handled directly by each mobility provider.'
     }
   },
   es: {
-    eyebrow: 'Página de Servicio Dedicada · Golden Group Travels',
+    eyebrow: 'Golden Group Travels',
     backToHome: 'Volver al Inicio',
     descriptions: {
       flights:
         'Busca y compara tarifas aéreas en tiempo real con nuestros socios oficiales o solicita un itinerario a medida.',
       hotels:
-        'Explora hoteles y alojamientos verificados en todo el mundo mediante nuestro buscador oficial.',
+        'Explora hoteles y alojamientos verificados en todo el mundo con reserva en directo.',
       umrah:
-        'Consulta nuestros dos programas oficiales por separado — Omra Rajab (desde 14 500 MAD / persona) y Omra Istanbul (desde 18 500 MAD / persona) — y confirma disponibilidad con nuestra agencia en Salé.',
+        'Consulta nuestros cinco programas oficiales — Omra Chaâbane, Omra Rajab, Omra Istanbul, Omra Chaâbane & Ramadan y Omra Ramadan — y confirma disponibilidad con nuestra agencia en Salé.',
       holidays:
         'Diseña un paquete vacacional a medida combinando vuelos, hoteles elegidos y traslados privados.',
       tours:
@@ -387,10 +387,10 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
           <Link
             to="/"
-            className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] shadow-sm whitespace-nowrap shrink-0"
+            className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] shadow-sm whitespace-normal text-center leading-snug max-w-full"
           >
             <ArrowLeft
-              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] shrink-0 ${isRtl ? 'rotate-180' : ''}`}
             />
             <span>{copy.backToHome}</span>
           </Link>
@@ -556,10 +556,10 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4">
           <Link
             to="/"
-            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md"
+            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md whitespace-normal text-center leading-snug"
           >
             <ArrowLeft
-              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] ${isRtl ? 'rotate-180' : ''}`}
+              className={`ggt-return-arrow w-4 h-4 text-[#d1a847] shrink-0 ${isRtl ? 'rotate-180' : ''}`}
             />
             <span>{chrome.backToHome}</span>
           </Link>
@@ -567,7 +567,7 @@ export const ServiceRoutePage: React.FC<ServiceRoutePageProps> = ({
           <button
             type="button"
             onClick={onJumpToHomePlanner}
-            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] cursor-pointer"
+            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 min-h-[48px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] cursor-pointer whitespace-normal text-center leading-snug"
           >
             <MapPin className="w-4 h-4 text-[#c59b38] shrink-0" />
             <span>{chrome.bookNowCta}</span>

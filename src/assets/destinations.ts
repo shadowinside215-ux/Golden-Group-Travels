@@ -165,13 +165,12 @@ export const HERO_CATEGORY_ORDER: HeroCategoryId[] = [
   'tours'
 ];
 
-// Official Golden Group Services matching user's exact icon set + Travel Insurance
+// Active Golden Group Services (travel-insurance temporarily paused)
 export const SERVICE_ORDER: ServiceId[] = [
   'flight-bookings',
   'hotel-reservations',
   'visa-assistance',
   'hajj-umrah',
-  'travel-insurance',
   'holiday-packages'
 ];
 

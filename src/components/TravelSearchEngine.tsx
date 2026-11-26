@@ -94,7 +94,7 @@ const BOOKING_UI_CHROME: Record<Language, BookingUiChrome> = {
     backToServicesLabel: 'Retour aux services',
     primarySearchLabel: 'Recherche Principale',
     supplementaryLabel: 'Offres & Sélections Complémentaires',
-    secondaryProvidersLabel: 'Autres Moteurs & Offres Partenaires',
+    secondaryProvidersLabel: 'Autres Comparateurs & Offres Partenaires',
     directAdvisorLabel: 'Accompagnement Agence Salé',
     umrahHighlights: [
       'Hôtels sélectionnés à proximité immédiate du Haram',
@@ -125,9 +125,9 @@ const BOOKING_UI_CHROME: Record<Language, BookingUiChrome> = {
     bookingDeskEyebrow: 'مساحة الحجز المباشر · جولدن جروب',
     closeLabel: 'إغلاق',
     backToServicesLabel: 'العودة إلى الخدمات',
-    primarySearchLabel: 'محرك البحث الرئيسي',
+    primarySearchLabel: 'البحث الرئيسي',
     supplementaryLabel: 'عروض واختيارات تكميلية',
-    secondaryProvidersLabel: 'محركات وعروض شركاء إضافية',
+    secondaryProvidersLabel: 'خيارات وعروض شركاء إضافية',
     directAdvisorLabel: 'مرافقة وكالة جولدن جروب · سلا',
     umrahHighlights: [
       'فنادق مختارة بالقرب المباشر من المسجد الحرام',
@@ -140,7 +140,7 @@ const BOOKING_UI_CHROME: Record<Language, BookingUiChrome> = {
       'تأكيد فوري للتوافر والأسعار عبر مستشارينا'
     ],
     serviceDescriptions: {
-      flights: 'قارن تذاكر الطيران مباشرة واحجز رحلتك عبر محركات شركائنا الرسميين.',
+      flights: 'قارن تذاكر الطيران مباشرة واحجز رحلتك عبر شركائنا الرسميين.',
       hotels: 'ابحث عن الفنادق والإقامات الموثوقة حول العالم مع تأكيد مباشر من الشريك.',
       umrah: 'صمّم طلب الحج والعمرة الخاص بك واستفد من مرافقة مباشرة من وكالتنا بسلا.',
       holidays: 'حدد وجهتك وتواريخك وميزانيتك للحصول على برنامج عطلة مفصّل حسب رغبتك.',
@@ -152,9 +152,9 @@ const BOOKING_UI_CHROME: Record<Language, BookingUiChrome> = {
     bookingDeskEyebrow: 'Booking Desk · Golden Group Travels',
     closeLabel: 'Close',
     backToServicesLabel: 'Back to Services',
-    primarySearchLabel: 'Primary Search Engine',
+    primarySearchLabel: 'Primary Search',
     supplementaryLabel: 'Supplementary Offers & Curated Picks',
-    secondaryProvidersLabel: 'Additional Search Engines & Partner Offers',
+    secondaryProvidersLabel: 'Additional Partner Options & Offers',
     directAdvisorLabel: 'Salé Agency Direct Desk',
     umrahHighlights: [
       'Selected 4★ & 5★ stays near Masjid al-Haram',
@@ -881,7 +881,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
               aria-selected={flightEngineTab === 'aviasales'}
               data-tab-active={flightEngineTab === 'aviasales' ? 'true' : undefined}
               onClick={() => handleSelectFlightEngineTab('aviasales')}
-              className={`ggt-tab-3d relative z-10 px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] cursor-pointer whitespace-nowrap ${
+              className={`ggt-tab-3d relative z-10 px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] cursor-pointer whitespace-normal text-center leading-snug ${
                 flightEngineTab === 'aviasales'
                   ? 'text-[#fceda2]'
                   : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a]'
@@ -895,7 +895,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
               aria-selected={flightEngineTab === 'expedia'}
               data-tab-active={flightEngineTab === 'expedia' ? 'true' : undefined}
               onClick={() => handleSelectFlightEngineTab('expedia')}
-              className={`ggt-tab-3d relative z-10 px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] cursor-pointer whitespace-nowrap ${
+              className={`ggt-tab-3d relative z-10 px-3.5 py-2 rounded-lg text-xs font-bold uppercase tracking-[0.08em] cursor-pointer whitespace-normal text-center leading-snug ${
                 flightEngineTab === 'expedia'
                   ? 'text-[#fceda2]'
                   : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a]'
@@ -953,7 +953,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
             href={buildDirectFlightQuoteUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors sm:whitespace-nowrap"
+            className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors whitespace-normal leading-snug"
           >
             <span>
               {pack.flights.agencyFlightQuoteBtn} ({displayPhone})
@@ -963,9 +963,9 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
             <button
               type="button"
               onClick={onJumpToPlanner}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap"
+              className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-normal leading-snug"
             >
-              <MapPin className="w-3.5 h-3.5 text-[#d1a847]" />
+              <MapPin className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
               <span>Google Maps</span>
             </button>
           )}
@@ -1668,7 +1668,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                   href={partner.affiliateUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center text-center gap-2 px-5 py-3 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors sm:whitespace-nowrap"
+                  className="inline-flex items-center justify-center text-center gap-2 px-5 py-3 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors whitespace-normal leading-snug"
                 >
                   <span>{isKlook ? pack.tours.klookCta : pack.tours.kkdayCta}</span>
                   <ExternalLink className="w-4 h-4 shrink-0" />
@@ -1859,7 +1859,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
             ref={mobilityTablistRef}
             role="tablist"
             aria-label={pack.carTransfers.tabSelectorLabel}
-            className="relative inline-flex flex-wrap sm:flex-nowrap items-center p-1.5 rounded-xl bg-[#ede1ce] border border-[#d1a847]/60 gap-1.5 w-full sm:w-auto"
+            className="relative inline-flex flex-wrap items-center p-1.5 rounded-xl bg-[#ede1ce] border border-[#d1a847]/60 gap-1.5 w-full sm:w-auto"
           >
             <span
               ref={mobilityIndicatorRef}
@@ -1880,7 +1880,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                   aria-selected={selected}
                   data-tab-active={selected ? 'true' : undefined}
                   onClick={() => handleSelectMobilityTab(tabId)}
-                  className={`ggt-tab-3d relative z-10 flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg text-xs font-bold uppercase tracking-[0.09em] cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b1d3a] ${
+                  className={`ggt-tab-3d relative z-10 flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg text-xs font-bold uppercase tracking-[0.09em] cursor-pointer whitespace-normal text-center leading-snug focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0b1d3a] ${
                     selected
                       ? 'text-[#fceda2]'
                       : 'text-[#0b1d3a]/85 hover:text-[#0b1d3a]'
@@ -2102,7 +2102,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
             href={buildMobilityWhatsappUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors sm:whitespace-nowrap shrink-0"
+            className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors whitespace-normal leading-snug"
           >
             <span>
               {pack.carTransfers.conciergeCta} ({displayPhone})
@@ -2180,11 +2180,11 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                         <Icon className="w-5 h-5" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <div className="text-xs sm:text-sm font-bold uppercase tracking-wider truncate">
+                        <div className="text-xs sm:text-sm font-bold uppercase tracking-wider leading-snug">
                           {meta.tabLabel}
                         </div>
                         <div
-                          className={`text-[11px] truncate ${
+                          className={`text-[11px] leading-snug ${
                             isActive ? 'text-[#f5ede0]/85' : 'text-[#2c405e]/80'
                           }`}
                         >
@@ -2290,7 +2290,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                         <button
                           type="button"
                           onClick={() => triggerSmoothClose(true)}
-                          className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 min-h-[44px] rounded-xl bg-[#f5ede0] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.11em] transition-colors cursor-pointer whitespace-nowrap"
+                          className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 min-h-[44px] rounded-xl bg-[#f5ede0] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.11em] transition-colors cursor-pointer whitespace-normal text-center leading-snug"
                         >
                           <ArrowLeft
                             className={`w-3.5 h-3.5 text-[#9a7220] shrink-0 ${
@@ -2305,7 +2305,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                         type="button"
                         onClick={() => triggerSmoothClose(false)}
                         aria-label={ui.closeLabel}
-                        className="inline-flex items-center justify-center gap-1.5 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors cursor-pointer whitespace-nowrap"
+                        className="inline-flex items-center justify-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors cursor-pointer whitespace-normal text-center leading-snug"
                       >
                         <X className="w-4 h-4 text-[#d1a847] shrink-0" />
                         <span>{ui.closeLabel}</span>
@@ -2347,7 +2347,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenServicePage(SEARCH_CATEGORY_TO_SERVICE[displayedCategory])}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7220] hover:text-[#0b1d3a] transition-colors cursor-pointer whitespace-nowrap self-start sm:self-auto"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7220] hover:text-[#0b1d3a] transition-colors cursor-pointer whitespace-normal text-start leading-snug self-start sm:self-auto"
                   >
                     <span>{pack.openDedicatedPage}</span>
                     <ArrowRight className={`w-3.5 h-3.5 shrink-0 ${isRtl ? 'rotate-180' : ''}`} />
@@ -2363,7 +2363,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                     <button
                       type="button"
                       onClick={() => triggerSmoothClose(true)}
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 min-h-[44px] rounded-xl bg-[#f5ede0] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.11em] transition-colors cursor-pointer whitespace-nowrap"
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-[#f5ede0] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.11em] transition-colors cursor-pointer whitespace-normal text-center leading-snug"
                     >
                       <ArrowLeft
                         className={`w-3.5 h-3.5 text-[#9a7220] shrink-0 ${
@@ -2377,7 +2377,7 @@ export const TravelSearchEngine: React.FC<TravelSearchEngineProps> = ({
                   <button
                     type="button"
                     onClick={() => triggerSmoothClose(false)}
-                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer whitespace-nowrap"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.12em] transition-colors cursor-pointer whitespace-normal text-center leading-snug"
                   >
                     <X className="w-4 h-4 text-[#d1a847] shrink-0" />
                     <span>{ui.closeLabel}</span>

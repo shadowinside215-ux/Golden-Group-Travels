@@ -223,13 +223,12 @@ export const translations: Record<Language, TranslationPack> = {
       }
     },
     servicesSection: {
-      eyebrow: 'Golden Group · Services Principaux',
+      eyebrow: '',
       title: 'Nos Services',
-      subtitle:
-        'Chaque service dispose de sa propre page dédiée avec visuels animés, étapes détaillées et réservation connectée à Google Maps.',
+      subtitle: '',
       provisionTag: 'Service Officiel',
       configurePrefix: 'Sélectionner',
-      replay3dLabel: 'Rejouer la Scène 3D',
+      replay3dLabel: 'Retour en Haut',
       services: {
         'flight-bookings': {
           id: 'flight-bookings',
@@ -306,10 +305,10 @@ export const translations: Record<Language, TranslationPack> = {
       }
     },
     plannerSection: {
-      eyebrow: 'Formulaire Connecté à Google Maps',
+      eyebrow: 'Votre Projet de Voyage',
       title: 'Demande de Voyage & Carte Interactive',
       subtitle:
-        'Sélectionnez un service ci-dessous : le formulaire et la carte Google Maps s’adaptent automatiquement à votre besoin (hôtels, vols, visa, assurance ou séjour).',
+        'Sélectionnez un service ci-dessous et précisez votre destination ou votre hôtel souhaité.',
       serviceLabel: 'Service Sélectionné',
       destLabel: 'Destination Horizon / Ville (Saisie Libre)',
       destPlaceholder: 'Ex : Paris, Marrakech, Istanbul, Dubaï, Zurich...',
@@ -344,7 +343,7 @@ export const translations: Record<Language, TranslationPack> = {
       sendWhatsapp: 'Envoyer sur WhatsApp',
       callBtn: 'Appeler',
       beautifulStories: 'Golden Group Travels · Salé',
-      returnBtn: 'Revoir l’Ouverture 3D',
+      returnBtn: 'Retour en Haut',
       guestOptions: ['1 Voyageur', '2 Voyageurs', '3–5 Famille', '6+ Groupe'],
       mapTitleHotel: 'Recherche d’Hôtels sur Google Maps',
       mapTitleCity: 'Localisation Destination sur Google Maps',
@@ -362,7 +361,7 @@ export const translations: Record<Language, TranslationPack> = {
       mapSelectPin: 'Sélectionner pour le formulaire',
       mapSelectedTag: 'Sélectionné',
       mapEmptyNote: 'Aucun lieu trouvé pour cette recherche. Vous pouvez tout de même saisir votre choix manuellement.',
-      mapKeyMissing: 'Clé Google Maps en attente — vous pouvez saisir librement votre ville et hôtel dans le formulaire.'
+      mapKeyMissing: 'Vous pouvez saisir librement votre ville et hôtel ci-contre.'
     },
     footer: {
       servicesTitle: 'Nos Services',
@@ -460,13 +459,12 @@ export const translations: Record<Language, TranslationPack> = {
       }
     },
     servicesSection: {
-      eyebrow: 'جولدن جروب · خدماتنا الأساسية',
+      eyebrow: '',
       title: 'خدماتنا',
-      subtitle:
-        'لكل خدمة صفحتها المخصصة بالكامل مع صور متحركة وتفاصيل شاملة وتخطيط متصل بخرائط جوجل.',
+      subtitle: '',
       provisionTag: 'خدمة رئيسية',
       configurePrefix: 'اختيار',
-      replay3dLabel: 'إعادة العرض ثلاثي الأبعاد',
+      replay3dLabel: 'العودة إلى الأعلى',
       services: {
         'flight-bookings': {
           id: 'flight-bookings',
@@ -543,10 +541,10 @@ export const translations: Record<Language, TranslationPack> = {
       }
     },
     plannerSection: {
-      eyebrow: 'نموذج متصل بخرائط جوجل',
+      eyebrow: 'مشروع رحلتك',
       title: 'صمّم رحلتك واختر موقعك على الخريطة',
       subtitle:
-        'اختر الخدمة المطلوبة، وسيتم تكييف الحقول وخرائط جوجل تلقائياً للبحث عن أي فندق أو مدينة ترغب بها.',
+        'اختر الخدمة المطلوبة وحدّد وجهتك أو فندقك المفضل لإرسال طلبك مباشرة لفريقنا.',
       serviceLabel: 'الخدمة المختارة',
       destLabel: 'الوجهة / المدينة (حرية الكتابة)',
       destPlaceholder: 'اكتب أي مدينة أو دولة (مثال: الحج والعمرة، باريس، إسطنبول، دبي...)',
@@ -581,7 +579,7 @@ export const translations: Record<Language, TranslationPack> = {
       sendWhatsapp: 'إرسال عبر واتساب',
       callBtn: 'اتصال',
       beautifulStories: 'جولدن جروب للسفر والسياحة · سلا',
-      returnBtn: 'العودة للعرض ثلاثي الأبعاد',
+      returnBtn: 'العودة إلى الأعلى',
       guestOptions: ['مسافر واحد', 'مسافران', 'عائلة (3–5 أفراد)', 'مجموعة (+6)'],
       mapTitleHotel: 'البحث عن الفنادق على خرائط جوجل',
       mapTitleCity: 'تحديد الوجهة على خرائط جوجل',
@@ -599,7 +597,7 @@ export const translations: Record<Language, TranslationPack> = {
       mapSelectPin: 'اعتماد هذا الاختيار',
       mapSelectedTag: 'مُختار',
       mapEmptyNote: 'لم يتم العثور على نتائج مطابقة — يمكنك إكمال الطلب بكتابة الاسم يدوياً.',
-      mapKeyMissing: 'الخريطة قيد التفعيل — يمكنك كتابة اسم المدينة والفندق بحرية في النموذج.'
+      mapKeyMissing: 'يمكنك كتابة اسم المدينة والفندق بحرية في النموذج.'
     },
     footer: {
       servicesTitle: 'خدماتنا',
@@ -700,13 +698,12 @@ export const translations: Record<Language, TranslationPack> = {
       }
     },
     servicesSection: {
-      eyebrow: 'Golden Group · Core Offerings',
+      eyebrow: '',
       title: 'Our Services',
-      subtitle:
-        'Each signature service has its own dedicated full page with animated photography, step-by-step guidance, and Google Maps planning.',
+      subtitle: '',
       provisionTag: 'Main Service',
       configurePrefix: 'Select',
-      replay3dLabel: 'Replay 3D Scene',
+      replay3dLabel: 'Back to Top',
       services: {
         'flight-bookings': {
           id: 'flight-bookings',
@@ -783,10 +780,10 @@ export const translations: Record<Language, TranslationPack> = {
       }
     },
     plannerSection: {
-      eyebrow: 'Google Maps Connected Request',
+      eyebrow: 'Your Travel Request',
       title: 'Plan Your Trip & Explore on Maps',
       subtitle:
-        'Select any service below — the contact form and Google Maps panel dynamically adapt so you can write any city or search any hotel directly on the map.',
+        'Select any service below and enter your destination or preferred hotel directly.',
       serviceLabel: 'Selected Service',
       destLabel: 'Horizon Destination / City (Write Any Location)',
       destPlaceholder: 'Write any city or country (e.g., Paris, Istanbul, Dubai, Swiss Alps)...',
@@ -821,7 +818,7 @@ export const translations: Record<Language, TranslationPack> = {
       sendWhatsapp: 'Send via WhatsApp',
       callBtn: 'Call',
       beautifulStories: 'Golden Group Travels · Salé',
-      returnBtn: 'Return to 3D Horizon',
+      returnBtn: 'Back to Top',
       guestOptions: ['1 Solo Traveler', '2 Travelers', '3–5 Family Group', '6+ Private Party'],
       mapTitleHotel: 'Search Hotels on Google Maps',
       mapTitleCity: 'Explore Destination on Google Maps',
@@ -839,7 +836,7 @@ export const translations: Record<Language, TranslationPack> = {
       mapSelectPin: 'Use This Place',
       mapSelectedTag: 'Selected',
       mapEmptyNote: 'No places returned for that search — you can still submit any hotel or city typed in the form.',
-      mapKeyMissing: 'Google Maps preview is initializing — you can freely type any city and hotel name in the form.'
+      mapKeyMissing: 'You can freely type any city and hotel name in the form.'
     },
     footer: {
       servicesTitle: 'Our Services',
@@ -940,13 +937,12 @@ export const translations: Record<Language, TranslationPack> = {
       }
     },
     servicesSection: {
-      eyebrow: 'Golden Group · Servicios Principales',
+      eyebrow: '',
       title: 'Nuestros Servicios',
-      subtitle:
-        'Cada servicio cuenta con su propia página completa dedicada, fotografía animada, pasos detallados y planificación en Google Maps.',
+      subtitle: '',
       provisionTag: 'Servicio Principal',
       configurePrefix: 'Seleccionar',
-      replay3dLabel: 'Repetir Escena 3D',
+      replay3dLabel: 'Volver Arriba',
       services: {
         'flight-bookings': {
           id: 'flight-bookings',
@@ -1023,10 +1019,10 @@ export const translations: Record<Language, TranslationPack> = {
       }
     },
     plannerSection: {
-      eyebrow: 'Formulario Conectado a Google Maps',
+      eyebrow: 'Tu Solicitud de Viaje',
       title: 'Diseña Tu Viaje en el Mapa',
       subtitle:
-        'Elige un servicio: el formulario y Google Maps se adaptan automáticamente para escribir cualquier ciudad o buscar el hotel deseado.',
+        'Elige un servicio e indica tu ciudad o el hotel deseado para enviarnos tu solicitud.',
       serviceLabel: 'Servicio Seleccionado',
       destLabel: 'Destino Horizonte / Ciudad (Texto Libre)',
       destPlaceholder: 'Escribe cualquier ciudad o país (ej. París, Estambul, Dubái)...',
@@ -1061,7 +1057,7 @@ export const translations: Record<Language, TranslationPack> = {
       sendWhatsapp: 'Enviar por WhatsApp',
       callBtn: 'Llamar',
       beautifulStories: 'Golden Group Travels · Salé',
-      returnBtn: 'Volver al Horizonte 3D',
+      returnBtn: 'Volver Arriba',
       guestOptions: ['1 Viajero', '2 Viajeros', '3–5 Familia', '6+ Grupo'],
       mapTitleHotel: 'Buscar Hoteles en Google Maps',
       mapTitleCity: 'Explorar Destino en Google Maps',
@@ -1079,7 +1075,7 @@ export const translations: Record<Language, TranslationPack> = {
       mapSelectPin: 'Seleccionar este lugar',
       mapSelectedTag: 'Seleccionado',
       mapEmptyNote: 'Sin resultados para esta búsqueda — igualmente puedes enviar cualquier hotel o ciudad escrita manualmente.',
-      mapKeyMissing: 'Mapa inicializándose — puedes escribir libremente tu ciudad y hotel en el formulario.'
+      mapKeyMissing: 'Puedes escribir libremente tu ciudad y hotel en el formulario.'
     },
     footer: {
       servicesTitle: 'Nuestros Servicios',

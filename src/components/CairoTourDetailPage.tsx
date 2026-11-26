@@ -377,15 +377,15 @@ export const CairoTourDetailPage: React.FC<CairoTourDetailPageProps> = ({
           <div className="flex flex-wrap items-center gap-2.5">
             <Link
               to={CAIRO_TOUR_TOURS_ROUTE}
-              className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/75 text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors whitespace-nowrap"
+              className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/75 text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors whitespace-normal text-center leading-snug"
             >
-              <ArrowLeft className={`w-4 h-4 text-[#d1a847] ggt-return-arrow ${isRtl ? 'rotate-180' : ''}`} />
+              <ArrowLeft className={`w-4 h-4 text-[#d1a847] shrink-0 ggt-return-arrow ${isRtl ? 'rotate-180' : ''}`} />
               <span>{copy.backToToursLabel}</span>
             </Link>
 
             <Link
               to="/"
-              className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors whitespace-nowrap"
+              className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors whitespace-normal text-center leading-snug"
             >
               <span>{copy.backToHomeLabel}</span>
             </Link>

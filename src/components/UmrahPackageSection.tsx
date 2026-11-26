@@ -94,7 +94,7 @@ const SHOWCASE_CHROME: Record<Language, ShowcaseChromeCopy> = {
     topSectionEyebrow: 'Official Programs · Golden Group Travels',
     topSectionTitle: 'Our Official Umrah Packages',
     topSectionSubtitle:
-      'Five separate programs, each with its own dedicated page, schedule, hotel options, verified per-person fares, and "The price includes" section.',
+      'Five separate programs, each with its own full itinerary, schedule, hotel options, verified per-person fares, and "The price includes" section.',
     startingFromLabel: 'Starting at',
     durationLabel: 'Duration & stays',
     datesLabel: 'Advertised dates'
@@ -229,7 +229,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link
                   to={OMRA_RAJAB_ROUTE}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <Eye className="w-4 h-4 shrink-0" />
                   <span>{rajabCopy.viewDetailsBtn}</span>
@@ -237,7 +237,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
 
                 <Link
                   to={`${OMRA_RAJAB_ROUTE}#omra-rajab-inquiry`}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <span>{rajabCopy.reserveBtn}</span>
                   <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
@@ -331,7 +331,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link
                   to={OMRA_ISTANBUL_ROUTE}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <Eye className="w-4 h-4 shrink-0" />
                   <span>{istanbulCopy.viewDetailsBtn}</span>
@@ -339,7 +339,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
 
                 <Link
                   to={`${OMRA_ISTANBUL_ROUTE}#omra-istanbul-inquiry`}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <span>{istanbulCopy.reserveBtn}</span>
                   <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
@@ -429,7 +429,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link
                   to={OMRA_CHAABANE_RAMADAN_ROUTE}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <Eye className="w-4 h-4 shrink-0" />
                   <span>{chaabaneCopy.viewDetailsBtn}</span>
@@ -437,7 +437,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
 
                 <Link
                   to={`${OMRA_CHAABANE_RAMADAN_ROUTE}#chaabane-ramadan-inquiry`}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <span>{chaabaneCopy.reserveBtn}</span>
                   <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
@@ -527,7 +527,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link
                   to={OMRA_RAMADAN_ROUTE}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <Eye className="w-4 h-4 shrink-0" />
                   <span>{ramadanCopy.viewDetailsBtn}</span>
@@ -535,7 +535,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
 
                 <Link
                   to={`${OMRA_RAMADAN_ROUTE}#omra-ramadan-inquiry`}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <span>{ramadanCopy.reserveBtn}</span>
                   <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
@@ -626,7 +626,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link
                   to={OMRA_CHAABANE_ONLY_ROUTE}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <Eye className="w-4 h-4 shrink-0" />
                   <span>{chaabaneOnlyCopy.viewDetailsBtn}</span>
@@ -634,7 +634,7 @@ export const UmrahPackageSection: React.FC<UmrahPackageSectionProps> = ({
 
                 <Link
                   to={`${OMRA_CHAABANE_ONLY_ROUTE}#omra-chaabane-inquiry`}
-                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors"
+                  className="ggt-btn-3d-return flex-1 min-w-[180px] inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-bold uppercase tracking-[0.12em] transition-colors text-center leading-snug whitespace-normal py-2.5"
                 >
                   <span>{chaabaneOnlyCopy.reserveBtn}</span>
                   <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />

@@ -383,7 +383,7 @@ export const CAIRO_TOUR_COPY: Record<Language, CairoTourLocaleCopy> = {
     sectionEyebrow: 'Offre Officielle Golden Group Travels · En USD',
     sectionTitle: 'Nos Circuits Organisés',
     sectionSubtitle:
-      'Programme officiel organisé directement par Golden Group Travels au Caire (Égypte), présenté en toute transparence indépendamment des moteurs affiliés.',
+      'Programme officiel organisé directement par Golden Group Travels au Caire (Égypte).',
     badgeDirectAgency: 'Circuit Organisé Officiel · Golden Group Travels',
     frenchTitle: 'Le Pouls Charmant du Caire',
     arabicTitle: 'نبض القاهرة الساحرة',
@@ -617,7 +617,7 @@ export const CAIRO_TOUR_COPY: Record<Language, CairoTourLocaleCopy> = {
     sectionEyebrow: 'برنامج رسمي من جولدن جروب · بالدولار الأمريكي (USD)',
     sectionTitle: 'جولاتنا المنظمة',
     sectionSubtitle:
-      'رحلة منظمة مباشرة من وكالة جولدن جروب للسفر إلى القاهرة (مصر)، معروضة بشفافية تامة وبشكل منفصل عن محركات الحجز الخارجية.',
+      'رحلة منظمة مباشرة من وكالة جولدن جروب للسفر إلى القاهرة (مصر).',
     badgeDirectAgency: 'رحلة منظمة رسمية · جولدن جروب',
     frenchTitle: 'Le Pouls Charmant du Caire',
     arabicTitle: 'نبض القاهرة الساحرة',
@@ -814,7 +814,7 @@ export const CAIRO_TOUR_COPY: Record<Language, CairoTourLocaleCopy> = {
     sectionEyebrow: 'Official Golden Group Travels Tour · USD Pricing',
     sectionTitle: 'Our Organized Tours',
     sectionSubtitle:
-      'Official land package organized directly by Golden Group Travels in Cairo, Egypt — presented transparently apart from third-party booking widgets.',
+      'Official land package organized directly by Golden Group Travels in Cairo, Egypt.',
     badgeDirectAgency: 'Official Organized Tour · Golden Group Travels',
     frenchTitle: 'Le Pouls Charmant du Caire',
     arabicTitle: 'نبض القاهرة الساحرة',
@@ -1008,7 +1008,7 @@ export const CAIRO_TOUR_COPY: Record<Language, CairoTourLocaleCopy> = {
     sectionEyebrow: 'Circuito Oficial Golden Group Travels · En USD',
     sectionTitle: 'Nuestros Circuitos Organizados',
     sectionSubtitle:
-      'Programa oficial organizado directamente por Golden Group Travels en El Cairo (Egipto), separado claramente de los buscadores afiliados.',
+      'Programa oficial organizado directamente por Golden Group Travels en El Cairo (Egipto).',
     badgeDirectAgency: 'Circuito Organizado Oficial · Golden Group Travels',
     frenchTitle: 'Le Pouls Charmant du Caire',
     arabicTitle: 'نبض القاهرة الساحرة',

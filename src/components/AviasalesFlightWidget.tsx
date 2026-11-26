@@ -278,7 +278,7 @@ export const AviasalesFlightWidget: React.FC<AviasalesFlightWidgetProps> = React
               href={buildDirectFlightQuoteUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors sm:whitespace-nowrap"
+              className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-wider transition-colors whitespace-normal leading-snug"
             >
               <span>
                 {flightsPack.agencyFlightQuoteBtn} ({displayPhone})
@@ -289,9 +289,9 @@ export const AviasalesFlightWidget: React.FC<AviasalesFlightWidgetProps> = React
               <button
                 type="button"
                 onClick={onJumpToPlanner}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#071429] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap"
+                className="w-full sm:w-auto inline-flex items-center justify-center text-center gap-1.5 px-3 py-2 rounded-lg bg-[#071429] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer whitespace-normal leading-snug"
               >
-                <MapPin className="w-3.5 h-3.5 text-[#d1a847]" />
+                <MapPin className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
                 <span>Google Maps</span>
               </button>
             )}

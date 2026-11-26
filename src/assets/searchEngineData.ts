@@ -217,14 +217,14 @@ export interface SearchEngineLocalePack {
 
 export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
   fr: {
-    hubEyebrow: 'Moteur de Recherche Voyage · Golden Group Travels',
+    hubEyebrow: 'Recherche de Voyage · Golden Group Travels',
     hubTitle: 'Planifiez & Recherchez Votre Prochain Départ',
     hubSubtitle:
-      'Sélectionnez une catégorie pour accéder aux critères dédiés : vols internationaux, hôtels Expedia, El Omra sur mesure, séjours, circuits ou location de voitures.',
+      'Sélectionnez une catégorie pour accéder aux options adaptées : vols internationaux, hôtels Expedia, El Omra sur mesure, séjours, circuits ou location de voitures.',
     servicesHubEyebrow: 'Conciergerie & Réservation Directe · Golden Group Travels',
     servicesHubTitle: 'Découvrez Nos Services de Voyage',
     servicesHubSubtitle: 'Tout ce dont vous avez besoin pour votre prochain voyage, réuni au même endroit.',
-    openDedicatedPage: 'Ouvrir la page complète du service',
+    openDedicatedPage: 'Voir les détails',
     categories: {
       flights: { tabLabel: 'Vols', shortSub: 'Comparateur Vols' },
       hotels: { tabLabel: 'Hôtels', shortSub: 'Hébergements Monde' },
@@ -234,31 +234,31 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       'car-transfers': { tabLabel: 'Voitures & Transferts Aéroport', shortSub: 'Location & Chauffeurs' }
     },
     flights: {
-      providerSelectorLabel: 'Moteur de recherche de vols',
+      providerSelectorLabel: 'Comparer les vols',
       providers: {
         aviasales: { label: 'Recherche Vols 1', sub: 'Comparateur · EUR' },
-        expedia: { label: 'Recherche Vols 2', sub: 'Moteur Alternatif' }
+        expedia: { label: 'Recherche Vols 2', sub: 'Comparateur 2' }
       },
-      expediaBadge: 'Moteur de Recherche Aérienne Alternatif',
+      expediaBadge: 'Comparateur de Vols',
       expediaTitle: 'Comparer d’Autres Offres de Vols en Direct',
       expediaSubtitle:
-        'Saisissez votre ville de départ, votre destination, vos dates et vos voyageurs dans ce second moteur de recherche aérienne.',
+        'Saisissez votre ville de départ, votre destination, vos dates et vos voyageurs ci-dessous.',
       expediaNote:
         'Les horaires, disponibilités et tarifs aériens s’ouvrent directement sur le site du partenaire de réservation.',
       liveBadge: 'Recherche de Vols en Direct',
       liveTitle: 'Rechercher Vos Billets d’Avion en Direct',
       liveSubtitle:
-        'Sélectionnez vos aéroports, dates et passagers directement dans le moteur de recherche ci-dessous pour consulter les offres en temps réel en EUR.',
-      loadingLabel: 'Chargement du moteur de recherche de vols…',
+        'Sélectionnez vos aéroports, dates et passagers ci-dessous pour consulter les offres en temps réel en EUR.',
+      loadingLabel: 'Chargement de la recherche de vols…',
       loadErrorFallback:
-        'Le moteur intégré n’a pas pu s’afficher ici. Vous pouvez réessayer ou ouvrir directement la recherche partenaire :',
+        'La recherche n’a pas pu s’afficher ici. Vous pouvez réessayer ou ouvrir directement la recherche partenaire :',
       offersBadge: 'Offres Complémentaires · Itinéraires Sélectionnés',
       offersTitle: 'Recherche Rapide & Suggestions d’Itinéraires Aériens',
       offersSubtitle:
-        'Complétez votre comparaison avec ce module supplémentaire d’itinéraires et de tarifs aériens en direct.',
+        'Complétez votre comparaison avec ces suggestions d’itinéraires et de tarifs aériens en direct.',
       offersLoadingLabel: 'Chargement des offres d’itinéraires…',
       offersLoadErrorFallback:
-        'Ce module d’offres aériennes n’a pas pu se charger pour le moment. Vous pouvez réessayer ou contacter notre agence.',
+        'Ces offres aériennes n’ont pas pu se charger pour le moment. Vous pouvez réessayer ou contacter notre agence.',
       conciergeTitle: 'Accompagnement Agence Golden Group :',
       conciergeDesc:
         'Billets multi-destinations, bagages spéciaux ou règlement à notre agence de Salé.',
@@ -291,12 +291,12 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       summarySubtitle:
         'Vos critères de vol ont été vérifiés. Pour consulter les tarifs et horaires en direct, poursuivez sur notre partenaire Aviasales ou demandez un devis à notre agence.',
       aviasalesNotice:
-        'Le lien partenaire vous redirige vers le portail officiel Aviasales dans un nouvel onglet (aucun tarif estimatif n’est affiché localement sans flux fournisseur).',
+        'Le lien partenaire vous redirige vers le portail officiel Aviasales dans un nouvel onglet.',
       continueAviasalesBtn: 'Continuer vers Aviasales',
       agencyFlightQuoteBtn: 'Demander un devis vol via WhatsApp',
-      futureWidgetBadge: 'Architecture Prête · Intégration Widget Aviasales',
+      futureWidgetBadge: 'Recherche de Vols · Aviasales',
       futureWidgetNote:
-        'Emplacement modulaire préparé pour accueillir le widget de recherche officiel Aviasales dès réception du script fournisseur.',
+        'Consultez les vols disponibles directement via notre partenaire officiel Aviasales.',
       errors: {
         originRequired: 'Veuillez saisir une ville ou un aéroport de départ.',
         destinationRequired: 'Veuillez saisir une destination d’arrivée.',
@@ -314,10 +314,10 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       badge: 'Recherche Hôtelière en Direct',
       title: 'Rechercher Votre Hôtel en Direct',
       subtitle:
-        'Utilisez directement les champs ci-contre (destination, arrivée, départ, chambres, adultes, enfants) pour lancer une recherche hôtelière réelle.',
-      includesLabel: 'Critères disponibles dans le moteur Hôtels',
+        'Indiquez votre destination, vos dates d’arrivée et de départ, ainsi que le nombre de chambres et de voyageurs.',
+      includesLabel: 'Critères de recherche disponibles',
       includesItems: [
-        'Recherche dédiée aux hébergements et hôtels',
+        'Recherche par ville, quartier ou hôtel',
         'Dates d’arrivée et de départ en temps réel',
         'Nombre de chambres, adultes et enfants',
         'Ouverture sécurisée des disponibilités chez notre partenaire'
@@ -340,10 +340,10 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       selectedDestinationLabel: 'Destination incluse dans votre message WhatsApp :',
       transparencyNote:
         'Les cartes ci-dessous sont des vitrines promotionnelles partenaires en complément des portails complets ci-dessus.',
-      widgetsHeader: 'Sélections Promotionnelles Partenaires (Complémentaires)',
+      widgetsHeader: 'Sélections de Nos Partenaires',
       widgetsSubtitle:
         'Idées d’excursions, billets coupe-file et audioguides proposés par nos partenaires de voyage.',
-      widgetLoadingLabel: 'Chargement de la sélection partenaire…',
+      widgetLoadingLabel: 'Chargement de la sélection…',
       widgetLoadErrorFallback:
         'Cette sélection partenaire est temporairement indisponible ici. Utilisez les portails directs ci-dessus ou réessayez.',
       widgets: {
@@ -365,7 +365,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       },
       klookTitle: 'Portail Activités, Billets & Excursions',
       klookDesc:
-        'Accédez au moteur de recherche complet de notre partenaire Klook pour parcs, visites guidées et sorties.',
+        'Explorez le catalogue complet de notre partenaire Klook pour parcs, visites guidées et sorties.',
       klookCta: 'Ouvrir le portail Klook',
       kkdayTitle: 'Portail Circuits Guidés & Découvertes',
       kkdayDesc:
@@ -383,49 +383,49 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       tabSelectorLabel: 'Filtrer l’espace mobilité',
       tabs: {
         all: { label: 'Tous les Services', sub: 'Voitures & Transferts' },
-        car_rentals: { label: 'Location de Voitures', sub: '3 Moteurs + Offre' },
+        car_rentals: { label: 'Location de Voitures', sub: 'Location & Tarifs' },
         airport_transfers: { label: 'Transferts Aéroport', sub: 'Recherche & Trajets' }
       },
-      carRentalsTitle: 'Moteurs de Recherche · Location de Voitures',
+      carRentalsTitle: 'Location de Voitures',
       carRentalsSubtitle:
-        'Recherchez et comparez votre véhicule directement via nos moteurs de location partenaires.',
-      promoBannerEyebrow: 'Contenu Promotionnel Complémentaire',
+        'Recherchez et comparez votre véhicule directement auprès de nos partenaires de location.',
+      promoBannerEyebrow: 'Offre Partenaire',
       transfersTitle: 'Transferts Aéroport Privés & Navettes',
       transfersSubtitle:
         'Recherchez votre transfert privé porte-à-porte puis consultez les trajets populaires ci-dessous.',
-      loadingLabel: 'Chargement du module partenaire…',
+      loadingLabel: 'Chargement des offres…',
       loadErrorFallback:
-        'Le module n’a pas pu s’afficher ici. Réessayez ou contactez notre agence sur WhatsApp.',
+        'Les offres n’ont pas pu s’afficher ici. Réessayez ou contactez notre agence sur WhatsApp.',
       transparencyNote:
         'Tous les tarifs, conditions de caution et disponibilités proviennent directement de chaque partenaire externe.',
       widgets: {
         'car-localrent': {
-          badge: 'Moteur de Recherche · Flottes Locales',
+          badge: 'Partenaire · Flottes Locales',
           title: 'Location Locale Vérifiée',
           subtitle: 'Recherchez des véhicules sélectionnés auprès d’agences locales avec conditions transparentes.'
         },
         'car-getrentacar': {
-          badge: 'Moteur de Recherche · Comparateur Véhicules',
+          badge: 'Partenaire · Comparateur Véhicules',
           title: 'Véhicules avec ou sans Chauffeur',
           subtitle: 'Comparez les offres disponibles directement par ville et dates.'
         },
         'car-economybookings-banner': {
-          badge: 'Bannière Promotionnelle Partenaire',
+          badge: 'Offre Partenaire',
           title: 'Offre Spéciale Location de Voitures',
           subtitle: 'Bannière promotionnelle donnant accès aux offres partenaires de location.'
         },
         'car-autoeurope': {
-          badge: 'Moteur de Recherche · Réseau Mondial',
+          badge: 'Partenaire · Réseau Mondial',
           title: 'Réseau International de Location Automobile',
           subtitle: 'Recherchez votre véhicule dans plus de 24 000 agences partenaires.'
         },
         'transfer-intui': {
-          badge: 'Suggestions Complémentaires · Trajets Populaires',
+          badge: 'Trajets Populaires',
           title: 'Itinéraires de Transferts Aéroport Populaires',
           subtitle: 'Sélection promotionnelle de trajets et navettes aéroport populaires.'
         },
         'transfer-kiwitaxi': {
-          badge: 'Moteur de Recherche · Transferts Privés',
+          badge: 'Partenaire · Transferts Privés',
           title: 'Réservation de Chauffeur Privé à l’Arrivée',
           subtitle: 'Saisissez votre aéroport et destination pour réserver un transfert porte-à-porte.'
         }
@@ -513,7 +513,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       whatsappBtn: 'Envoyer sur WhatsApp (0666-484815)',
       editBtn: 'Modifier la demande',
       noFakePackagesNote:
-        'Aucune disponibilité n’est simulée localement : chaque offre est vérifiée en temps réel par votre conseiller.',
+        'Les disponibilités et tarifs exacts sont vérifiés en temps réel par nos conseillers.',
       errors: {
         destinationRequired: 'Veuillez indiquer la destination souhaitée.',
         dateRequired: 'Veuillez sélectionner vos dates de voyage.',
@@ -525,14 +525,14 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     }
   },
   ar: {
-    hubEyebrow: 'محرك البحث عن السفر · جولدن جروب',
+    hubEyebrow: 'البحث عن الرحلات · جولدن جروب',
     hubTitle: 'ابحث وخطّط لرحلتك القادمة بسهولة',
     hubSubtitle:
-      'اختر الفئة المناسبة لعرض الأدوات الخاصة بها فقط: الطيران، الفنادق، العمرة، العطلات، الجولات أو تأجير السيارات.',
+      'اختر الفئة المناسبة لاستعراض خيارات الطيران أو الفنادق أو العمرة أو العطلات أو الجولات أو تأجير السيارات.',
     servicesHubEyebrow: 'منصة الحجز الشاملة · جولدن جروب ترافيلز',
     servicesHubTitle: 'استكشف خدمات السفر لدينا',
     servicesHubSubtitle: 'كل ما تحتاجه لرحلتك القادمة في مكان واحد.',
-    openDedicatedPage: 'فتح الصفحة الكاملة للخدمة',
+    openDedicatedPage: 'عرض التفاصيل',
     categories: {
       flights: { tabLabel: 'الطيران', shortSub: 'مقارنة الرحلات' },
       hotels: { tabLabel: 'الفنادق', shortSub: 'حجوزات عالمية' },
@@ -542,26 +542,26 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       'car-transfers': { tabLabel: 'تأجير السيارات والنقل من المطار', shortSub: 'سيارات وسائقون' }
     },
     flights: {
-      providerSelectorLabel: 'محرك البحث عن رحلات الطيران',
+      providerSelectorLabel: 'مقارنة رحلات الطيران',
       providers: {
-        aviasales: { label: 'محرك الطيران 1', sub: 'مقارنة · EUR' },
-        expedia: { label: 'محرك الطيران 2', sub: 'بحث بديل' }
+        aviasales: { label: 'البحث عن الطيران 1', sub: 'مقارنة · EUR' },
+        expedia: { label: 'البحث عن الطيران 2', sub: 'خيار إضافي' }
       },
-      expediaBadge: 'محرك بحث إضافي عن الطيران',
+      expediaBadge: 'خيار إضافي للبحث عن الطيران',
       expediaTitle: 'قارن خيارات إضافية لتذاكر الطيران',
       expediaSubtitle:
-        'أدخل مدينة المغادرة والوجهة وتواريخ السفر وعدد المسافرين مباشرة في أداة البحث الإضافية أدناه.',
+        'أدخل مدينة المغادرة والوجهة وتواريخ السفر وعدد المسافرين أدناه.',
       expediaNote: 'تُعرض الأسعار والرحلات الحقيقية مباشرة عبر بوابة شريك الحجز الخارجي.',
       liveBadge: 'البحث المباشر عن تذاكر الطيران',
       liveTitle: 'ابحث عن تذاكر الطيران مباشرة',
       liveSubtitle:
-        'اختر مطار الانطلاق والوصول وتواريخ السفر وعدد المسافرين مباشرة في محرك البحث أدناه باليورو.',
-      loadingLabel: 'جاري تحميل محرك البحث عن الطيران…',
-      loadErrorFallback: 'تعذر عرض الأداة المدمجة هنا. يمكنك إعادة المحاولة أو المتابعة مباشرة إلى بوابة الشريك:',
+        'اختر مطار الانطلاق والوصول وتواريخ السفر وعدد المسافرين أدناه باليورو.',
+      loadingLabel: 'جاري تحميل رحلات الطيران…',
+      loadErrorFallback: 'تعذر عرض البحث هنا. يمكنك إعادة المحاولة أو المتابعة مباشرة إلى بوابة الشريك:',
       offersBadge: 'عروض إضافية · أبرز المسارات',
       offersTitle: 'بحث سريع واقتراحات مسارات الطيران',
       offersSubtitle:
-        'استعرض مقارنة إضافية للرحلات وأبرز المسارات المقترحة عبر هذا المكون الإضافي.',
+        'استعرض مقارنة إضافية للرحلات وأبرز المسارات المقترحة.',
       offersLoadingLabel: 'جاري تحميل عروض المسارات…',
       offersLoadErrorFallback: 'تعذر تحميل عروض الرحلات حالياً. يمكنك إعادة المحاولة أو التواصل معنا.',
       conciergeTitle: 'خدمة وكالة جولدن جروب:',
@@ -595,11 +595,11 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       summarySubtitle:
         'تم التحقق من بيانات رحلتك. لعرض الأسعار والرحلات المباشرة، تابع إلى منصة Aviasales أو اطلب عرض سعر من وكالتنا.',
       aviasalesNotice:
-        'يفتح الرابط موقع Aviasales الرسمي في علامة تبويب جديدة ولا يتم عرض أسعار وهمية داخل الموقع.',
+        'يفتح الرابط موقع Aviasales الرسمي في علامة تبويب جديدة للاطلاع على الرحلات المتاحة.',
       continueAviasalesBtn: 'المتابعة إلى Aviasales',
       agencyFlightQuoteBtn: 'طلب عرض سعر طيران عبر واتساب',
-      futureWidgetBadge: 'بنية جاهزة · أداة Aviasales الرسمية',
-      futureWidgetNote: 'مساحة مهيأة لإدراج أداة البحث الرسمية من Aviasales فور استلام الكود الخاص بها.',
+      futureWidgetBadge: 'البحث عن الطيران · Aviasales',
+      futureWidgetNote: 'استعرض الرحلات المتوفرة مباشرة عبر شريكنا الرسمي Aviasales.',
       errors: {
         originRequired: 'يرجى إدخال مدينة أو مطار المغادرة.',
         destinationRequired: 'يرجى إدخال وجهة الوصول.',
@@ -617,8 +617,8 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       badge: 'البحث الفندقي المباشر',
       title: 'ابحث عن الفنادق مباشرة حول العالم',
       subtitle:
-        'استخدم حقول البحث المباشرة (الوجهة، تسجيل الدخول، المغادرة، الغرف، البالغون والأطفال) لإجراء بحث حقيقي عن الفنادق.',
-      includesLabel: 'عناصر البحث المتوفرة في أداة الفنادق',
+        'اختر وجهتك وتواريخ الوصول والمغادرة وعدد الغرف والمسافرين للاطلاع على الفنادق المتوفرة.',
+      includesLabel: 'خيارات البحث المتاحة',
       includesItems: [
         'اختيار الوجهة أو المدينة أو الفندق',
         'تحديد تواريخ الوصول والمغادرة',
@@ -640,9 +640,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       quickDestinationsLabel: 'وجهات شائعة',
       selectedDestinationLabel: 'الوجهة المضافة لرسالة واتساب:',
       transparencyNote: 'البطاقات أدناه هي عروض ترويجية مختارة من الشركاء بالإضافة إلى بوابات البحث أعلاه.',
-      widgetsHeader: 'عروض ترويجية مختارة من الشركاء (محتوى تكميلي)',
+      widgetsHeader: 'مختارات شركائنا',
       widgetsSubtitle: 'أفكار للتذاكر والجولات الثقافية والأدلة الصوتية عبر شركائنا.',
-      widgetLoadingLabel: 'جاري تحميل عرض الشريك…',
+      widgetLoadingLabel: 'جاري تحميل العروض…',
       widgetLoadErrorFallback: 'تعذر تحميل هذا العرض حالياً. استخدم البوابات المباشرة أعلاه أو أعد المحاولة.',
       widgets: {
         'tours-klook-dynamic': {
@@ -662,7 +662,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
         }
       },
       klookTitle: 'بوابة التذاكر والأنشطة السياحية',
-      klookDesc: 'انتقل إلى بوابة البحث الكاملة لدى Klook لتذاكر المعالم والجولات والرحلات.',
+      klookDesc: 'تصفح العروض الكاملة لدى Klook لتذاكر المعالم والجولات والرحلات.',
       klookCta: 'فتح بوابة Klook',
       kkdayTitle: 'بوابة الجولات والرحلات اليومية',
       kkdayDesc: 'انتقل إلى الكتالوج الكامل لدى KKday للرحلات اليومية المنظمة والتجارب الثقافية.',
@@ -678,45 +678,45 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       tabSelectorLabel: 'تصفية خدمات التنقل',
       tabs: {
         all: { label: 'جميع الخدمات', sub: 'سيارات ونقل' },
-        car_rentals: { label: 'تأجير السيارات', sub: '3 محركات + عرض' },
+        car_rentals: { label: 'تأجير السيارات', sub: 'تأجير ومقارنة' },
         airport_transfers: { label: 'النقل من المطار', sub: 'بحث ومسارات' }
       },
-      carRentalsTitle: 'محركات البحث · تأجير السيارات',
-      carRentalsSubtitle: 'قارن واحجز سيارتك مباشرة عبر محركات تأجير السيارات أدناه.',
-      promoBannerEyebrow: 'محتوى ترويجي تكميلي',
+      carRentalsTitle: 'تأجير السيارات',
+      carRentalsSubtitle: 'قارن واحجز سيارتك مباشرة عبر شركاء تأجير السيارات أدناه.',
+      promoBannerEyebrow: 'عرض خاص',
       transfersTitle: 'خدمات النقل والاستقبال من المطار',
       transfersSubtitle: 'احجز توصيلك الخاص من المطار ثم استعرض أبرز المسارات المقترحة أدناه.',
-      loadingLabel: 'جاري تحميل أداة الشريك…',
-      loadErrorFallback: 'تعذر عرض الأداة حالياً. أعد المحاولة أو تواصل معنا عبر واتساب.',
+      loadingLabel: 'جاري تحميل العروض…',
+      loadErrorFallback: 'تعذر عرض الخيارات حالياً. أعد المحاولة أو تواصل معنا عبر واتساب.',
       transparencyNote: 'تُعرض الأسعار والتوافر والشروط مباشرة من كل شريك خارجي أدناه.',
       widgets: {
         'car-localrent': {
-          badge: 'محرك بحث · مزوّدون محليون',
+          badge: 'شريك معتمد · مزوّدون محليون',
           title: 'تأجير سيارات من مزوّدين محليين',
           subtitle: 'سيارات مختارة بشروط واضحة وعربون مناسب.'
         },
         'car-getrentacar': {
-          badge: 'محرك بحث · مقارنة المركبات',
+          badge: 'شريك معتمد · مقارنة المركبات',
           title: 'مقارنة عروض السيارات المباشرة',
           subtitle: 'استكشف خيارات الاستئجار المباشر ومع سائق حسب المدينة والتواريخ.'
         },
         'car-economybookings-banner': {
-          badge: 'لافتة ترويجية للشريك',
+          badge: 'عرض خاص',
           title: 'عرض ترويجي لتأجير السيارات',
-          subtitle: 'لافتة ترويجية تتيح الوصول إلى عروض تأجير السيارات الدولية.'
+          subtitle: 'عرض يتيح الوصول إلى خيارات تأجير السيارات الدولية.'
         },
         'car-autoeurope': {
-          badge: 'محرك بحث · شبكة عالمية',
+          badge: 'شريك معتمد · شبكة عالمية',
           title: 'تأجير السيارات في أكثر من 24,000 محطة',
-          subtitle: 'محرك بحث عالمي لمقارنة السيارات في المطارات والمدن.'
+          subtitle: 'قارن عروض تأجير السيارات في المطارات والمدن حول العالم.'
         },
         'transfer-intui': {
-          badge: 'اقتراحات تكميلية · أبرز المسارات',
+          badge: 'أبرز المسارات',
           title: 'مسارات شائعة للنقل من المطار',
           subtitle: 'عروض مختارة لأبرز مسارات التوصيل من المطارات العالمية.'
         },
         'transfer-kiwitaxi': {
-          badge: 'محرك بحث · النقل الخاص',
+          badge: 'شريك معتمد · النقل الخاص',
           title: 'خدمة سائق خاص واستقبال بالمطار',
           subtitle: 'أدخل المطار والوجهة لحجز توصيل خاص من الباب إلى الباب.'
         }
@@ -796,7 +796,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       summaryTitle: 'ملخص طلب العطلة الخاص بك',
       whatsappBtn: 'إرسال عبر واتساب (0666-484815)',
       editBtn: 'تعديل الطلب',
-      noFakePackagesNote: 'لا يتم عرض أسعار أو توافر وهمي: يتم التأكيد مباشرة عبر فريقنا.',
+      noFakePackagesNote: 'يتم التأكيد المباشر للأسعار والتوافر عبر مستشاري وكالتنا.',
       errors: {
         destinationRequired: 'يرجى إدخال الوجهة المرغوبة.',
         dateRequired: 'يرجى اختيار تواريخ السفر.',
@@ -808,14 +808,14 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     }
   },
   en: {
-    hubEyebrow: 'Travel Search Engine · Golden Group Travels',
+    hubEyebrow: 'Travel Search · Golden Group Travels',
     hubTitle: 'Search & Plan Your Next Journey',
     hubSubtitle:
-      'Choose a travel category below to display only the relevant search or inquiry tools: Flights, Expedia Hotels, Umrah, Holidays, Tours, or Car Rentals & Transfers.',
+      'Choose a travel category below to access tailored options for Flights, Expedia Hotels, Umrah, Holidays, Tours, or Car Rentals & Transfers.',
     servicesHubEyebrow: 'Complete Travel Booking Hub · Golden Group Travels',
     servicesHubTitle: 'Explore Our Travel Services',
     servicesHubSubtitle: 'Everything you need for your next journey, all in one place.',
-    openDedicatedPage: 'Open Full Service Page',
+    openDedicatedPage: 'View Details',
     categories: {
       flights: { tabLabel: 'Flights', shortSub: 'Flight Search' },
       hotels: { tabLabel: 'Hotels', shortSub: 'Global Stays' },
@@ -825,31 +825,31 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       'car-transfers': { tabLabel: 'Car Rentals & Airport Transfers', shortSub: 'Cars & Chauffeurs' }
     },
     flights: {
-      providerSelectorLabel: 'Flight Search Engine',
+      providerSelectorLabel: 'Flight Comparison',
       providers: {
         aviasales: { label: 'Flight Search 1', sub: 'Live Fares · EUR' },
-        expedia: { label: 'Flight Search 2', sub: 'Alternative Engine' }
+        expedia: { label: 'Flight Search 2', sub: 'Expedia Option' }
       },
-      expediaBadge: 'Alternative Flight Search Engine',
+      expediaBadge: 'Flight Comparison Option',
       expediaTitle: 'Compare Additional Live Flight Fares',
       expediaSubtitle:
-        'Enter your departure, destination, travel dates, and passengers inside this secondary flight search engine below.',
+        'Enter your departure, destination, travel dates, and passengers below.',
       expediaNote:
         'Live flight schedules and fares open directly on the external booking partner’s website.',
-      liveBadge: 'Live Flight Search Engine',
+      liveBadge: 'Live Flight Search',
       liveTitle: 'Search Live Airline Fares',
       liveSubtitle:
-        'Pick your origin, destination, travel dates, and passengers directly inside the live flight search engine below (EUR).',
-      loadingLabel: 'Loading live flight search engine…',
+        'Pick your origin, destination, travel dates, and passengers below to check live fares in EUR.',
+      loadingLabel: 'Loading live flight search…',
       loadErrorFallback:
-        'The embedded flight search tool could not load here. You can retry or continue directly to the partner search page:',
+        'The flight search could not load here. You can retry or continue directly to the partner search page:',
       offersBadge: 'Supplementary Search & Route Offers',
       offersTitle: 'Quick Flight Search & Featured Route Suggestions',
       offersSubtitle:
-        'Compare additional airfare options and featured route offers in this supplementary tool.',
+        'Compare additional airfare options and featured route offers below.',
       offersLoadingLabel: 'Loading supplementary flight offers…',
       offersLoadErrorFallback:
-        'This flight offers widget could not load right now. Retry below or message our desk on WhatsApp.',
+        'These flight offers could not load right now. Retry below or message our desk on WhatsApp.',
       conciergeTitle: 'Golden Group Concierge Desk:',
       conciergeDesc: 'Need multi-city routing or personal assistance from our Salé office?',
       tripRoundTrip: 'Round-trip',
@@ -881,12 +881,12 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       summarySubtitle:
         'Your dates and passenger details are validated. Continue directly to Aviasales for live flight search results, or request an agency quote below.',
       aviasalesNotice:
-        'Opens the official Aviasales partner portal in a new tab. No simulated fares are displayed inside Golden Group Travels.',
+        'Opens the official Aviasales partner portal in a new tab for live flight availability.',
       continueAviasalesBtn: 'Continue to Aviasales',
       agencyFlightQuoteBtn: 'Request Flight Quote via WhatsApp',
-      futureWidgetBadge: 'Architecture Ready · Official Aviasales Widget Slot',
+      futureWidgetBadge: 'Flight Search · Aviasales',
       futureWidgetNote:
-        'Dedicated modular container prepared to mount the official Aviasales search widget once supplied.',
+        'Continue to our official Aviasales partner portal to explore live flight itineraries.',
       errors: {
         originRequired: 'Please enter an origin airport or city.',
         destinationRequired: 'Please enter a destination airport or city.',
@@ -901,11 +901,11 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       }
     },
     hotels: {
-      badge: 'Live Hotel Search Engine',
+      badge: 'Live Hotel Search',
       title: 'Search Hotels & Stays Worldwide',
       subtitle:
-        'Use the live hotel search controls (destination, check-in, check-out, rooms, adults, children) to search genuine hotel availability.',
-      includesLabel: 'Included inside the live Hotel Search controls',
+        'Enter your destination, check-in and check-out dates, rooms, adults, and children to browse live hotel availability.',
+      includesLabel: 'Available Search Options',
       includesItems: [
         'Destination city or property search',
         'Check-in & check-out calendar dates',
@@ -930,10 +930,10 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       selectedDestinationLabel: 'Destination included in your WhatsApp request:',
       transparencyNote:
         'The cards below are supplementary promotional partner showcases placed beneath the main portals above.',
-      widgetsHeader: 'Supplementary Curated Partner Showcases',
+      widgetsHeader: 'Curated Partner Picks',
       widgetsSubtitle:
         'Featured attraction ideas, museum passes, and self-guided audio tours from travel partners.',
-      widgetLoadingLabel: 'Loading curated partner showcase…',
+      widgetLoadingLabel: 'Loading partner selection…',
       widgetLoadErrorFallback:
         'This partner showcase could not load right now. Use the direct partner portals above or retry.',
       widgets: {
@@ -969,53 +969,53 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       badge: 'Mobility & Chauffeurs',
       title: 'Car Rentals & Airport Transfers',
       subtitle:
-        'Search global and local car rental engines or book door-to-door airport transfers in one organized space.',
+        'Compare global and local car rental options or book door-to-door airport transfers in one organized space.',
       tabSelectorLabel: 'Filter mobility section',
       tabs: {
         all: { label: 'All Services', sub: 'Cars & Transfers' },
-        car_rentals: { label: 'Car Rentals', sub: '3 Search Tools + Promo' },
+        car_rentals: { label: 'Car Rentals', sub: 'Cars & Rates' },
         airport_transfers: { label: 'Airport Transfers', sub: 'Search & Routes' }
       },
-      carRentalsTitle: 'Car Rental Search Engines',
+      carRentalsTitle: 'Car Rentals',
       carRentalsSubtitle:
-        'Search and compare genuine vehicle availability across our live car rental search engines.',
-      promoBannerEyebrow: 'Supplementary Partner Promotion',
+        'Search and compare available vehicles directly with our car rental partners.',
+      promoBannerEyebrow: 'Partner Offer',
       transfersTitle: 'Private Airport Transfers & Shuttles',
       transfersSubtitle:
         'Search door-to-door private airport transfers first, with popular transfer routes below.',
-      loadingLabel: 'Loading partner tool…',
+      loadingLabel: 'Loading partner options…',
       loadErrorFallback:
-        'This partner tool could not load right now. Retry below or message our Salé desk on WhatsApp.',
+        'These options could not load right now. Retry below or message our Salé desk on WhatsApp.',
       transparencyNote:
         'All vehicle availability, deposits, and transfer rates come directly from each external partner.',
       widgets: {
         'car-localrent': {
-          badge: 'Search Engine · Local Fleets',
+          badge: 'Partner · Local Fleets',
           title: 'Verified Local Car Rentals',
           subtitle: 'Search local fleet bookings with clear terms and transparent deposits.'
         },
         'car-getrentacar': {
-          badge: 'Search Engine · Vehicle Marketplace',
+          badge: 'Partner · Vehicle Marketplace',
           title: 'Global Rental & Chauffeur Marketplace',
           subtitle: 'Search direct rental offers and driver options by city and dates.'
         },
         'car-economybookings-banner': {
-          badge: 'Promotional Partner Banner',
+          badge: 'Partner Offer',
           title: 'Featured Car Rental Partner Offer',
-          subtitle: 'Supplementary promotional banner linking to international car hire offers.'
+          subtitle: 'Supplementary promotional offer linking to international car hire options.'
         },
         'car-autoeurope': {
-          badge: 'Search Engine · Worldwide Network',
+          badge: 'Partner · Worldwide Network',
           title: 'Worldwide Rental Network',
           subtitle: 'Compare pickup locations across 24,000+ international rental stations.'
         },
         'transfer-intui': {
-          badge: 'Supplementary Showcase · Popular Routes',
+          badge: 'Popular Routes',
           title: 'Popular Airport Transfer Routes',
           subtitle: 'Browse featured airport shuttle and private transfer routes.'
         },
         'transfer-kiwitaxi': {
-          badge: 'Search Engine · Private Transfers',
+          badge: 'Partner · Private Transfers',
           title: 'Private Meet & Greet Airport Transfers',
           subtitle: 'Enter your airport and destination to search door-to-door private transfers.'
         }
@@ -1098,7 +1098,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       whatsappBtn: 'Send on WhatsApp (0666-484815)',
       editBtn: 'Edit inquiry',
       noFakePackagesNote:
-        'No simulated availability or prices shown: all options are checked directly by our advisors.',
+        'Exact availability and rates are verified directly by our travel advisors.',
       errors: {
         destinationRequired: 'Please enter a holiday destination.',
         dateRequired: 'Please select your travel dates.',
@@ -1110,14 +1110,14 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
     }
   },
   es: {
-    hubEyebrow: 'Buscador de Viajes · Golden Group Travels',
+    hubEyebrow: 'Búsqueda de Viajes · Golden Group Travels',
     hubTitle: 'Busca y Planifica Tu Próximo Viaje',
     hubSubtitle:
-      'Elige una categoría para mostrar solo los campos necesarios: Vuelos, Hoteles Expedia, El Omra, Vacaciones, Tours o Alquiler de Coches.',
+      'Elige una categoría para consultar opciones de Vuelos, Hoteles Expedia, El Omra, Vacaciones, Tours o Alquiler de Coches.',
     servicesHubEyebrow: 'Centro Integral de Reservas · Golden Group Travels',
     servicesHubTitle: 'Explora Nuestros Servicios de Viaje',
     servicesHubSubtitle: 'Todo lo que necesitas para tu próximo viaje, en un solo lugar.',
-    openDedicatedPage: 'Abrir Página Completa',
+    openDedicatedPage: 'Ver Detalles',
     categories: {
       flights: { tabLabel: 'Vuelos', shortSub: 'Buscador Vuelos' },
       hotels: { tabLabel: 'Hoteles', shortSub: 'Alojamientos' },
@@ -1127,31 +1127,31 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       'car-transfers': { tabLabel: 'Coches y Traslados Aeropuerto', shortSub: 'Alquiler y Traslados' }
     },
     flights: {
-      providerSelectorLabel: 'Buscador de vuelos',
+      providerSelectorLabel: 'Comparador de vuelos',
       providers: {
         aviasales: { label: 'Buscador 1', sub: 'Tarifas · EUR' },
-        expedia: { label: 'Buscador 2', sub: 'Motor Alternativo' }
+        expedia: { label: 'Buscador 2', sub: 'Opción Alternativa' }
       },
-      expediaBadge: 'Buscador Alternativo de Vuelos',
+      expediaBadge: 'Opción Alternativa de Vuelos',
       expediaTitle: 'Comparar Opciones Adicionales de Vuelos',
       expediaSubtitle:
-        'Introduce origen, destino, fechas y pasajeros directamente en este segundo buscador de vuelos.',
+        'Introduce origen, destino, fechas y pasajeros a continuación.',
       expediaNote:
         'Los horarios y tarifas reales se abren directamente en el sitio del socio de reservas.',
       liveBadge: 'Buscador de Vuelos en Directo',
       liveTitle: 'Buscar Vuelos en Tiempo Real',
       liveSubtitle:
-        'Elige origen, destino, fechas y pasajeros directamente en el buscador de vuelos en EUR.',
+        'Elige origen, destino, fechas y pasajeros a continuación para consultar tarifas en EUR.',
       loadingLabel: 'Cargando buscador de vuelos…',
       loadErrorFallback:
         'No se pudo cargar el buscador aquí. Puedes reintentar o continuar directamente al portal del socio:',
       offersBadge: 'Búsqueda Adicional y Ofertas de Rutas',
       offersTitle: 'Buscador Rápido y Rutas Aéreas Destacadas',
       offersSubtitle:
-        'Complementa tu comparación con este módulo adicional de rutas y tarifas aéreas.',
+        'Complementa tu comparación con estas rutas y tarifas aéreas destacadas.',
       offersLoadingLabel: 'Cargando ofertas de rutas…',
       offersLoadErrorFallback:
-        'No se pudo cargar este módulo ahora. Puedes reintentar o escribirnos por WhatsApp.',
+        'No se pudieron cargar estas ofertas ahora. Puedes reintentar o escribirnos por WhatsApp.',
       conciergeTitle: 'Asistencia Golden Group:',
       conciergeDesc: '¿Necesitas itinerarios multidestino o atención personalizada en Salé?',
       tripRoundTrip: 'Ida y vuelta',
@@ -1183,11 +1183,11 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       summarySubtitle:
         'Tus datos han sido validados. Continúa a Aviasales para consultar vuelos en directo o solicita asistencia a nuestra agencia.',
       aviasalesNotice:
-        'Abre el portal oficial de Aviasales en una nueva pestaña. No se muestran tarifas ficticias.',
+        'Abre el portal oficial de Aviasales en una nueva pestaña para consultar vuelos disponibles.',
       continueAviasalesBtn: 'Continuar a Aviasales',
       agencyFlightQuoteBtn: 'Solicitar cotización por WhatsApp',
-      futureWidgetBadge: 'Arquitectura Preparada · Espacio Widget Aviasales',
-      futureWidgetNote: 'Contenedor modular listo para insertar el widget oficial de Aviasales.',
+      futureWidgetBadge: 'Búsqueda de Vuelos · Aviasales',
+      futureWidgetNote: 'Consulta los vuelos disponibles directamente a través de nuestro socio oficial Aviasales.',
       errors: {
         originRequired: 'Introduce una ciudad o aeropuerto de origen.',
         destinationRequired: 'Introduce una ciudad o aeropuerto de destino.',
@@ -1205,8 +1205,8 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       badge: 'Buscador de Hoteles en Directo',
       title: 'Buscar Hoteles en Vivo en Todo el Mundo',
       subtitle:
-        'Usa directamente los controles de búsqueda (destino, entrada, salida, habitaciones, adultos y niños) para realizar búsquedas reales de hoteles.',
-      includesLabel: 'Controles incluidos en el buscador de hoteles',
+        'Indica tu destino, fechas de entrada y salida, habitaciones, adultos y niños para consultar disponibilidad.',
+      includesLabel: 'Opciones de búsqueda disponibles',
       includesItems: [
         'Ciudad o alojamiento de destino',
         'Fechas de entrada y salida',
@@ -1230,9 +1230,9 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       selectedDestinationLabel: 'Destino incluido en tu mensaje de WhatsApp:',
       transparencyNote:
         'Las tarjetas siguientes son escaparates promocionales complementarios de socios debajo de los portales principales.',
-      widgetsHeader: 'Selecciones Promocionales de Socios (Complementarias)',
+      widgetsHeader: 'Selecciones de Socios',
       widgetsSubtitle: 'Ideas de entradas, museos y audioguías propuestas por socios de viaje.',
-      widgetLoadingLabel: 'Cargando selección del socio…',
+      widgetLoadingLabel: 'Cargando selección…',
       widgetLoadErrorFallback:
         'No se pudo cargar esta selección ahora. Utiliza los portales directos de arriba o reintenta.',
       widgets: {
@@ -1266,53 +1266,53 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       badge: 'Movilidad y Traslados',
       title: 'Alquiler de Coches y Traslados al Aeropuerto',
       subtitle:
-        'Busca vehículos en redes globales y locales o reserva traslados privados puerta a puerta desde el aeropuerto.',
+        'Compara vehículos en redes globales y locales o reserva traslados privados puerta a puerta desde el aeropuerto.',
       tabSelectorLabel: 'Filtrar sección de movilidad',
       tabs: {
         all: { label: 'Todos los Servicios', sub: 'Coches y Traslados' },
-        car_rentals: { label: 'Alquiler de Coches', sub: '3 Buscadores + Promo' },
+        car_rentals: { label: 'Alquiler de Coches', sub: 'Alquiler y Tarifas' },
         airport_transfers: { label: 'Traslados Aeropuerto', sub: 'Buscador y Rutas' }
       },
-      carRentalsTitle: 'Buscadores de Alquiler de Coches',
+      carRentalsTitle: 'Alquiler de Coches',
       carRentalsSubtitle:
-        'Busca y compara vehículos directamente mediante nuestros buscadores de alquiler.',
-      promoBannerEyebrow: 'Promoción Complementaria de Socio',
+        'Busca y compara vehículos directamente con nuestros socios de alquiler.',
+      promoBannerEyebrow: 'Oferta de Socio',
       transfersTitle: 'Traslados Privados y Lanzaderas de Aeropuerto',
       transfersSubtitle:
         'Busca tu traslado privado desde el aeropuerto y consulta las rutas destacadas abajo.',
-      loadingLabel: 'Cargando módulo del socio…',
+      loadingLabel: 'Cargando opciones…',
       loadErrorFallback:
-        'No se pudo mostrar el módulo ahora. Reintenta o escríbenos por WhatsApp.',
+        'No se pudieron mostrar las opciones ahora. Reintenta o escríbenos por WhatsApp.',
       transparencyNote:
         'Disponibilidad, depósitos y tarifas provienen directamente de cada proveedor externo.',
       widgets: {
         'car-localrent': {
-          badge: 'Buscador · Flotas Locales',
+          badge: 'Socio · Flotas Locales',
           title: 'Alquiler Local Verificado',
           subtitle: 'Busca vehículos seleccionados en agencias locales con condiciones transparentes.'
         },
         'car-getrentacar': {
-          badge: 'Buscador · Comparador de Vehículos',
+          badge: 'Socio · Comparador de Vehículos',
           title: 'Mercado Global de Vehículos',
           subtitle: 'Explora opciones de alquiler directo y con conductor por ciudad y fechas.'
         },
         'car-economybookings-banner': {
-          badge: 'Banner Promocional de Socio',
+          badge: 'Oferta de Socio',
           title: 'Oferta Destacada de Alquiler de Coches',
-          subtitle: 'Banner promocional con acceso a ofertas internacionales de alquiler.'
+          subtitle: 'Oferta promocional con acceso a tarifas internacionales de alquiler.'
         },
         'car-autoeurope': {
-          badge: 'Buscador · Red Mundial',
+          badge: 'Socio · Red Mundial',
           title: 'Red Mundial de Alquiler de Coches',
           subtitle: 'Busca vehículos en más de 24 000 oficinas internacionales.'
         },
         'transfer-intui': {
-          badge: 'Sugerencias Complementarias · Rutas Populares',
+          badge: 'Rutas Populares',
           title: 'Rutas Populares de Traslados al Aeropuerto',
           subtitle: 'Selección promocional de traslados y lanzaderas populares.'
         },
         'transfer-kiwitaxi': {
-          badge: 'Buscador · Traslados Privados',
+          badge: 'Socio · Traslados Privados',
           title: 'Chófer Privado a Tu Llegada',
           subtitle: 'Introduce aeropuerto y destino para reservar traslados puerta a puerta.'
         }
@@ -1395,7 +1395,7 @@ export const SEARCH_ENGINE_PACKS: Record<Language, SearchEngineLocalePack> = {
       whatsappBtn: 'Enviar por WhatsApp (0666-484815)',
       editBtn: 'Editar solicitud',
       noFakePackagesNote:
-        'No se muestra disponibilidad ficticia; nuestros asesores verifican cada solicitud.',
+        'La disponibilidad y tarifas exactas son verificadas directamente por nuestros asesores.',
       errors: {
         destinationRequired: 'Introduce el destino deseado.',
         dateRequired: 'Selecciona tus fechas de viaje.',

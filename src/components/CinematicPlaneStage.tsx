@@ -613,8 +613,8 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
               lang={lang}
               dir={t.dir}
               className={`${
-                lang === 'ar' ? 'font-arabic-calligraphy' : 'font-serif-display italic'
-              } font-semibold tracking-[0.03em] text-[clamp(1.5rem,4vw,3.15rem)] leading-[1.2] [text-wrap:balance] transition-colors duration-700 ${
+                lang === 'ar' ? 'font-arabic-calligraphy' : 'font-serif-display italic tracking-[0.03em]'
+              } font-semibold text-[clamp(1.5rem,4vw,3.15rem)] leading-[1.2] [text-wrap:balance] transition-colors duration-700 ${
                 isLandscapeDominant
                   ? 'text-[#fceda2] drop-shadow-[0_4px_20px_rgba(7,20,41,0.92)]'
                   : 'text-[#9a7220] drop-shadow-[0_2px_12px_rgba(245,237,224,0.85)]'
@@ -660,7 +660,9 @@ export const CinematicPlaneStage: React.FC<CinematicPlaneStageProps> = ({
                       <Icon className="ggt-tab-icon w-6 h-6 min-[380px]:w-7 min-[380px]:h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9" />
                     </span>
                     <span
-                      className={`max-w-[104px] sm:max-w-[136px] px-1.5 sm:px-2 py-0.5 rounded-md text-[9.5px] min-[380px]:text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.06em] sm:tracking-[0.08em] leading-tight transition-colors [text-wrap:balance] ${
+                      className={`max-w-[104px] sm:max-w-[136px] px-1.5 sm:px-2 py-0.5 rounded-md text-[9.5px] min-[380px]:text-[10px] sm:text-[11px] font-bold uppercase ${
+                        lang === 'ar' ? '' : 'tracking-[0.06em] sm:tracking-[0.08em]'
+                      } leading-tight transition-colors [text-wrap:balance] ${
                         isSelected
                           ? 'bg-[#071429]/90 text-[#fceda2] border border-[#d1a847]/50'
                           : isLandscapeDominant

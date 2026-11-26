@@ -218,7 +218,6 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
   const [departureCity, setDepartureCity] = useState('');
   const [visaPurpose, setVisaPurpose] = useState('');
   const [visaCenter, setVisaCenter] = useState('');
-  const [insurancePlanIdx, setInsurancePlanIdx] = useState(0);
   const [travelerName, setTravelerName] = useState('');
   const [travelerPhone, setTravelerPhone] = useState('');
   const [departureDate, setDepartureDate] = useState('');
@@ -324,15 +323,17 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
     );
   }, [showCityDropdown, citySuggestions.length]);
 
+  const safeService: ServiceId =
+    activeService === 'travel-insurance' ? 'flight-bookings' : activeService;
   const isHotelService =
-    activeService === 'hotel-reservations' || activeService === 'hajj-umrah';
-  const isUmrahService = activeService === 'hajj-umrah';
-  const isVisaService = activeService === 'visa-assistance';
+    safeService === 'hotel-reservations' || safeService === 'hajj-umrah';
+  const isUmrahService = safeService === 'hajj-umrah';
+  const isVisaService = safeService === 'visa-assistance';
   const showHotelField =
-    activeService === 'hotel-reservations' ||
-    activeService === 'hajj-umrah' ||
-    activeService === 'holiday-packages' ||
-    activeService === 'flight-bookings';
+    safeService === 'hotel-reservations' ||
+    safeService === 'hajj-umrah' ||
+    safeService === 'holiday-packages' ||
+    safeService === 'flight-bookings';
 
   const resetSession = useCallback(() => {
     sessionTokenRef.current = null;
@@ -608,9 +609,8 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
     }
   };
 
-  const currentServiceObj = t.servicesSection.services[activeService];
+  const currentServiceObj = t.servicesSection.services[safeService];
   const guestsLabel = t.plannerSection.guestOptions[guestIdx] ?? '';
-  const insuranceLabel = t.plannerSection.insurancePlanOptions[insurancePlanIdx] ?? '';
 
   const buildWhatsAppMessageUrl = () => {
     const mapPinLink = selectedMapPlace
@@ -627,7 +627,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
       `Hello Golden Group Travels,`,
       `I would like to request assistance for:`,
       `• Service: ${currentServiceObj.label}`,
-      activeService === 'flight-bookings' && departureCity.trim()
+      safeService === 'flight-bookings' && departureCity.trim()
         ? `• Departure City: ${departureCity.trim()}`
         : '',
       destinationLocation.trim()
@@ -640,7 +640,6 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
       isVisaService && visaCenter.trim()
         ? `• Consulate / Visa Center: ${visaCenter.trim()}`
         : '',
-      activeService === 'travel-insurance' ? `• Insurance Plan: ${insuranceLabel}` : '',
       scheduleParts.length > 0 ? `• Schedule: ${scheduleParts.join(' | ')}` : '',
       `• Travelers: ${guestsLabel}`,
       travelerName.trim() ? `• Full Name: ${travelerName.trim()}` : '',
@@ -729,17 +728,24 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
             ref={serviceTablistRef}
             role="tablist"
             aria-label={t.plannerSection.serviceLabel}
-            className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5"
+            className="relative grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-5 gap-2 sm:gap-2.5"
           >
             <span
               ref={serviceIndicatorRef}
               aria-hidden="true"
               className="ggt-tab-indicator-pill pointer-events-none"
             />
-            {SERVICE_ORDER.map((srvId) => {
+            {SERVICE_ORDER.map((srvId, idx) => {
               const srv = t.servicesSection.services[srvId];
               const Icon = SERVICE_ICONS[srvId];
-              const active = activeService === srvId;
+              const active = safeService === srvId;
+              const tabSpanClass =
+                idx < 3
+                  ? 'col-span-1 sm:col-span-2 lg:col-span-1'
+                  : idx === 3
+                  ? 'col-span-1 sm:col-span-3 lg:col-span-1'
+                  : 'col-span-2 sm:col-span-3 lg:col-span-1';
+
               return (
                 <button
                   key={srvId}
@@ -751,14 +757,14 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                     onSelectService(srvId);
                     setItineraryBuilt(false);
                   }}
-                  className={`ggt-tab-3d relative z-10 min-w-0 py-2.5 sm:py-3 px-2.5 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 transition-colors cursor-pointer ${
+                  className={`ggt-tab-3d ${tabSpanClass} relative z-10 min-w-0 min-h-[48px] py-2.5 sm:py-3 px-3 rounded-xl border text-[11px] sm:text-xs font-semibold uppercase tracking-wider leading-snug flex items-center justify-center text-center gap-1.5 sm:gap-2 transition-colors cursor-pointer ${
                     active
                       ? 'text-[#fceda2] border-transparent'
                       : 'bg-[#f5ede0]/85 text-[#0b1d3a] border-[#d1a847]/40 hover:border-[#0b1d3a]'
                   }`}
                 >
                   <Icon className="w-4 h-4 shrink-0 ggt-tab-icon" />
-                  <span className="truncate">{srv.label}</span>
+                  <span className="whitespace-normal text-center">{srv.label}</span>
                 </button>
               );
             })}
@@ -1023,7 +1029,7 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                 )}
 
                 {/* Flight Bookings Departure City */}
-                {activeService === 'flight-bookings' && (
+                {safeService === 'flight-bookings' && (
                   <div className="ggt-planner-service-field">
                     <label
                       htmlFor="departure-city-input"
@@ -1148,31 +1154,6 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
                         ))}
                       </ul>
                     )}
-                  </div>
-                )}
-
-                {/* Travel Insurance Specific Plan Field */}
-                {activeService === 'travel-insurance' && (
-                  <div className="ggt-planner-service-field">
-                    <label
-                      htmlFor="insurance-plan-select"
-                      className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#0b1d3a] mb-1.5"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#c59b38]" />
-                      <span>{t.plannerSection.insurancePlanLabel}</span>
-                    </label>
-                    <select
-                      id="insurance-plan-select"
-                      value={insurancePlanIdx}
-                      onChange={(e) => setInsurancePlanIdx(Number(e.target.value))}
-                      className="w-full bg-[#f8f2e7] border border-[#d1a847]/50 rounded-lg px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                    >
-                      {t.plannerSection.insurancePlanOptions.map((opt, idx) => (
-                        <option key={idx} value={idx}>
-                          {opt}
-                        </option>
-                      ))}
-                    </select>
                   </div>
                 )}
 
@@ -1417,10 +1398,10 @@ const PlannerMapInner: React.FC<PlannerInnerProps> = ({
               <div className="flex items-center gap-2.5 min-w-0">
                 <MapPin className="w-4 h-4 text-[#d1a847] shrink-0" />
                 <div className="min-w-0">
-                  <div className="text-xs font-semibold text-[#fceda2] truncate">
+                  <div className="text-xs font-semibold text-[#fceda2] leading-snug">
                     {t.plannerSection.agencyMapCardTitle}
                   </div>
-                  <div className="text-[11px] text-slate-300 truncate">
+                  <div className="text-[11px] text-slate-300 leading-snug">
                     {t.plannerSection.agencyMapBtn}
                   </div>
                 </div>
