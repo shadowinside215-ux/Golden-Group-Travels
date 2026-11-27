@@ -1,30 +1,28 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   AlertCircle,
   AlertTriangle,
-  ArrowLeft,
   ArrowRight,
   Baby,
+  BedDouble,
   Building2,
   Calendar,
   Check,
   ChevronDown,
   Clock,
-  ExternalLink,
   Handshake,
+  Info,
   Luggage,
   MapPin,
-  Phone,
   PlaneLanding,
   PlaneTakeoff,
-  Sparkles,
-  Users,
   XCircle
 } from 'lucide-react';
 import { Language } from '../assets/destinations';
+import { HERO_CATEGORY_ICONS } from './ServiceIcons';
 import {
   EUROPE_BENELUX_BACK_ROUTE,
   EUROPE_BENELUX_CHILD_POLICIES,
@@ -40,7 +38,34 @@ import {
   EuropeRoomType
 } from '../data/europeBeneluxHolidayData';
 import { trackServiceSelection } from '../utils/analytics';
-import { prefersReducedMotion, pulseSelection3D, setupWindowPopScroll3D } from '../utils/tab3DMotion';
+import {
+  prefersReducedMotion,
+  pulseSelection3D,
+  setupWindowPopScroll3D,
+  switchTabWithTimeline,
+  useReplayable3DPanel,
+  useSlidingTabIndicator
+} from '../utils/tab3DMotion';
+import {
+  ProgramBottomNav,
+  ProgramComparisonTable,
+  ProgramConditionsNotesGrid,
+  ProgramDiscrepancyBanner,
+  ProgramDivider,
+  ProgramHero,
+  ProgramInclusionsSection,
+  ProgramSectionHeading,
+  ProgramSelectorChoiceCard,
+  ProgramSelectorInfoCard,
+  ProgramSelectorPanel,
+  ProgramTabSwitcher,
+  ProgramTopBar
+} from './programs/ProgramDetailPrimitives';
+import {
+  ProgramBookingSection,
+  ProgramQuoteNoticeBox,
+  ProgramQuoteRateBlock
+} from './programs/ProgramBookingSection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -64,8 +89,19 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
   const uid = useId();
   const location = useLocation();
   const pageRef = useRef<HTMLDivElement>(null);
+  const pricingSectionRef = useRef<HTMLElement>(null);
+  const optionsSectionRef = useRef<HTMLElement>(null);
+  const itinerarySectionRef = useRef<HTMLElement>(null);
+  const inquirySectionRef = useRef<HTMLElement>(null);
+  const depTablistRef = useRef<HTMLDivElement>(null);
+  const depIndicatorRef = useRef<HTMLSpanElement>(null);
+  const depPanelRef = useRef<HTMLDivElement>(null);
+  const depSwitchTimelineRef = useRef<gsap.core.Tween | gsap.core.Timeline | null>(null);
   const quoteBoxRef = useRef<HTMLDivElement>(null);
+  const readyCardRef = useRef<HTMLDivElement>(null);
+  const quoteMountedRef = useRef(false);
   const copy = EUROPE_BENELUX_COPY[lang];
+  const HolidayHeroIcon = HERO_CATEGORY_ICONS.holidays;
 
   const [selectedDepartureId, setSelectedDepartureId] =
     useState<EuropeDepartureId>('dec-05');
@@ -83,9 +119,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
   const [formErrors, setFormErrors] = useState<string[]>([]);
-  const [submittedWhatsappUrl, setSubmittedWhatsappUrl] = useState<string | null>(
-    null
-  );
+  const [inquiryReady, setInquiryReady] = useState<boolean>(false);
 
   const selectedDeparture = useMemo(
     () =>
@@ -124,55 +158,91 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
   }, []);
 
   useEffect(() => {
+    setFormErrors([]);
+  }, [lang]);
+
+  useEffect(() => {
     if (location.hash === '#paris-benelux-inquiry') {
       const timer = window.setTimeout(() => {
-        const el = document.getElementById('paris-benelux-inquiry');
-        if (el) {
-          el.scrollIntoView({
-            behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-            block: 'start'
-          });
-        }
+        inquirySectionRef.current?.scrollIntoView({
+          behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+          block: 'start'
+        });
       }, 220);
       return () => window.clearTimeout(timer);
     }
   }, [location.hash]);
 
+  useSlidingTabIndicator(depTablistRef, depIndicatorRef, selectedDepartureId, [lang, isRtl]);
+
+  useReplayable3DPanel(depPanelRef, selectedDepartureId, {
+    duration: 0.45,
+    staggerEach: 0.04,
+    yOffset: 10,
+    rotateXDeg: 3
+  });
+
+  useReplayable3DPanel(readyCardRef, inquiryReady, {
+    enabled: inquiryReady,
+    duration: 0.48,
+    staggerEach: 0.045,
+    yOffset: 14,
+    rotateXDeg: 4
+  });
+
+  useEffect(() => {
+    if (!quoteMountedRef.current) {
+      quoteMountedRef.current = true;
+      return;
+    }
+    pulseSelection3D(quoteBoxRef.current);
+  }, [
+    selectedDepartureId,
+    selectedRoomType,
+    adultsCount,
+    childInquiryOption,
+    familyRoomInquiry
+  ]);
+
+  useEffect(() => {
+    return () => {
+      if (depSwitchTimelineRef.current) {
+        depSwitchTimelineRef.current.kill();
+        depSwitchTimelineRef.current = null;
+      }
+    };
+  }, []);
+
+  // Standardized 3D Window Pop-Out Bidirectional GSAP ScrollTrigger Animations
   useEffect(() => {
     const root = pageRef.current;
     if (!root) return;
-
-    if (!prefersReducedMotion()) {
-      const hero = root.querySelector<HTMLElement>('.ggt-eur-hero');
-      if (hero) {
-        gsap.fromTo(
-          hero,
-          { opacity: 0, y: 22, scale: 0.96, rotateX: 5, transformPerspective: 1250 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotateX: 0,
-            duration: 0.56,
-            ease: 'back.out(1.15)',
-            force3D: true,
-            clearProps: 'transform,opacity'
-          }
-        );
-      }
-    }
-
     return setupWindowPopScroll3D(root, {
-      headings: '.ggt-eur-heading',
-      cards: '.ggt-eur-card',
-      refreshDelayMs: 200
+      headings: '.ggt-prog-heading',
+      cards: '.ggt-prog-card',
+      dividers: '.ggt-prog-divider',
+      media: '.ggt-prog-media',
+      refreshDelayMs: 180
     });
   }, [lang]);
 
+  const handleDepartureSwitch = (depId: EuropeDepartureId) => {
+    if (depId === selectedDepartureId) return;
+    switchTabWithTimeline({
+      outgoingEl: depPanelRef.current,
+      timelineRef: depSwitchTimelineRef,
+      onSwap: () => {
+        setSelectedDepartureId(depId);
+      }
+    });
+  };
+
   const handleSelectCell = (depId: EuropeDepartureId, room: EuropeRoomType) => {
-    setSelectedDepartureId(depId);
+    if (depId !== selectedDepartureId) {
+      handleDepartureSwitch(depId);
+    }
     setSelectedRoomType(room);
-    pulseSelection3D(quoteBoxRef.current);
+    setInquiryReady(false);
   };
 
   const toggleDay = (dayNum: number) => {
@@ -200,11 +270,15 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
 
     if (errors.length > 0) {
       setFormErrors(errors);
+      setInquiryReady(false);
       return;
     }
 
     setFormErrors([]);
+    setInquiryReady(true);
+  };
 
+  const buildWhatsappInquiryUrl = () => {
     const lines = [
       `*Golden Group Travels — Demande : ${copy.showcaseTitle} (${copy.showcaseArabicTitle})*`,
       `• Programme : 7 jours / 6 nuits — Départ Casablanca (${copy.showcaseCollaboration})`,
@@ -224,317 +298,257 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
       'Merci de confirmer la disponibilité réelle des vols, des hôtels et la compagnie aérienne retenue.'
     ].filter(Boolean);
 
-    const whatsappUrl = `https://wa.me/${whatsappInternational}?text=${encodeURIComponent(
+    return `https://wa.me/${whatsappInternational}?text=${encodeURIComponent(
       lines.join('\n')
     )}`;
-    setSubmittedWhatsappUrl(whatsappUrl);
+  };
 
-    const anchor = document.createElement('a');
-    anchor.href = whatsappUrl;
-    anchor.target = '_blank';
-    anchor.rel = 'noopener noreferrer';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
+  const buildAdvisorWhatsappUrl = () => {
+    const msg = `Bonjour Golden Group Travels, je souhaite des renseignements et confirmer les vols pour "${copy.showcaseTitle}" (départ ${selectedDeparture.departureDate}, chambre ${roomLabel(selectedRoomType)}).`;
+    return `https://wa.me/${whatsappInternational}?text=${encodeURIComponent(msg)}`;
   };
 
   return (
-    <div ref={pageRef} className="bg-cream-paper min-h-screen pb-16">
-      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-10 sm:space-y-14">
-        {/* TOP NAVIGATION BAR */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#d1a847]/35">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Link
-              to={EUROPE_BENELUX_BACK_ROUTE}
-              className="ggt-btn-3d-return inline-flex items-center gap-2 px-4 min-h-[42px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] shadow-sm"
-            >
-              <ArrowLeft
-                className={`w-4 h-4 text-[#d1a847] ggt-return-arrow ${isRtl ? 'rotate-180' : ''}`}
-              />
-              <span>{copy.backToSejours}</span>
-            </Link>
+    <div
+      ref={pageRef}
+      dir={isRtl ? 'rtl' : 'ltr'}
+      className="min-h-screen bg-[#ede1ce] text-[#0b1d3a]"
+    >
+      <ProgramTopBar
+        backRoute={EUROPE_BENELUX_BACK_ROUTE}
+        backToCategoryLabel={copy.backToSejours}
+        backToHomeLabel={copy.backToHome}
+        rightBadgeLabel={copy.heroCollaborationBadge}
+        rightBadgeIcon={Handshake}
+        isRtl={isRtl}
+      />
 
-            <Link
-              to="/"
-              className="ggt-btn-3d-return inline-flex items-center gap-1.5 px-3.5 min-h-[42px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-[0.1em]"
-            >
-              <span>{copy.backToHome}</span>
-            </Link>
-          </div>
+      {/* SECTION 1: STANDARDIZED HERO */}
+      <ProgramHero
+        heroIcon={HolidayHeroIcon}
+        eyebrow={copy.heroEyebrow}
+        title={copy.showcaseTitle}
+        arabicTitle={copy.showcaseArabicTitle}
+        summary={copy.showcaseDescription}
+        infoBoxes={[
+          {
+            label: copy.showcaseDepartureLabel,
+            value: copy.destinationsStripLabel,
+            icon: MapPin,
+            highlight: true
+          },
+          {
+            label: copy.heroEyebrow,
+            value: copy.heroDurationBadge,
+            icon: Calendar
+          }
+        ]}
+        startingFromLabel={copy.showcaseStartingFromLabel}
+        startingPriceDisplay={copy.showcaseStartingPrice}
+        startingPriceScopeNote={copy.heroStartingScope}
+        primaryCtaLabel={copy.heroCtaReserve}
+        onPrimaryCta={() =>
+          inquirySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        secondaryCtaLabel={copy.heroCtaItinerary}
+        onSecondaryCta={() =>
+          itinerarySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        image={EUROPE_BENELUX_IMAGES.hero}
+        imageAlt={`${copy.showcaseTitle} — ${copy.destinationsStripLabel}`}
+        fallbackGradient={EUROPE_BENELUX_IMAGES.fallbackGradient}
+        imageBadgeText={copy.showcaseDepartureLabel}
+        imageBadgeIcon={PlaneTakeoff}
+        imageBadgeIsWarning={false}
+        isRtl={isRtl}
+      />
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#fcf9f2] border border-[#d1a847]/55 text-xs font-semibold text-[#0b1d3a]">
-            <Handshake className="w-4 h-4 text-[#c59b38] shrink-0" />
-            <span>{copy.heroCollaborationBadge}</span>
-          </div>
-        </div>
-
-        {/* SECTION 1: HERO PRESENTATION */}
-        <section className="ggt-eur-hero rounded-2xl overflow-hidden bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847] shadow-[0_26px_64px_rgba(7,20,41,0.22)]">
-          <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
-            <div className="lg:col-span-7 p-6 sm:p-9 lg:p-10 flex flex-col justify-between gap-6">
-              <div className="space-y-4">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#0b1d3a] border border-[#d1a847]/65 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#fceda2]">
-                    <Sparkles className="w-3.5 h-3.5 text-[#d1a847]" />
-                    <span>{copy.heroEyebrow}</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#d1a847]/15 border border-[#d1a847]/50 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#fceda2]">
-                    <Calendar className="w-3.5 h-3.5 text-[#d1a847]" />
-                    <span>{copy.heroDurationBadge}</span>
-                  </span>
-                </div>
-
-                <div className="space-y-1.5">
-                  <h1 className="font-serif-crest text-3xl sm:text-4xl lg:text-5xl font-semibold text-[#fcf9f2] leading-tight [text-wrap:balance]">
-                    {copy.showcaseTitle}
-                  </h1>
-                  <div
-                    dir="rtl"
-                    lang="ar"
-                    className="text-xl sm:text-2xl font-semibold text-[#fceda2]"
-                  >
-                    {copy.showcaseArabicTitle}
-                  </div>
-                </div>
-
-                <div className="rounded-xl bg-[#0b1d3a]/85 border border-[#d1a847]/40 px-4 py-3 text-xs sm:text-sm text-[#fceda2]/95 font-medium">
-                  {copy.destinationsStripLabel}
-                </div>
-
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-2xl">
-                  {copy.showcaseDescription}
-                </p>
-              </div>
-
-              <div className="space-y-4 pt-2 border-t border-[#d1a847]/30">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-[#d1a847] font-semibold">
-                      {copy.showcaseStartingFromLabel}
-                    </div>
-                    <div className="font-serif-crest text-3xl sm:text-4xl font-bold text-[#fceda2] tabular-nums leading-tight">
-                      {copy.showcaseStartingPrice}
-                    </div>
-                    <div className="text-xs text-slate-300 mt-0.5">
-                      {copy.heroStartingScope}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                    <a
-                      href="#paris-benelux-inquiry"
-                      className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] shadow-lg"
-                    >
-                      <span>{copy.heroCtaReserve}</span>
-                      <ArrowRight
-                        className={`w-4 h-4 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`}
-                      />
-                    </a>
-                    <a
-                      href="#paris-benelux-itinerary"
-                      className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/70 text-xs font-semibold uppercase tracking-[0.12em]"
-                    >
-                      <span>{copy.heroCtaItinerary}</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="lg:col-span-5 relative min-h-[280px] sm:min-h-[340px] lg:min-h-full overflow-hidden"
-              style={{ background: EUROPE_BENELUX_IMAGES.fallbackGradient }}
-            >
-              <img
-                src={EUROPE_BENELUX_IMAGES.hero}
-                alt={`${copy.showcaseTitle} — ${copy.destinationsStripLabel}`}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-[#071429]/85 via-transparent to-transparent lg:bg-gradient-to-l lg:from-transparent lg:via-[#071429]/20 lg:to-[#071429]"
-              />
-              <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5 flex flex-wrap items-center justify-between gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#071429]/90 border border-[#d1a847]/65 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#fceda2]">
-                  <PlaneTakeoff className="w-3.5 h-3.5 text-[#d1a847]" />
-                  <span>{copy.showcaseDepartureLabel}</span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 sm:py-14 space-y-14">
         {/* SECTION 2: MANDATORY AIRLINE & BAGGAGE DISCREPANCY NOTICE */}
-        <section
-          aria-label={copy.airlineDiscrepancyTitle}
-          className="ggt-eur-card rounded-2xl bg-amber-50 border-2 border-amber-400 p-5 sm:p-6 shadow-sm"
-        >
-          <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <div className="space-y-1.5">
-              <h2 className="font-serif-crest text-lg sm:text-xl font-bold text-amber-950">
-                {copy.airlineDiscrepancyTitle}
-              </h2>
-              <p className="text-xs sm:text-sm text-amber-900 leading-relaxed">
-                {copy.airlineDiscrepancyBody}
-              </p>
-            </div>
-          </div>
-        </section>
+        <ProgramDiscrepancyBanner
+          heading={copy.airlineDiscrepancyTitle}
+          explanation={copy.airlineDiscrepancyBody}
+        />
+
+        <ProgramDivider />
 
         {/* SECTION 3: EXACT PRICING & DEPARTURE MATRIX */}
-        <section className="space-y-6">
-          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.pricingEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a]">
-              {copy.pricingTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
-              {copy.pricingSubtitle}
-            </p>
-          </div>
+        <section ref={pricingSectionRef} className="space-y-6 scroll-mt-28 sm:scroll-mt-36">
+          <ProgramSectionHeading
+            eyebrow={copy.pricingEyebrow}
+            title={copy.pricingTitle}
+            subtitle={copy.pricingSubtitle}
+          />
 
-          {/* Desktop Interactive Pricing Table */}
-          <div className="ggt-eur-card hidden md:block rounded-2xl overflow-hidden bg-[#fcf9f2] border border-[#d1a847]/65 shadow-[0_14px_34px_rgba(11,29,58,0.08)]">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-[#0b1d3a] text-[#fceda2] text-xs uppercase tracking-[0.14em]">
-                  <th className="py-4 px-5 text-start font-semibold">{copy.colDeparture}</th>
-                  <th className="py-4 px-5 text-start font-semibold">{copy.colReturn}</th>
-                  <th className="py-4 px-5 text-end font-semibold">{copy.colTriple}</th>
-                  <th className="py-4 px-5 text-end font-semibold">{copy.colDouble}</th>
-                  <th className="py-4 px-5 text-end font-semibold">{copy.colSingle}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#d1a847]/30">
-                {EUROPE_BENELUX_DEPARTURES.map((dep) => {
-                  const isActiveRow = dep.id === selectedDepartureId;
-                  return (
-                    <tr
-                      key={dep.id}
-                      className={`transition-colors ${
-                        isActiveRow ? 'bg-[#ede1ce]/55' : 'hover:bg-[#f5ede0]/70'
-                      }`}
-                    >
-                      <td className="py-4 px-5 font-semibold text-[#0b1d3a] tabular-nums">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-[#c59b38] shrink-0" />
-                          <span>{dep.departureDate}</span>
-                          {dep.isStartingPricePeriod && (
-                            <span className="px-2 py-0.5 rounded bg-[#0b1d3a] text-[#fceda2] text-[10px] font-bold uppercase tracking-wider">
-                              {copy.showcaseStartingFromLabel}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-4 px-5 font-medium text-[#2c405e] tabular-nums">
-                        {dep.returnDate}
-                      </td>
-                      {(['triple', 'double', 'single'] as const).map((roomKey) => {
-                        const isSelectedCell =
-                          dep.id === selectedDepartureId && selectedRoomType === roomKey;
-                        return (
-                          <td key={roomKey} className="py-3 px-4 text-end">
-                            <button
-                              type="button"
-                              onClick={() => handleSelectCell(dep.id, roomKey)}
-                              className={`inline-flex items-center justify-end gap-1.5 px-4 py-2 rounded-xl font-bold tabular-nums text-sm transition-all cursor-pointer ${
-                                isSelectedCell
-                                  ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847] shadow-md'
-                                  : 'bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/45'
-                              }`}
-                            >
-                              <span>{formatMad(dep.pricesMad[roomKey])}</span>
-                            </button>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <ProgramComparisonTable>
+            <thead>
+              <tr className="bg-[#0b1d3a] text-[#fceda2] text-xs">
+                <th className="py-4 px-5 text-start font-semibold uppercase tracking-[0.14em]">
+                  {copy.colDeparture} → {copy.colReturn}
+                </th>
+                <th className="py-4 px-4 text-center font-semibold uppercase tracking-[0.12em]">
+                  {copy.colTriple}
+                </th>
+                <th className="py-4 px-4 text-center font-semibold uppercase tracking-[0.12em]">
+                  {copy.colDouble}
+                </th>
+                <th className="py-4 px-4 text-center font-semibold uppercase tracking-[0.12em]">
+                  {copy.colSingle}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#d1a847]/25">
+              {EUROPE_BENELUX_DEPARTURES.map((dep) => {
+                const isActiveRow = dep.id === selectedDepartureId;
+                return (
+                  <tr
+                    key={dep.id}
+                    className={isActiveRow ? 'bg-[#f5ede0]/70' : 'hover:bg-[#f5ede0]/45'}
+                  >
+                    <td className="py-4 px-5 align-top">
+                      <div className="flex flex-wrap items-center gap-2 font-serif-crest text-base font-bold text-[#0b1d3a] tabular-nums">
+                        <Calendar className="w-4 h-4 text-[#c59b38] shrink-0" />
+                        <span>
+                          {dep.departureDate} → {dep.returnDate}
+                        </span>
+                      </div>
+                      {dep.isStartingPricePeriod && (
+                        <span className="mt-1 inline-block px-2 py-0.5 rounded bg-[#0b1d3a] text-[#fceda2] text-[10px] font-bold uppercase tracking-wider">
+                          {copy.showcaseStartingFromLabel}
+                        </span>
+                      )}
+                    </td>
 
-          {/* Mobile Interactive Pricing Cards */}
-          <div className="md:hidden grid grid-cols-1 gap-4">
-            {EUROPE_BENELUX_DEPARTURES.map((dep) => {
-              const isSelectedDep = dep.id === selectedDepartureId;
-              return (
-                <div
-                  key={dep.id}
-                  className={`ggt-eur-card rounded-2xl p-4 bg-[#fcf9f2] border transition-colors space-y-3 ${
-                    isSelectedDep
-                      ? 'border-2 border-[#0b1d3a] shadow-md'
-                      : 'border-[#d1a847]/60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#d1a847]/30">
-                    <div className="text-xs font-bold text-[#0b1d3a] tabular-nums">
-                      {dep.departureDate} → {dep.returnDate}
-                    </div>
-                    {dep.isStartingPricePeriod && (
-                      <span className="px-2 py-0.5 rounded bg-[#0b1d3a] text-[#fceda2] text-[10px] font-bold uppercase tracking-wider">
-                        {copy.showcaseStartingFromLabel}
-                      </span>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
                     {(['triple', 'double', 'single'] as const).map((roomKey) => {
-                      const active = isSelectedDep && selectedRoomType === roomKey;
-                      const label =
-                        roomKey === 'triple'
-                          ? copy.colTriple
-                          : roomKey === 'double'
-                          ? copy.colDouble
-                          : copy.colSingle;
+                      const isSelectedCell =
+                        dep.id === selectedDepartureId && selectedRoomType === roomKey;
                       return (
-                        <button
-                          key={roomKey}
-                          type="button"
-                          onClick={() => handleSelectCell(dep.id, roomKey)}
-                          className={`rounded-xl p-2.5 text-center border transition-all cursor-pointer ${
-                            active
-                              ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847]'
-                              : 'bg-[#f5ede0]/70 text-[#0b1d3a] border-[#d1a847]/45'
-                          }`}
-                        >
-                          <div className="text-[10px] uppercase tracking-wider opacity-85">
-                            {label}
-                          </div>
-                          <div className="text-xs font-bold tabular-nums mt-0.5">
-                            {formatMad(dep.pricesMad[roomKey])}
-                          </div>
-                        </button>
+                        <td key={roomKey} className="py-3 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectCell(dep.id, roomKey)}
+                            className={`ggt-card-3d-select w-full py-2.5 px-3 rounded-xl border transition-all cursor-pointer ${
+                              isSelectedCell
+                                ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847] shadow-sm font-bold'
+                                : 'bg-white hover:bg-[#ede1ce] text-[#0b1d3a] border-[#d1a847]/45 font-semibold'
+                            }`}
+                          >
+                            <div className="font-serif-crest text-base tabular-nums">
+                              {formatMad(dep.pricesMad[roomKey])}
+                            </div>
+                          </button>
+                        </td>
                       );
                     })}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </ProgramComparisonTable>
+
           <p className="text-xs text-[#2c405e]">{copy.selectRoomHint}</p>
         </section>
 
+        <ProgramDivider />
+
+        {/* SECTION 3B: DARK INTERACTIVE DEPARTURE & ROOM SELECTOR PANEL */}
+        <section ref={optionsSectionRef} className="space-y-6 scroll-mt-28 sm:scroll-mt-36">
+          <ProgramSectionHeading
+            eyebrow={copy.pricingEyebrow}
+            title={copy.formDepartureLabel}
+            subtitle={copy.pricingSubtitle}
+            rightSlot={
+              <ProgramTabSwitcher
+                tablistRef={depTablistRef}
+                indicatorRef={depIndicatorRef}
+                ariaLabel={copy.formDepartureLabel}
+                activeId={selectedDepartureId}
+                onSelect={handleDepartureSwitch}
+                options={EUROPE_BENELUX_DEPARTURES.map((dep) => ({
+                  id: dep.id,
+                  label: `${dep.departureDate} → ${dep.returnDate}`,
+                  mobileLabel: dep.departureDate
+                }))}
+              />
+            }
+          />
+
+          <ProgramSelectorPanel
+            panelRef={depPanelRef}
+            eyebrow={copy.quoteSelectedDates}
+            title={`${selectedDeparture.departureDate} → ${selectedDeparture.returnDate}`}
+            subtitle={copy.destinationsStripLabel}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ProgramSelectorInfoCard
+                icon={Calendar}
+                label={`${copy.colDeparture} → ${copy.colReturn}`}
+                value={`${selectedDeparture.departureDate} → ${selectedDeparture.returnDate}`}
+                subtext={copy.showcaseDepartureLabel}
+                badge={
+                  selectedDeparture.isStartingPricePeriod ? (
+                    <span className="px-2.5 py-1 rounded-md bg-emerald-950/90 text-emerald-200 border border-emerald-500/45 text-[11px] font-bold">
+                      {copy.showcaseStartingFromLabel}
+                    </span>
+                  ) : undefined
+                }
+              />
+
+              <ProgramSelectorInfoCard
+                icon={PlaneTakeoff}
+                label={copy.heroDurationBadge}
+                value={copy.flightsColTitle}
+                warningText={copy.flightsAirlinePendingLine}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {(['triple', 'double', 'single'] as const).map((roomKey) => {
+                const isSelected = selectedRoomType === roomKey;
+                const actionSelected =
+                  lang === 'ar'
+                    ? 'غرفة مختارة'
+                    : lang === 'en'
+                    ? 'Selected room'
+                    : lang === 'es'
+                    ? 'Habitación elegida'
+                    : 'Chambre sélectionnée';
+                const actionSelect =
+                  lang === 'ar'
+                    ? 'اختيار هذه الغرفة'
+                    : lang === 'en'
+                    ? 'Select this room'
+                    : lang === 'es'
+                    ? 'Elegir habitación'
+                    : 'Choisir cette chambre';
+                return (
+                  <ProgramSelectorChoiceCard
+                    key={roomKey}
+                    title={roomLabel(roomKey)}
+                    subtitle={`${selectedDeparture.departureDate} → ${selectedDeparture.returnDate}`}
+                    priceDisplay={formatMad(selectedDeparture.pricesMad[roomKey])}
+                    actionLabel={isSelected ? actionSelected : actionSelect}
+                    isSelected={isSelected}
+                    onSelect={() => setSelectedRoomType(roomKey)}
+                    icon={BedDouble}
+                  />
+                );
+              })}
+            </div>
+          </ProgramSelectorPanel>
+        </section>
+
+        <ProgramDivider />
+
         {/* SECTION 4: HOTELS (6 NIGHTS) & FLIGHT SCHEDULES */}
         <section className="space-y-6">
-          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.hotelsFlightsEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a]">
-              {copy.hotelsFlightsTitle}
-            </h2>
-          </div>
+          <ProgramSectionHeading
+            eyebrow={copy.hotelsFlightsEyebrow}
+            title={copy.hotelsFlightsTitle}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            {/* Hotels Column */}
-            <div className="ggt-eur-card lg:col-span-7 rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-6 space-y-5 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
+            <div className="ggt-prog-card lg:col-span-7 rounded-2xl bg-[#fcf9f2] border-2 border-[#d1a847]/65 p-5 sm:p-6 space-y-5 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
               <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d1a847]/30">
                 <div className="flex items-center gap-2 font-serif-crest text-xl font-semibold text-[#0b1d3a]">
                   <Building2 className="w-5 h-5 text-[#c59b38]" />
@@ -578,8 +592,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
               </div>
             </div>
 
-            {/* Flights & Pending Baggage Column */}
-            <div className="ggt-eur-card lg:col-span-5 rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/70 p-5 sm:p-6 space-y-4 flex flex-col justify-between shadow-[0_18px_42px_rgba(4,12,28,0.22)]">
+            <div className="ggt-prog-card lg:col-span-5 rounded-2xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847]/70 p-5 sm:p-6 space-y-4 flex flex-col justify-between shadow-[0_18px_42px_rgba(4,12,28,0.22)]">
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#d1a847]/30">
                   <div className="flex items-center gap-2 font-serif-crest text-xl font-semibold text-[#fcf9f2]">
@@ -646,41 +659,37 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
           </div>
         </section>
 
-        {/* SECTION 5: INTERACTIVE EXPANDABLE 7-DAY ITINERARY */}
-        <section
-          id="paris-benelux-itinerary"
-          className="space-y-6"
-        >
-          <div className="ggt-eur-heading flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-1.5 max-w-3xl">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-                {copy.itineraryEyebrow}
-              </div>
-              <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a]">
-                {copy.itineraryTitle}
-              </h2>
-              <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
-                {copy.itinerarySubtitle}
-              </p>
-            </div>
+        <ProgramDivider />
 
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={expandAllDays}
-                className="px-4 min-h-[40px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors"
-              >
-                {copy.expandAllLabel}
-              </button>
-              <button
-                type="button"
-                onClick={collapseAllDays}
-                className="px-4 min-h-[40px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors"
-              >
-                {copy.collapseAllLabel}
-              </button>
-            </div>
-          </div>
+        {/* SECTION 5: INTERACTIVE EXPANDABLE 7-DAY ITINERARY (NO IMAGES) */}
+        <section
+          ref={itinerarySectionRef}
+          id="paris-benelux-itinerary"
+          className="space-y-6 scroll-mt-28 sm:scroll-mt-36"
+        >
+          <ProgramSectionHeading
+            eyebrow={copy.itineraryEyebrow}
+            title={copy.itineraryTitle}
+            subtitle={copy.itinerarySubtitle}
+            rightSlot={
+              <div className="flex items-center gap-2 shrink-0 self-start lg:self-auto">
+                <button
+                  type="button"
+                  onClick={expandAllDays}
+                  className="px-4 min-h-[40px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors"
+                >
+                  {copy.expandAllLabel}
+                </button>
+                <button
+                  type="button"
+                  onClick={collapseAllDays}
+                  className="px-4 min-h-[40px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/55 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors"
+                >
+                  {copy.collapseAllLabel}
+                </button>
+              </div>
+            }
+          />
 
           <div className="space-y-4">
             {EUROPE_BENELUX_ITINERARY_DAYS.map((dayItem) => {
@@ -688,7 +697,7 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
               return (
                 <article
                   key={dayItem.day}
-                  className={`ggt-eur-card rounded-2xl overflow-hidden bg-[#fcf9f2] border transition-all duration-200 ${
+                  className={`ggt-prog-card rounded-2xl overflow-hidden bg-[#fcf9f2] border transition-all duration-200 ${
                     isOpen
                       ? 'border-2 border-[#d1a847] shadow-[0_16px_38px_rgba(11,29,58,0.1)]'
                       : 'border-[#d1a847]/50 hover:border-[#c59b38]'
@@ -758,489 +767,300 @@ export const EuropeBeneluxHolidayDetailPage: React.FC<
           </div>
         </section>
 
-        {/* SECTION 6: INCLUSIONS & EXCLUSIONS */}
-        <section className="space-y-6">
-          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.inclusionsEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a]">
-              {copy.inclusionsTitle}
-            </h2>
-          </div>
+        <ProgramDivider />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-            {/* Inclusions */}
-            <div className="ggt-eur-card rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-7 space-y-4 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
-              <h3 className="font-serif-crest text-xl font-semibold text-[#0b1d3a] pb-3 border-b border-[#d1a847]/30 flex items-center gap-2">
-                <Check className="w-5 h-5 text-emerald-700" />
-                <span>{copy.priceIncludesHeading}</span>
-              </h3>
-              <ul className="space-y-2.5">
-                {EUROPE_BENELUX_INCLUSIONS[lang].map((item, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2.5 text-xs sm:text-sm text-[#0b1d3a] leading-relaxed"
+        {/* SECTION 6: STANDARDIZED INCLUSIONS & EXCLUSIONS */}
+        <ProgramInclusionsSection
+          eyebrow={copy.inclusionsEyebrow}
+          title={copy.inclusionsTitle}
+          subtitle={copy.priceIncludesHeading}
+          columnsClassName="grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          items={EUROPE_BENELUX_INCLUSIONS[lang].map((item, idx) => ({
+            key: `eur-inc-${idx}`,
+            icon: Check,
+            title: copy.priceIncludesHeading,
+            detail: item
+          }))}
+          calloutTitle={copy.priceExcludesHeading}
+          calloutItems={EUROPE_BENELUX_EXCLUSIONS[lang]}
+          calloutIcon={XCircle}
+        />
+
+        <ProgramDivider />
+
+        {/* SECTION 7: STANDARDIZED CONDITIONS & IMPORTANT NOTES */}
+
+        <ProgramConditionsNotesGrid
+          conditionsEyebrow={copy.childPolicyEyebrow}
+          conditionsTitle={copy.childPolicyTitle}
+          conditions={EUROPE_BENELUX_CHILD_POLICIES.map((pol) => ({
+            key: `eur-pol-${pol.id}`,
+            icon: Baby,
+            title: `${pol.ageBracket[lang]} — ${pol.rateBadge[lang]}`,
+            detail: pol.details[lang]
+          }))}
+          notesEyebrow={copy.hotelsFlightsEyebrow}
+          notesTitle={copy.flightsSubjectNotice}
+          notes={[
+            {
+              key: 'airline-pending',
+              icon: AlertTriangle,
+              title: copy.airlineDiscrepancyTitle,
+              detail: copy.flightsAirlinePendingLine
+            },
+            {
+              key: 'baggage-pending',
+              icon: Luggage,
+              title: copy.flightsColTitle,
+              detail: copy.flightsBaggagePendingLine
+            },
+            {
+              key: 'child-disclaimer',
+              icon: Info,
+              title: copy.quotePendingBlockTitle,
+              detail: copy.childPolicyDisclaimer
+            }
+          ]}
+        />
+
+        <ProgramDivider />
+
+        {/* SECTION 8: STANDARDIZED WHATSAPP RESERVATION INQUIRY & LIVE SUMMARY */}
+        <ProgramBookingSection
+          sectionRef={inquirySectionRef}
+          sectionId="paris-benelux-inquiry"
+          eyebrow={copy.inquiryEyebrow}
+          title={copy.inquiryTitle}
+          subtitle={copy.inquirySubtitle}
+          uid={uid}
+          isRtl={isRtl}
+          inquiryReady={inquiryReady}
+          readyCardRef={readyCardRef}
+          readyProgramTitle={copy.showcaseTitle}
+          readyTitle={copy.submittedTitle}
+          readySubtitle={copy.submittedBody}
+          readyEditBtn={copy.submittedNewBtn}
+          onEditInquiry={() => setInquiryReady(false)}
+          readySummaryItems={[
+            {
+              label: copy.formDepartureLabel,
+              value: `${selectedDeparture.departureDate} → ${selectedDeparture.returnDate}`
+            },
+            {
+              label: copy.formRoomLabel,
+              value: `${roomLabel(selectedRoomType)} · ${adultsCount} ${copy.formAdultsLabel}`,
+              accent: true
+            },
+            {
+              label: copy.quoteVerifiedAdultsTotal,
+              value: `${formatMad(adultRatePerPersonMad)} / pers. · ${formatMad(adultsSubtotalMad)}`,
+              accent: true
+            },
+            {
+              label: copy.formChildInquiryLabel,
+              value: `${childInquiryLabel(childInquiryOption)}${
+                familyRoomInquiry ? ` · ${copy.formFamilyRoomCheck}` : ''
+              }`
+            }
+          ]}
+          whatsappHref={buildWhatsappInquiryUrl()}
+          readyWhatsappBtn={copy.openWhatsappAgain}
+          onSubmit={handleSubmitInquiry}
+          formSpecificChildren={
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor={`${uid}-eur-dep`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
                   >
-                    <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-1" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Exclusions */}
-            <div className="ggt-eur-card rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-7 space-y-4 shadow-[0_14px_34px_rgba(11,29,58,0.06)]">
-              <h3 className="font-serif-crest text-xl font-semibold text-[#0b1d3a] pb-3 border-b border-[#d1a847]/30 flex items-center gap-2">
-                <XCircle className="w-5 h-5 text-rose-700" />
-                <span>{copy.priceExcludesHeading}</span>
-              </h3>
-              <ul className="space-y-3">
-                {EUROPE_BENELUX_EXCLUSIONS[lang].map((item, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2.5 text-xs sm:text-sm text-[#0b1d3a] leading-relaxed"
+                    {copy.formDepartureLabel}
+                  </label>
+                  <select
+                    id={`${uid}-eur-dep`}
+                    value={selectedDepartureId}
+                    onChange={(e) =>
+                      handleSelectCell(
+                        e.target.value as EuropeDepartureId,
+                        selectedRoomType
+                      )
+                    }
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
                   >
-                    <XCircle className="w-4 h-4 text-rose-700 shrink-0 mt-1" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 7: CHILDREN & FAMILY PRICING POLICY */}
-        <section className="space-y-6">
-          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.childPolicyEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a]">
-              {copy.childPolicyTitle}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {EUROPE_BENELUX_CHILD_POLICIES.map((pol) => (
-              <div
-                key={pol.id}
-                className="ggt-eur-card rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 space-y-3 flex flex-col justify-between shadow-sm"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#9a7220]">
-                    <Baby className="w-4 h-4 shrink-0" />
-                    <span>{pol.ageBracket[lang]}</span>
-                  </div>
-                  <div className="font-serif-crest text-xl font-bold text-[#0b1d3a] tabular-nums">
-                    {pol.rateBadge[lang]}
-                  </div>
+                    {EUROPE_BENELUX_DEPARTURES.map((dep) => (
+                      <option key={dep.id} value={dep.id}>
+                        {dep.departureDate} → {dep.returnDate}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <p className="text-xs text-[#2c405e] leading-relaxed pt-2 border-t border-[#d1a847]/25">
-                  {pol.details[lang]}
+
+                <div>
+                  <label
+                    htmlFor={`${uid}-eur-room`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
+                  >
+                    {copy.formRoomLabel}
+                  </label>
+                  <select
+                    id={`${uid}-eur-room`}
+                    value={selectedRoomType}
+                    onChange={(e) =>
+                      handleSelectCell(
+                        selectedDepartureId,
+                        e.target.value as EuropeRoomType
+                      )
+                    }
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
+                  >
+                    <option value="triple">
+                      {copy.roomTypeTriple} —{' '}
+                      {formatMad(selectedDeparture.pricesMad.triple)}
+                    </option>
+                    <option value="double">
+                      {copy.roomTypeDouble} —{' '}
+                      {formatMad(selectedDeparture.pricesMad.double)}
+                    </option>
+                    <option value="single">
+                      {copy.roomTypeSingle} —{' '}
+                      {formatMad(selectedDeparture.pricesMad.single)}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor={`${uid}-eur-adults`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
+                  >
+                    {copy.formAdultsLabel}
+                  </label>
+                  <input
+                    id={`${uid}-eur-adults`}
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={adultsCount}
+                    onChange={(e) =>
+                      setAdultsCount(
+                        Math.max(1, Math.min(20, Number(e.target.value) || 1))
+                      )
+                    }
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] tabular-nums focus:outline-none focus:border-[#0b1d3a]"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor={`${uid}-eur-child`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
+                  >
+                    {copy.formChildInquiryLabel}
+                  </label>
+                  <select
+                    id={`${uid}-eur-child`}
+                    value={childInquiryOption}
+                    onChange={(e) =>
+                      setChildInquiryOption(
+                        e.target.value as
+                          | 'none'
+                          | 'under2'
+                          | 'from2to5'
+                          | 'from5to12'
+                      )
+                    }
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
+                  >
+                    <option value="none">{copy.formChildNone}</option>
+                    <option value="under2">{copy.formChildUnder2}</option>
+                    <option value="from2to5">{copy.formChild2To5}</option>
+                    <option value="from5to12">{copy.formChild5To12}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[#f5ede0]/80 border border-[#d1a847]/50 p-4 space-y-1.5">
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={familyRoomInquiry}
+                    onChange={(e) => setFamilyRoomInquiry(e.target.checked)}
+                    className="mt-0.5 rounded border-[#d1a847] text-[#0b1d3a]"
+                  />
+                  <span className="text-xs font-bold text-[#0b1d3a]">
+                    {copy.formFamilyRoomCheck}
+                  </span>
+                </label>
+                <p className="text-[11px] text-[#2c405e] leading-snug ps-6">
+                  {copy.formFamilyRoomHint}
                 </p>
               </div>
-            ))}
-          </div>
+            </>
+          }
+          fullName={fullName}
+          onFullNameChange={setFullName}
+          nameLabel={copy.formNameLabel}
+          namePlaceholder={copy.formNamePlaceholder}
+          phone={phone}
+          onPhoneChange={setPhone}
+          phoneLabel={copy.formPhoneLabel}
+          phonePlaceholder={copy.formPhonePlaceholder}
+          notes={notes}
+          onNotesChange={setNotes}
+          notesLabel={copy.formNotesLabel}
+          notesPlaceholder={copy.formNotesPlaceholder}
+          formErrors={formErrors}
+          submitBtnLabel={copy.formSubmitBtn}
+          noAutoConfirmNote={copy.formNoAutoConfirm}
+          quoteBoxRef={quoteBoxRef}
+          quoteEyebrow={copy.quoteBoxEyebrow}
+          quoteTitle={copy.quoteBoxTitle}
+          quoteSubtitle={`${selectedDeparture.departureDate} → ${selectedDeparture.returnDate} · ${roomLabel(selectedRoomType)}`}
+          quoteBodyChildren={
+            <>
+              <ProgramQuoteRateBlock
+                perPersonLabel={copy.quoteVerifiedPerPerson}
+                perPersonValue={formatMad(adultRatePerPersonMad)}
+                groupLabel={`${copy.quoteVerifiedAdultsTotal} (${adultsCount})`}
+                groupValue={formatMad(adultsSubtotalMad)}
+              />
 
-          <p className="text-xs text-[#2c405e] leading-relaxed">
-            {copy.childPolicyDisclaimer}
-          </p>
-        </section>
-
-        {/* SECTION 8: WHATSAPP RESERVATION INQUIRY & SUMMARY */}
-        <section id="paris-benelux-inquiry" className="space-y-6">
-          <div className="ggt-eur-heading space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.inquiryEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#0b1d3a]">
-              {copy.inquiryTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
-              {copy.inquirySubtitle}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Inquiry Form */}
-            <div className="ggt-eur-card lg:col-span-8 rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/65 p-5 sm:p-8 shadow-[0_16px_40px_rgba(11,29,58,0.08)]">
-              {submittedWhatsappUrl ? (
-                <div className="space-y-5 py-4 text-center sm:text-start">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    <Check className="w-6 h-6" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-serif-crest text-2xl font-semibold text-[#0b1d3a]">
-                      {copy.submittedTitle}
-                    </h3>
-                    <p className="text-sm text-[#2c405e] leading-relaxed max-w-xl">
-                      {copy.submittedBody}
-                    </p>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                    <a
-                      href={submittedWhatsappUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em]"
-                    >
-                      <span>{copy.openWhatsappAgain}</span>
-                      <ExternalLink className="w-4 h-4 text-[#d1a847]" />
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => setSubmittedWhatsappUrl(null)}
-                      className="inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#ede1ce] hover:bg-[#e3d2b6] text-[#0b1d3a] border border-[#d1a847]/60 text-xs font-semibold uppercase tracking-[0.12em] cursor-pointer"
-                    >
-                      <span>{copy.submittedNewBtn}</span>
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmitInquiry} className="space-y-5" noValidate>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor={`${uid}-eur-dep`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.formDepartureLabel}
-                      </label>
-                      <select
-                        id={`${uid}-eur-dep`}
-                        value={selectedDepartureId}
-                        onChange={(e) =>
-                          handleSelectCell(
-                            e.target.value as EuropeDepartureId,
-                            selectedRoomType
-                          )
-                        }
-                        className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      >
-                        {EUROPE_BENELUX_DEPARTURES.map((dep) => (
-                          <option key={dep.id} value={dep.id}>
-                            {dep.departureDate} → {dep.returnDate}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`${uid}-eur-room`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.formRoomLabel}
-                      </label>
-                      <select
-                        id={`${uid}-eur-room`}
-                        value={selectedRoomType}
-                        onChange={(e) =>
-                          handleSelectCell(
-                            selectedDepartureId,
-                            e.target.value as EuropeRoomType
-                          )
-                        }
-                        className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      >
-                        <option value="triple">
-                          {copy.roomTypeTriple} —{' '}
-                          {formatMad(selectedDeparture.pricesMad.triple)}
-                        </option>
-                        <option value="double">
-                          {copy.roomTypeDouble} —{' '}
-                          {formatMad(selectedDeparture.pricesMad.double)}
-                        </option>
-                        <option value="single">
-                          {copy.roomTypeSingle} —{' '}
-                          {formatMad(selectedDeparture.pricesMad.single)}
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor={`${uid}-eur-adults`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.formAdultsLabel}
-                      </label>
-                      <input
-                        id={`${uid}-eur-adults`}
-                        type="number"
-                        min={1}
-                        max={20}
-                        value={adultsCount}
-                        onChange={(e) =>
-                          setAdultsCount(
-                            Math.max(1, Math.min(20, Number(e.target.value) || 1))
-                          )
-                        }
-                        className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] tabular-nums focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`${uid}-eur-child`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.formChildInquiryLabel}
-                      </label>
-                      <select
-                        id={`${uid}-eur-child`}
-                        value={childInquiryOption}
-                        onChange={(e) =>
-                          setChildInquiryOption(
-                            e.target.value as
-                              | 'none'
-                              | 'under2'
-                              | 'from2to5'
-                              | 'from5to12'
-                          )
-                        }
-                        className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      >
-                        <option value="none">{copy.formChildNone}</option>
-                        <option value="under2">{copy.formChildUnder2}</option>
-                        <option value="from2to5">{copy.formChild2To5}</option>
-                        <option value="from5to12">{copy.formChild5To12}</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl bg-[#f5ede0]/80 border border-[#d1a847]/50 p-4 space-y-1.5">
-                    <label className="flex items-start gap-2.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={familyRoomInquiry}
-                        onChange={(e) => setFamilyRoomInquiry(e.target.checked)}
-                        className="mt-0.5 rounded border-[#d1a847] text-[#0b1d3a]"
-                      />
-                      <span className="text-xs font-bold text-[#0b1d3a]">
-                        {copy.formFamilyRoomCheck}
-                      </span>
-                    </label>
-                    <p className="text-[11px] text-[#2c405e] leading-snug ps-6">
-                      {copy.formFamilyRoomHint}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor={`${uid}-eur-name`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.formNameLabel} *
-                      </label>
-                      <input
-                        id={`${uid}-eur-name`}
-                        type="text"
-                        maxLength={120}
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder={copy.formNamePlaceholder}
-                        className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor={`${uid}-eur-phone`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.formPhoneLabel} *
-                      </label>
-                      <input
-                        id={`${uid}-eur-phone`}
-                        type="tel"
-                        maxLength={40}
-                        dir="ltr"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder={copy.formPhonePlaceholder}
-                        className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor={`${uid}-eur-notes`}
-                      className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                    >
-                      {copy.formNotesLabel}
-                    </label>
-                    <textarea
-                      id={`${uid}-eur-notes`}
-                      rows={2}
-                      maxLength={320}
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder={copy.formNotesPlaceholder}
-                      className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                    />
-                  </div>
-
-                  {formErrors.length > 0 && (
-                    <div
-                      role="alert"
-                      className="rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-xs text-amber-950 space-y-1"
-                    >
-                      {formErrors.map((err, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                          <span>{err}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="space-y-3 pt-1">
-                    <button
-                      type="submit"
-                      className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.15em] shadow-md transition-colors cursor-pointer"
-                    >
-                      <span>{copy.formSubmitBtn}</span>
-                      <ArrowRight
-                        className={`w-4 h-4 text-[#d1a847] ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-                    <p className="text-[11px] text-[#2c405e] leading-relaxed">
-                      {copy.formNoAutoConfirm}
-                    </p>
-                  </div>
-                </form>
+              {(childInquiryOption !== 'none' || familyRoomInquiry) && (
+                <ProgramQuoteNoticeBox
+                  title={copy.quotePendingBlockTitle}
+                  text={[
+                    childInquiryOption !== 'none'
+                      ? childInquiryLabel(childInquiryOption)
+                      : '',
+                    familyRoomInquiry ? copy.formFamilyRoomCheck : ''
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                />
               )}
-            </div>
 
-            {/* Right Sidebar: Live Adult Rate Summary + Direct Advisor */}
-            <aside className="lg:col-span-4 space-y-5">
-              <div
-                ref={quoteBoxRef}
-                className="rounded-2xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/65 p-5 sm:p-6 space-y-4 shadow-[0_18px_42px_rgba(4,12,28,0.25)]"
-              >
-                <div className="space-y-1">
-                  <div className="text-[11px] uppercase tracking-[0.2em] text-[#d1a847] font-semibold">
-                    {copy.quoteBoxEyebrow}
-                  </div>
-                  <h3 className="font-serif-crest text-xl font-semibold text-[#fcf9f2]">
-                    {copy.quoteBoxTitle}
-                  </h3>
-                  <div className="text-xs text-slate-300 pt-0.5 tabular-nums">
-                    {selectedDeparture.departureDate} → {selectedDeparture.returnDate} ·{' '}
-                    {roomLabel(selectedRoomType)}
-                  </div>
-                </div>
-
-                <div className="space-y-2.5 text-xs">
-                  <div className="pt-1">
-                    <div className="text-[11px] text-slate-400">
-                      {copy.quoteVerifiedPerPerson}
-                    </div>
-                    <div className="font-serif-crest text-3xl font-bold text-[#fceda2] tabular-nums mt-0.5">
-                      {formatMad(adultRatePerPersonMad)}
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl bg-[#071429] border border-[#d1a847]/45 p-3 flex items-center justify-between gap-2">
-                    <span className="text-slate-300 flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-[#d1a847]" />
-                      <span>
-                        {copy.quoteVerifiedAdultsTotal} ({adultsCount})
-                      </span>
-                    </span>
-                    <span className="font-serif-crest text-lg font-bold text-[#fceda2] tabular-nums">
-                      {formatMad(adultsSubtotalMad)}
-                    </span>
-                  </div>
-                </div>
-
-                {(childInquiryOption !== 'none' || familyRoomInquiry) && (
-                  <div className="rounded-xl bg-amber-950/65 border border-amber-400/50 p-3.5 space-y-1.5 text-xs text-amber-100">
-                    <div className="font-bold text-amber-200">
-                      {copy.quotePendingBlockTitle}
-                    </div>
-                    {childInquiryOption !== 'none' && (
-                      <div>• {childInquiryLabel(childInquiryOption)}</div>
-                    )}
-                    {familyRoomInquiry && <div>• {copy.formFamilyRoomCheck}</div>}
-                  </div>
-                )}
-
-                <div className="rounded-xl bg-[#071429]/90 border border-[#d1a847]/35 p-3 text-[11px] text-slate-300 leading-relaxed">
-                  {copy.quoteNoAutoChildDiscountNote}
-                </div>
-              </div>
-
-              <div className="rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/60 p-5 sm:p-6 space-y-4 shadow-sm">
-                <div className="space-y-1">
-                  <div className="text-[11px] uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
-                    {copy.advisorLabel}
-                  </div>
-                  <h4 className="font-serif-crest text-lg font-semibold text-[#0b1d3a]">
-                    {copy.advisorTitle}
-                  </h4>
-                </div>
-
-                <div className="space-y-2.5">
-                  <a
-                    href={`https://wa.me/${whatsappInternational}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.12em] transition-colors"
-                  >
-                    <span>WhatsApp ({displayPhone})</span>
-                    <ExternalLink className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
-                  </a>
-
-                  <a
-                    href="tel:0666484815"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#ede1ce] hover:bg-[#e3d2b6] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-[#9a7220] shrink-0" />
-                    <span dir="ltr">
-                      {copy.advisorCallLabel} · {displayPhone}
-                    </span>
-                  </a>
-
-                  <button
-                    type="button"
-                    onClick={onJumpToHomePlanner}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 min-h-[44px] rounded-xl bg-transparent hover:bg-[#f5ede0] text-[#0b1d3a] border border-[#d1a847]/45 text-xs font-semibold uppercase tracking-[0.1em] transition-colors cursor-pointer"
-                  >
-                    <MapPin className="w-3.5 h-3.5 text-[#c59b38] shrink-0" />
-                    <span>{copy.advisorMapsLabel}</span>
-                  </button>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </section>
+              <ProgramQuoteNoticeBox text={copy.quoteNoAutoChildDiscountNote} variant="neutral" />
+            </>
+          }
+          advisorLabel={copy.advisorLabel}
+          advisorTitle={copy.advisorTitle}
+          advisorWhatsappHref={buildAdvisorWhatsappUrl()}
+          advisorCallLabel={copy.advisorCallLabel}
+          advisorMapsLabel={copy.advisorMapsLabel}
+          displayPhone={displayPhone}
+          whatsappInternational={whatsappInternational}
+          onJumpToHomePlanner={onJumpToHomePlanner}
+        />
 
         {/* SECTION 9: BOTTOM RETURN LINKS */}
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/60 to-transparent" />
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4">
-          <Link
-            to={EUROPE_BENELUX_BACK_ROUTE}
-            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors"
-          >
-            <ArrowLeft
-              className={`w-4 h-4 text-[#d1a847] ggt-return-arrow ${isRtl ? 'rotate-180' : ''}`}
-            />
-            <span>{copy.backToSejours}</span>
-          </Link>
-
-          <Link
-            to="/"
-            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors"
-          >
-            <span>{copy.backToHome}</span>
-          </Link>
-        </div>
+        <ProgramBottomNav
+          backRoute={EUROPE_BENELUX_BACK_ROUTE}
+          backToCategoryLabel={copy.backToSejours}
+          backToHomeLabel={copy.backToHome}
+          isRtl={isRtl}
+        />
       </div>
     </div>
   );

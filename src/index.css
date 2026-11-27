@@ -366,6 +366,10 @@
 .ggt-omra-ist-heading,
 .ggt-omra-ist-card,
 .ggt-omra-ist-divider,
+.ggt-prog-heading,
+.ggt-prog-card,
+.ggt-prog-divider,
+.ggt-prog-media,
 .ggt-footer-reveal {
   will-change: transform, opacity;
   backface-visibility: hidden;
@@ -432,6 +436,10 @@
   .ggt-omra-ist-heading,
   .ggt-omra-ist-card,
   .ggt-omra-ist-divider,
+  .ggt-prog-heading,
+  .ggt-prog-card,
+  .ggt-prog-divider,
+  .ggt-prog-media,
   .ggt-footer-reveal {
     will-change: auto;
   }

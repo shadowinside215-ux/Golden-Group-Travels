@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -169,7 +169,19 @@ export default function App() {
     });
   }, []);
 
-  // Scroll to top on route entry or scroll to requested section when returning to homepage
+  // Snap immediately to top before first paint & child ScrollTrigger measurements on route change
+  useLayoutEffect(() => {
+    const state = location.state as { scrollToId?: string } | null;
+    if (state?.scrollToId) return;
+    const prevBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    document.documentElement.style.scrollBehavior = prevBehavior;
+  }, [location.pathname, location.state]);
+
+  // Reset UI drawers on route entry or scroll to requested section when returning to homepage
   useEffect(() => {
     setActivatingCategory(null);
     setFloatingLangOpen(false);
@@ -178,9 +190,7 @@ export default function App() {
     if (state?.scrollToId) {
       scrollToId(state.scrollToId);
       navigate(location.pathname, { replace: true, state: null });
-      return;
     }
-    window.scrollTo({ top: 0, behavior: 'auto' });
   }, [location.pathname, location.state, navigate, scrollToId]);
 
   useEffect(() => {

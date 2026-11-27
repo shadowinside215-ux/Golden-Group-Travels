@@ -1,25 +1,23 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   AlertCircle,
   AlertTriangle,
-  ArrowLeft,
   ArrowRight,
   BedDouble,
+  Building2,
   Calendar,
   Car,
   Check,
   Coffee,
   Coins,
   Compass,
-  ExternalLink,
   FileCheck2,
   Info,
   Landmark,
   MapPin,
-  Phone,
   Plane,
   ShieldCheck,
   Ship,
@@ -27,6 +25,7 @@ import {
   Users
 } from 'lucide-react';
 import { Language } from '../assets/destinations';
+import { HERO_CATEGORY_ICONS } from './ServiceIcons';
 import {
   GRAND_EGYPT_COPY,
   GRAND_EGYPT_HOTELS,
@@ -39,7 +38,33 @@ import {
   evaluateGrandEgyptDates
 } from '../data/grandEgyptTourData';
 import { trackServiceSelection } from '../utils/analytics';
-import { prefersReducedMotion, pulseSelection3D, setupWindowPopScroll3D, useReplayable3DPanel } from '../utils/tab3DMotion';
+import {
+  pulseSelection3D,
+  setupWindowPopScroll3D,
+  switchTabWithTimeline,
+  useReplayable3DPanel,
+  useSlidingTabIndicator
+} from '../utils/tab3DMotion';
+import {
+  ProgramBottomNav,
+  ProgramComparisonTable,
+  ProgramConditionsNotesGrid,
+  ProgramDivider,
+  ProgramHero,
+  ProgramInclusionsSection,
+  ProgramSectionHeading,
+  ProgramSelectorChoiceCard,
+  ProgramSelectorInfoCard,
+  ProgramSelectorPanel,
+  ProgramTabSwitcher,
+  ProgramTopBar
+} from './programs/ProgramDetailPrimitives';
+import {
+  ProgramBookingSection,
+  ProgramQuoteNoticeBox,
+  ProgramQuoteRateBlock,
+  ProgramQuoteRecapBox
+} from './programs/ProgramBookingSection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -76,13 +101,20 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
   onJumpToHomePlanner
 }) => {
   const pageRootRef = useRef<HTMLDivElement>(null);
+  const pricingSectionRef = useRef<HTMLElement>(null);
+  const optionsSectionRef = useRef<HTMLElement>(null);
   const formSectionRef = useRef<HTMLElement>(null);
+  const hotelTablistRef = useRef<HTMLDivElement>(null);
+  const hotelIndicatorRef = useRef<HTMLSpanElement>(null);
+  const hotelPanelRef = useRef<HTMLDivElement>(null);
+  const hotelSwitchTimelineRef = useRef<gsap.core.Tween | gsap.core.Timeline | null>(null);
   const quoteBoxRef = useRef<HTMLDivElement>(null);
   const inquiryReadyCardRef = useRef<HTMLDivElement>(null);
   const quoteMountedRef = useRef(false);
   const location = useLocation();
   const uid = useId();
   const copy = GRAND_EGYPT_COPY[lang];
+  const ToursHeroIcon = HERO_CATEGORY_ICONS.tours;
 
   const [selectedHotelId, setSelectedHotelId] = useState<GrandEgyptHotelId>('triumph-plaza');
   const [selectedOccupancy, setSelectedOccupancy] = useState<GrandEgyptOccupancyId>('triple');
@@ -105,6 +137,15 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
     setFormErrors([]);
   }, [lang]);
 
+  useSlidingTabIndicator(hotelTablistRef, hotelIndicatorRef, selectedHotelId, [lang, isRtl]);
+
+  useReplayable3DPanel(hotelPanelRef, selectedHotelId, {
+    duration: 0.45,
+    staggerEach: 0.04,
+    yOffset: 10,
+    rotateXDeg: 3
+  });
+
   useReplayable3DPanel(inquiryReadyCardRef, inquiryReady, {
     enabled: inquiryReady,
     duration: 0.48,
@@ -120,6 +161,15 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
     }
     pulseSelection3D(quoteBoxRef.current);
   }, [selectedHotelId, selectedOccupancy, includeSingleSupplement, travelersCount]);
+
+  useEffect(() => {
+    return () => {
+      if (hotelSwitchTimelineRef.current) {
+        hotelSwitchTimelineRef.current.kill();
+        hotelSwitchTimelineRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (location.hash === '#grand-egypt-inquiry-form' && formSectionRef.current) {
@@ -178,50 +228,39 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
     };
   }, [dateEval.status, travelersCount, selectedHotel, selectedOccupancy, includeSingleSupplement]);
 
-  // 3D Window Pop-Out ScrollTrigger animations on decorative imagery, cards & headings
+  // Standardized 3D Window Pop-Out ScrollTrigger animations
   useEffect(() => {
     const root = pageRootRef.current;
     if (!root) return;
-
-    if (!prefersReducedMotion()) {
-      const heroEl = root.querySelector<HTMLElement>('.ggt-egypt-hero-enter');
-      if (heroEl) {
-        gsap.fromTo(
-          heroEl,
-          { opacity: 0, y: 22, scale: 0.96, rotateX: 5, transformPerspective: 1250 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotateX: 0,
-            force3D: true,
-            duration: 0.56,
-            ease: 'back.out(1.15)',
-            clearProps: 'transform,opacity'
-          }
-        );
-      }
-    }
-
     return setupWindowPopScroll3D(root, {
-      dividers: '.ggt-egypt-divider',
-      headings: '.ggt-egypt-heading-3d',
-      cards: '.ggt-egypt-card-3d',
-      media: '.ggt-egypt-stage-img',
+      dividers: '.ggt-prog-divider',
+      headings: '.ggt-prog-heading',
+      cards: '.ggt-prog-card',
+      media: '.ggt-prog-media',
       refreshDelayMs: 180
     });
   }, [lang]);
 
-  const handleSelectHotelRow = (
+  const handleHotelSwitch = (hotelId: GrandEgyptHotelId) => {
+    if (hotelId === selectedHotelId) return;
+    switchTabWithTimeline({
+      outgoingEl: hotelPanelRef.current,
+      timelineRef: hotelSwitchTimelineRef,
+      onSwap: () => {
+        setSelectedHotelId(hotelId);
+      }
+    });
+  };
+
+  const handleTableCellSelect = (
     hotelId: GrandEgyptHotelId,
-    occupancy?: GrandEgyptOccupancyId
+    occupancy: GrandEgyptOccupancyId
   ) => {
-    setSelectedHotelId(hotelId);
-    if (occupancy) {
-      setSelectedOccupancy(occupancy);
+    if (hotelId !== selectedHotelId) {
+      handleHotelSwitch(hotelId);
     }
+    setSelectedOccupancy(occupancy);
     setInquiryReady(false);
-    formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -282,159 +321,84 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
   };
 
   return (
-    <div ref={pageRootRef} className="bg-cream-paper min-h-screen">
-      {/* Top Return Navigation Bar */}
-      <div className="bg-[#ede1ce]/95 border-b border-[#d1a847]/45">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Link
-              to={GRAND_EGYPT_TOURS_BACK_ROUTE}
-              className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847]/75 text-xs font-bold uppercase tracking-[0.12em] shadow-sm transition-colors whitespace-normal text-center leading-snug"
-            >
-              <ArrowLeft className={`w-4 h-4 text-[#d1a847] shrink-0 ggt-return-arrow ${isRtl ? 'rotate-180' : ''}`} />
-              <span>{copy.backToTours}</span>
-            </Link>
+    <div
+      ref={pageRootRef}
+      dir={isRtl ? 'rtl' : 'ltr'}
+      className="min-h-screen bg-[#ede1ce] text-[#0b1d3a]"
+    >
+      <ProgramTopBar
+        backRoute={GRAND_EGYPT_TOURS_BACK_ROUTE}
+        backToCategoryLabel={copy.backToTours}
+        backToHomeLabel={copy.backToHome}
+        rightBadgeLabel={copy.heroEyebrow}
+        rightBadgeIcon={ShieldCheck}
+        isRtl={isRtl}
+      />
 
-            <Link
-              to="/"
-              className="ggt-btn-3d-return inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors whitespace-normal text-center leading-snug"
-            >
-              <span>{copy.backToHome}</span>
-            </Link>
-          </div>
+      {/* SECTION 1: STANDARDIZED HERO */}
+      <ProgramHero
+        heroIcon={ToursHeroIcon}
+        eyebrow={copy.heroEyebrow}
+        title={copy.frenchFullTitle}
+        arabicTitle={copy.arabicTitle}
+        summary={copy.heroLead}
+        infoBoxes={[
+          {
+            label: copy.destinationLine,
+            value: copy.routeStopsLine,
+            icon: MapPin,
+            highlight: true
+          },
+          {
+            label: copy.breakdownTitle,
+            value: copy.durationLabel,
+            icon: Calendar
+          }
+        ]}
+        startingFromLabel={copy.startingFromLabel}
+        startingPriceDisplay={copy.startingPriceDisplay}
+        startingPriceScopeNote={`${copy.startingBasisNote} · ${copy.heroFlightExcludedShort}`}
+        startingPriceScopeIsWarning={true}
+        primaryCtaLabel={copy.pricingTitle}
+        onPrimaryCta={() =>
+          pricingSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        secondaryCtaLabel={copy.reserveBtn}
+        onSecondaryCta={() =>
+          formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+        image={GRAND_EGYPT_TOUR_IMAGES.hero}
+        imageAlt={`${copy.frenchFullTitle} — ${copy.routeStopsLine}`}
+        fallbackGradient={GRAND_EGYPT_TOUR_IMAGES.fallbackGradient}
+        imageBadgeText={copy.heroFlightIncludedShort}
+        imageBadgeIcon={Plane}
+        imageBadgeIsWarning={false}
+        isRtl={isRtl}
+      />
 
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#0b1d3a]/85">
-            <ShieldCheck className="w-4 h-4 text-[#c59b38] shrink-0" />
-            <span>{copy.heroEyebrow}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* A. Hero with Nile Cruise Imagery & Starting Price */}
-      <section className="relative overflow-hidden bg-[#071429] text-[#f5ede0] border-b-2 border-[#d1a847]/65">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-          style={{ background: GRAND_EGYPT_TOUR_IMAGES.fallbackGradient }}
-        />
-        <img
-          src={GRAND_EGYPT_TOUR_IMAGES.hero}
-          alt={`${copy.frenchFullTitle} — ${copy.routeStopsLine}`}
-          referrerPolicy="no-referrer"
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-[#071429] via-[#071429]/82 to-[#071429]/60"
-        />
-
-        <div className="ggt-egypt-hero-enter relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-            <div className="lg:col-span-8 space-y-4">
-              <div className="text-[11px] uppercase tracking-[0.24em] text-[#d1a847] font-semibold">
-                {copy.heroEyebrow}
-              </div>
-
-              <div className="space-y-2">
-                <h1 className="font-serif-crest text-3xl sm:text-5xl font-semibold text-[#fcf9f2] leading-tight [text-wrap:balance]">
-                  {copy.frenchFullTitle}
-                </h1>
-                <div
-                  dir="rtl"
-                  lang="ar"
-                  className="text-xl sm:text-3xl font-semibold text-[#fceda2]"
-                >
-                  {copy.arabicTitle}
-                </div>
-              </div>
-
-              <p className="text-sm sm:text-base text-slate-200 leading-relaxed max-w-2xl">
-                {copy.heroLead}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#0b1d3a]/90 border border-[#d1a847]/60 text-xs font-semibold text-[#fceda2]">
-                  <MapPin className="w-4 h-4 text-[#d1a847]" />
-                  <span>{copy.routeStopsLine}</span>
-                </span>
-                <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#0b1d3a]/90 border border-[#d1a847]/60 text-xs font-semibold text-[#fcf9f2] tabular-nums">
-                  <Calendar className="w-4 h-4 text-[#d1a847]" />
-                  <span>{copy.durationLabel}</span>
-                </span>
-              </div>
-            </div>
-
-            {/* Hero Starting Price Panel (always sharp, never scroll-blurred) */}
-            <div className="lg:col-span-4 rounded-2xl bg-[#0b1d3a]/95 border-2 border-[#d1a847] p-5 sm:p-6 shadow-[0_24px_60px_rgba(0,0,0,0.45)] space-y-4">
-              <div className="space-y-1">
-                <div className="text-[11px] uppercase tracking-[0.2em] text-[#d1a847] font-semibold">
-                  {copy.startingFromLabel}
-                </div>
-                <div className="font-serif-crest text-4xl font-bold text-[#fceda2] tabular-nums">
-                  {copy.startingPriceDisplay}
-                </div>
-                <div className="text-xs text-slate-300 leading-snug">
-                  {copy.startingBasisNote}
-                </div>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <div className="rounded-xl bg-emerald-950/60 border border-emerald-400/45 px-3.5 py-2 flex items-center gap-2 text-emerald-100">
-                  <Plane className="w-4 h-4 text-emerald-300 shrink-0" />
-                  <span className="font-medium">{copy.heroFlightIncludedShort}</span>
-                </div>
-                <div className="rounded-xl bg-amber-950/65 border border-amber-400/55 px-3.5 py-2 flex items-center gap-2 text-amber-100">
-                  <AlertTriangle className="w-4 h-4 text-amber-300 shrink-0" />
-                  <span className="font-semibold">{copy.heroFlightExcludedShort}</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
-                className="ggt-btn-3d-return w-full inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#d1a847] hover:bg-[#fceda2] text-[#0b1d3a] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors cursor-pointer"
-              >
-                <span>{copy.reserveBtn}</span>
-                <ArrowRight className={`w-4 h-4 shrink-0 ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12 sm:space-y-16">
-        {/* B & C. Three Visually Connected Stages + Nights Breakdown */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 sm:py-14 space-y-14">
+        {/* SECTION 2: THREE VISUALLY CONNECTED STAGES + NIGHTS BREAKDOWN */}
         <section className="space-y-8">
-          <div className="ggt-egypt-heading-3d flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-1.5 max-w-3xl">
-              <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-                {copy.overviewEyebrow}
+          <ProgramSectionHeading
+            eyebrow={copy.overviewEyebrow}
+            title={copy.overviewTitle}
+            subtitle={copy.overviewSubtitle}
+            rightSlot={
+              <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shrink-0 tabular-nums self-start lg:self-auto">
+                <Calendar className="w-4 h-4 text-[#d1a847]" />
+                <span>{copy.breakdownTotalBadge}</span>
               </div>
-              <h2 className="font-serif-crest text-2xl sm:text-4xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
-                {copy.overviewTitle}
-              </h2>
-              <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
-                {copy.overviewSubtitle}
-              </p>
-            </div>
+            }
+          />
 
-            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shrink-0 tabular-nums self-start md:self-auto">
-              <Calendar className="w-4 h-4 text-[#d1a847]" />
-              <span>{copy.breakdownTotalBadge}</span>
-            </div>
-          </div>
-
-          {/* 3 Visually Connected Journey Stage Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
             {copy.stages.map((stage, idx) => (
               <article
                 key={stage.id}
-                className="ggt-egypt-card-3d rounded-2xl overflow-hidden bg-[#fcf9f2] border border-[#d1a847]/60 shadow-[0_18px_40px_rgba(11,29,58,0.09)] flex flex-col"
+                className="ggt-prog-card rounded-2xl overflow-hidden bg-[#fcf9f2] border-2 border-[#d1a847]/60 shadow-[0_18px_40px_rgba(11,29,58,0.09)] flex flex-col"
               >
                 <div
-                  className="ggt-egypt-stage-img relative aspect-[16/10] overflow-hidden"
+                  className="ggt-prog-media relative aspect-[16/10] overflow-hidden"
                   style={{ background: GRAND_EGYPT_TOUR_IMAGES.fallbackGradient }}
                 >
                   <img
@@ -489,8 +453,8 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
             ))}
           </div>
 
-          {/* Stage C Summary Bar */}
-          <div className="rounded-2xl bg-[#071429] text-[#f5ede0] border border-[#d1a847]/65 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Stage Summary Bar */}
+          <div className="ggt-prog-card rounded-2xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847]/65 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="text-[11px] uppercase tracking-[0.2em] text-[#d1a847] font-semibold">
                 {copy.breakdownEyebrow} · {copy.breakdownTitle}
@@ -505,25 +469,18 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
           </div>
         </section>
 
-        <div className="ggt-egypt-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/60 to-transparent" />
+        <ProgramDivider />
 
-        {/* D. Responsive Hotel & Pricing Matrix */}
-        <section className="space-y-6">
-          <div className="ggt-egypt-heading-3d space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.pricingEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-4xl font-semibold text-[#0b1d3a] [text-wrap:balance]">
-              {copy.pricingTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
-              {copy.pricingSubtitle}
-            </p>
-          </div>
+        {/* SECTION 3: RESPONSIVE HOTEL & PRICING MATRIX */}
+        <section ref={pricingSectionRef} className="space-y-6 scroll-mt-28 sm:scroll-mt-36">
+          <ProgramSectionHeading
+            eyebrow={copy.pricingEyebrow}
+            title={copy.pricingTitle}
+            subtitle={copy.pricingSubtitle}
+          />
 
-          {/* Season Window & Excluded Special Dates Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-2xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/65 p-4 space-y-1">
+            <div className="ggt-prog-card rounded-2xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/65 p-4 space-y-1">
               <div className="text-[11px] uppercase tracking-[0.16em] text-[#d1a847] font-semibold">
                 {copy.regularPeriodLabel}
               </div>
@@ -533,7 +490,7 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
               <div className="text-xs text-[#fceda2] font-medium">{copy.arrivalDaysValue}</div>
             </div>
 
-            <div className="rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/55 p-4 space-y-1">
+            <div className="ggt-prog-card rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/55 p-4 space-y-1">
               <div className="text-[11px] uppercase tracking-[0.16em] text-[#9a7220] font-semibold">
                 {copy.arrivalDaysLabel}
               </div>
@@ -543,7 +500,7 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
               <div className="text-xs text-[#2c405e]">{copy.usdDisclaimer}</div>
             </div>
 
-            <div className="rounded-2xl bg-amber-50 border border-amber-400 p-4 space-y-1">
+            <div className="ggt-prog-card rounded-2xl bg-amber-50 border border-amber-400 p-4 space-y-1">
               <div className="text-[11px] uppercase tracking-[0.16em] text-amber-900 font-bold">
                 {copy.excludedPeriodsLabel}
               </div>
@@ -556,751 +513,519 @@ export const GrandEgyptTourDetailPage: React.FC<GrandEgyptTourDetailPageProps> =
             </div>
           </div>
 
-          {/* Desktop Table (prices never animated softly so always crisp) */}
-          <div className="hidden md:block rounded-2xl overflow-hidden bg-[#fcf9f2] border border-[#d1a847]/65 shadow-[0_18px_42px_rgba(11,29,58,0.08)]">
-            <table className="w-full text-left rtl:text-right border-collapse">
-              <thead>
-                <tr className="bg-[#0b1d3a] text-[#fceda2] text-xs uppercase tracking-[0.12em]">
-                  <th className="py-4 px-5 font-semibold">{copy.hotelCol}</th>
-                  <th className="py-4 px-5 font-semibold">{copy.doubleCol}</th>
-                  <th className="py-4 px-5 font-semibold">{copy.tripleCol}</th>
-                  <th className="py-4 px-5 font-semibold">{copy.singleSuppCol}</th>
-                  <th className="py-4 px-5 font-semibold text-right rtl:text-left">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#d1a847]/30 text-sm">
-                {GRAND_EGYPT_HOTELS.map((hotel) => {
-                  const isSelected = selectedHotelId === hotel.id;
-                  return (
-                    <tr
-                      key={hotel.id}
-                      className={isSelected ? 'bg-[#ede1ce]/55' : 'hover:bg-[#f5ede0]/60 transition-colors'}
-                    >
-                      <td className="py-4 px-5">
-                        <div className="font-serif-crest text-lg font-semibold text-[#0b1d3a]">
-                          {hotel.name[lang]}
-                        </div>
-                        <div className="text-xs text-[#9a7220] font-semibold mt-0.5 tabular-nums">
-                          {hotel.tierLabel[lang]}
-                        </div>
-                      </td>
-                      <td className="py-4 px-5">
-                        <button
-                          type="button"
-                          onClick={() => handleSelectHotelRow(hotel.id, 'double')}
-                          className="font-serif-crest text-xl font-bold text-[#0b1d3a] hover:text-[#9a7220] tabular-nums cursor-pointer"
-                        >
-                          {hotel.doubleUsd.toLocaleString('fr-FR')} USD
-                        </button>
-                      </td>
-                      <td className="py-4 px-5">
-                        <button
-                          type="button"
-                          onClick={() => handleSelectHotelRow(hotel.id, 'triple')}
-                          className="font-serif-crest text-xl font-bold text-[#0b1d3a] hover:text-[#9a7220] tabular-nums cursor-pointer"
-                        >
-                          {hotel.tripleUsd.toLocaleString('fr-FR')} USD
-                        </button>
-                      </td>
-                      <td className="py-4 px-5">
-                        <div className="font-semibold text-[#9a7220] tabular-nums">
-                          +{hotel.singleSupplementUsd.toLocaleString('fr-FR')} USD
-                        </div>
-                        <div className="text-[11px] text-[#2c405e]">{copy.singleSuppCol}</div>
-                      </td>
-                      <td className="py-4 px-5 text-right rtl:text-left">
-                        <button
-                          type="button"
-                          onClick={() => handleSelectHotelRow(hotel.id)}
-                          className={`ggt-card-3d-select inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]'
-                              : 'bg-[#ede1ce] hover:bg-[#0b1d3a] text-[#0b1d3a] hover:text-[#fceda2] border border-[#d1a847]/65'
-                          }`}
-                        >
-                          {isSelected ? copy.selectedBtn : copy.selectBtn}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Stacked Cards */}
-          <div className="grid grid-cols-1 gap-4 md:hidden">
-            {GRAND_EGYPT_HOTELS.map((hotel) => {
-              const isSelected = selectedHotelId === hotel.id;
-              return (
-                <div
-                  key={hotel.id}
-                  className={`rounded-2xl bg-[#fcf9f2] p-5 space-y-4 shadow-sm ${
-                    isSelected ? 'border-2 border-[#0b1d3a]' : 'border border-[#d1a847]/55'
-                  }`}
-                >
-                  <div>
-                    <div className="text-[11px] uppercase tracking-[0.14em] text-[#9a7220] font-semibold tabular-nums">
-                      {hotel.tierLabel[lang]}
-                    </div>
-                    <h3 className="font-serif-crest text-xl font-semibold text-[#0b1d3a] mt-0.5">
-                      {hotel.name[lang]}
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="rounded-xl bg-[#f5ede0] border border-[#d1a847]/40 p-2.5">
-                      <div className="text-[10px] uppercase tracking-wider text-[#2c405e] font-semibold">
-                        {copy.doubleCol}
-                      </div>
-                      <div className="font-serif-crest text-base font-bold text-[#0b1d3a] tabular-nums mt-0.5">
-                        {hotel.doubleUsd} USD
-                      </div>
-                    </div>
-                    <div className="rounded-xl bg-[#f5ede0] border border-[#d1a847]/40 p-2.5">
-                      <div className="text-[10px] uppercase tracking-wider text-[#2c405e] font-semibold">
-                        {copy.tripleCol}
-                      </div>
-                      <div className="font-serif-crest text-base font-bold text-[#0b1d3a] tabular-nums mt-0.5">
-                        {hotel.tripleUsd} USD
-                      </div>
-                    </div>
-                    <div className="rounded-xl bg-[#ede1ce]/80 border border-[#d1a847]/50 p-2.5">
-                      <div className="text-[10px] uppercase tracking-wider text-[#9a7220] font-semibold">
-                        {copy.singleSuppCol}
-                      </div>
-                      <div className="font-semibold text-sm text-[#9a7220] tabular-nums mt-0.5">
-                        +{hotel.singleSupplementUsd} USD
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSelectHotelRow(hotel.id)}
-                    className={`ggt-card-3d-select w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#0b1d3a] text-[#fceda2] border border-[#d1a847]'
-                        : 'bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]'
-                    }`}
+          <ProgramComparisonTable>
+            <thead>
+              <tr className="bg-[#0b1d3a] text-[#fceda2] text-xs">
+                <th className="py-4 px-5 text-start font-semibold uppercase tracking-[0.14em]">
+                  {copy.hotelCol}
+                </th>
+                <th className="py-4 px-4 text-center font-semibold uppercase tracking-[0.12em]">
+                  {copy.doubleCol}
+                </th>
+                <th className="py-4 px-4 text-center font-semibold uppercase tracking-[0.12em]">
+                  {copy.tripleCol}
+                </th>
+                <th className="py-4 px-4 text-center font-semibold uppercase tracking-[0.12em]">
+                  {copy.singleSuppCol}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#d1a847]/25">
+              {GRAND_EGYPT_HOTELS.map((hotel) => {
+                const isRowActive = selectedHotelId === hotel.id;
+                return (
+                  <tr
+                    key={hotel.id}
+                    className={isRowActive ? 'bg-[#f5ede0]/70' : 'hover:bg-[#f5ede0]/45'}
                   >
-                    {isSelected ? copy.selectedBtn : copy.selectBtn}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    <td className="py-4 px-5 align-top">
+                      <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9a7220]">
+                        {hotel.tierLabel[lang]}
+                      </div>
+                      <div className="font-serif-crest text-base font-bold text-[#0b1d3a] mt-0.5">
+                        {hotel.name[lang]}
+                      </div>
+                    </td>
 
-          <div className="rounded-xl bg-[#ede1ce]/75 border border-[#d1a847]/45 px-4 py-3 flex items-start gap-2.5 text-xs text-[#0b1d3a]">
+                    {(['double', 'triple'] as const).map((occ) => {
+                      const amount = occ === 'double' ? hotel.doubleUsd : hotel.tripleUsd;
+                      const isCellSelected =
+                        selectedHotelId === hotel.id && selectedOccupancy === occ;
+                      return (
+                        <td key={occ} className="py-3 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleTableCellSelect(hotel.id, occ)}
+                            className={`ggt-card-3d-select w-full py-2.5 px-3 rounded-xl border transition-all cursor-pointer ${
+                              isCellSelected
+                                ? 'bg-[#0b1d3a] text-[#fceda2] border-[#d1a847] shadow-sm font-bold'
+                                : 'bg-white hover:bg-[#ede1ce] text-[#0b1d3a] border-[#d1a847]/45 font-semibold'
+                            }`}
+                          >
+                            <div className="font-serif-crest text-base tabular-nums">
+                              {amount.toLocaleString('fr-FR')} USD
+                            </div>
+                          </button>
+                        </td>
+                      );
+                    })}
+
+                    <td className="py-3 px-4 text-center">
+                      <div className="font-serif-crest text-sm font-bold text-[#9a7220] tabular-nums">
+                        +{hotel.singleSupplementUsd.toLocaleString('fr-FR')} USD
+                      </div>
+                      <div className="text-[11px] text-[#2c405e]">{copy.singleSuppCol}</div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </ProgramComparisonTable>
+
+          <div className="rounded-xl bg-[#fcf9f2] border border-[#d1a847]/50 px-4 py-3 flex items-start gap-2.5 text-xs text-[#0b1d3a]">
             <Info className="w-4 h-4 text-[#9a7220] shrink-0 mt-0.5" />
             <span>{copy.singleSuppDisclaimer}</span>
           </div>
         </section>
 
-        <div className="ggt-egypt-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/60 to-transparent" />
+        <ProgramDivider />
 
-        {/* E. Included Services ("Le prix comprend") */}
-        <section className="space-y-6">
-          <div className="ggt-egypt-heading-3d space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.inclusionsEyebrow}
+        {/* SECTION 3B: DARK INTERACTIVE HOTEL & OCCUPANCY SELECTOR PANEL */}
+        <section ref={optionsSectionRef} className="space-y-6 scroll-mt-28 sm:scroll-mt-36">
+          <ProgramSectionHeading
+            eyebrow={copy.pricingEyebrow}
+            title={copy.hotelChoiceLabel}
+            subtitle={copy.regularPeriodValue}
+            rightSlot={
+              <ProgramTabSwitcher
+                tablistRef={hotelTablistRef}
+                indicatorRef={hotelIndicatorRef}
+                ariaLabel={copy.hotelChoiceLabel}
+                activeId={selectedHotelId}
+                onSelect={handleHotelSwitch}
+                options={GRAND_EGYPT_HOTELS.map((h) => ({
+                  id: h.id,
+                  label: h.name[lang]
+                }))}
+              />
+            }
+          />
+
+          <ProgramSelectorPanel
+            panelRef={hotelPanelRef}
+            eyebrow={selectedHotel.tierLabel[lang]}
+            title={selectedHotel.name[lang]}
+            subtitle={`${copy.regularPeriodValue} · ${copy.arrivalDaysValue}`}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ProgramSelectorInfoCard
+                icon={Calendar}
+                label={copy.regularPeriodLabel}
+                value={copy.regularPeriodValue}
+                subtext={copy.arrivalDaysValue}
+                warningText={`${copy.excludedPeriodsLabel}: ${copy.excludedPeriodsValue} (${copy.excludedPeriodsActionValue})`}
+              />
+
+              <ProgramSelectorInfoCard
+                icon={Building2}
+                label={copy.singleSuppCol}
+                value={`+${selectedHotel.singleSupplementUsd.toLocaleString('fr-FR')} USD`}
+                subtext={copy.singleSuppDisclaimer}
+              />
             </div>
-            <h2 className="font-serif-crest text-2xl sm:text-4xl font-semibold text-[#0b1d3a]">
-              {copy.inclusionsTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#2c405e]">{copy.inclusionsSubtitle}</p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {copy.inclusions.map((item, idx) => {
-              const Icon = INCLUSION_ICONS[item.key];
-              return (
-                <div
-                  key={item.key}
-                  className={`ggt-egypt-card-3d rounded-2xl p-5 shadow-[0_12px_28px_rgba(11,29,58,0.06)] space-y-3 ${
-                    item.pendingSourceNote
-                      ? 'bg-amber-50/90 border-2 border-amber-400/75'
-                      : 'bg-[#fcf9f2] border border-[#d1a847]/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="w-10 h-10 rounded-xl bg-[#0b1d3a] text-[#d1a847] border border-[#d1a847]/55 flex items-center justify-center shrink-0">
-                      <Icon className="w-5 h-5" />
-                    </span>
-                    <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#9a7220] tabular-nums">
-                      {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
-                    </span>
-                  </div>
-                  <div className="space-y-1.5">
-                    {item.highlightBadge && (
-                      <div
-                        className={`text-[10px] font-bold uppercase tracking-[0.14em] ${
-                          item.pendingSourceNote ? 'text-amber-800' : 'text-emerald-800'
-                        }`}
-                      >
-                        {item.highlightBadge}
-                      </div>
-                    )}
-                    <h3 className="font-serif-crest text-lg font-semibold text-[#0b1d3a]">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">
-                      {item.detail}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <ProgramSelectorChoiceCard
+                title={copy.tripleOptionLabel}
+                subtitle={selectedHotel.name[lang]}
+                priceDisplay={`${selectedHotel.tripleUsd.toLocaleString('fr-FR')} USD`}
+                actionLabel={
+                  selectedOccupancy === 'triple' ? copy.selectedBtn : copy.selectBtn
+                }
+                isSelected={selectedOccupancy === 'triple'}
+                onSelect={() => setSelectedOccupancy('triple')}
+                icon={BedDouble}
+              />
+
+              <ProgramSelectorChoiceCard
+                title={copy.doubleOptionLabel}
+                subtitle={selectedHotel.name[lang]}
+                priceDisplay={`${selectedHotel.doubleUsd.toLocaleString('fr-FR')} USD`}
+                actionLabel={
+                  selectedOccupancy === 'double' ? copy.selectedBtn : copy.selectBtn
+                }
+                isSelected={selectedOccupancy === 'double'}
+                onSelect={() => setSelectedOccupancy('double')}
+                icon={BedDouble}
+              />
+
+              <ProgramSelectorChoiceCard
+                title={copy.singleSuppCol}
+                subtitle={copy.singleSupplementCheckLabel}
+                priceDisplay={`+${selectedHotel.singleSupplementUsd.toLocaleString('fr-FR')} USD`}
+                extraText={copy.singleSupplementCheckHint}
+                actionLabel={copy.singleSupplementCheckLabel}
+                isSelected={includeSingleSupplement}
+                onSelect={() => setIncludeSingleSupplement((prev) => !prev)}
+                icon={Info}
+              />
+            </div>
+          </ProgramSelectorPanel>
         </section>
 
-        {/* F. Excluded Services ("Le prix ne comprend pas") & Flight Scope Distinction */}
-        <section className="rounded-2xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847]/70 p-6 sm:p-8 space-y-6 shadow-[0_22px_50px_rgba(4,12,28,0.28)]">
-          <div className="space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#d1a847] font-semibold">
-              {copy.exclusionsEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-3xl font-semibold text-[#fcf9f2]">
-              {copy.exclusionsTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-300">{copy.exclusionsSubtitle}</p>
-          </div>
+        <ProgramDivider />
 
-          {/* Explicit Domestic Included vs International Excluded Comparison Strip */}
-          <div className="rounded-xl bg-[#0b1d3a] border border-[#d1a847]/50 p-4 sm:p-5 space-y-3">
-            <div className="text-xs font-bold uppercase tracking-[0.16em] text-[#d1a847]">
-              {copy.domesticVsIntlBannerTitle}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              <div className="rounded-xl bg-emerald-950/60 border border-emerald-400/50 p-3.5 space-y-1">
-                <div className="flex items-center gap-2 text-xs font-bold text-emerald-300 uppercase tracking-wider">
-                  <Check className="w-4 h-4 shrink-0" />
-                  <span>{copy.domesticSideTitle}</span>
-                </div>
-                <p className="text-xs text-emerald-100 leading-relaxed">{copy.domesticSideDetail}</p>
-              </div>
-              <div className="rounded-xl bg-amber-950/65 border border-amber-400/60 p-3.5 space-y-1">
-                <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
-                  <AlertTriangle className="w-4 h-4 shrink-0" />
-                  <span>{copy.internationalSideTitle}</span>
-                </div>
-                <p className="text-xs text-amber-100 leading-relaxed">
-                  {copy.internationalSideDetail}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* SECTION 4: INCLUDED ("Le prix comprend") & EXCLUDED CALLOUT */}
+        <ProgramInclusionsSection
+          eyebrow={copy.inclusionsEyebrow}
+          title={copy.inclusionsTitle}
+          subtitle={copy.inclusionsSubtitle}
+          columnsClassName="grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          items={copy.inclusions.map((item) => ({
+            key: item.key,
+            icon: INCLUSION_ICONS[item.key],
+            title: item.highlightBadge ? `${item.title} · ${item.highlightBadge}` : item.title,
+            detail: item.detail
+          }))}
+          calloutTitle={copy.exclusionsTitle}
+          calloutItems={copy.exclusions.map((excl) => `${excl.title} — ${excl.detail}`)}
+          calloutIcon={AlertCircle}
+        />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-            {copy.exclusions.map((excl) => (
+        <ProgramDivider />
+
+        {/* SECTION 5: BOOKING CONDITIONS & IMPORTANT NOTES */}
+        <ProgramConditionsNotesGrid
+          conditionsEyebrow={copy.conditionsEyebrow}
+          conditionsTitle={copy.conditionsTitle}
+          conditions={copy.conditions.map((cond) => ({
+            key: cond.id,
+            icon: Info,
+            title: `${cond.title} — ${cond.emphasis}`,
+            detail: cond.detail
+          }))}
+          notesEyebrow={copy.exclusionsEyebrow}
+          notesTitle={copy.domesticVsIntlBannerTitle}
+          notes={[
+            {
+              key: 'domestic-flights',
+              icon: Plane,
+              title: copy.domesticSideTitle,
+              detail: copy.domesticSideDetail
+            },
+            {
+              key: 'intl-flights',
+              icon: AlertTriangle,
+              title: copy.internationalSideTitle,
+              detail: copy.internationalSideDetail
+            },
+            {
+              key: 'excluded-dates',
+              icon: Calendar,
+              title: `${copy.excludedPeriodsLabel}: ${copy.excludedPeriodsValue}`,
+              detail: copy.excludedPeriodsActionValue
+            }
+          ]}
+        />
+
+        <ProgramDivider />
+
+        {/* SECTION 6: STANDARDIZED RESERVATION INQUIRY */}
+        <ProgramBookingSection
+          sectionRef={formSectionRef}
+          sectionId="grand-egypt-inquiry-form"
+          eyebrow={copy.formEyebrow}
+          title={copy.formTitle}
+          subtitle={copy.formSubtitle}
+          uid={uid}
+          isRtl={isRtl}
+          inquiryReady={inquiryReady}
+          readyCardRef={inquiryReadyCardRef}
+          readyProgramTitle={copy.frenchFullTitle}
+          readyTitle={copy.readyTitle}
+          readySubtitle={copy.formSubtitle}
+          readyEditBtn={copy.editBtn}
+          onEditInquiry={() => setInquiryReady(false)}
+          readySummaryItems={[
+            {
+              label: copy.departDateLabel,
+              value: `${departDate}${returnDate ? ` → ${returnDate}` : ''}`
+            },
+            {
+              label: copy.hotelChoiceLabel,
+              value: selectedHotel.name[lang]
+            },
+            {
+              label: copy.occupancyLabel,
+              value: `${
+                selectedOccupancy === 'double'
+                  ? copy.doubleOptionLabel
+                  : copy.tripleOptionLabel
+              }${includeSingleSupplement ? ` (+ ${copy.singleSuppCol})` : ''}`
+            },
+            {
+              label: copy.quoteBoxTitle,
+              value: pricingEligibility.canQuotePublishedFare
+                ? `${pricingEligibility.baseUsd} USD / pers.`
+                : pricingEligibility.reason === 'under_20_unpriced'
+                ? copy.under20UnpricedLine
+                : copy.onRequestLine,
+              accent: true
+            }
+          ]}
+          readyAlertSlot={
+            <div className="rounded-xl bg-amber-950/60 border border-amber-400/50 px-4 py-3 text-xs text-amber-100">
+              {copy.cardFlightDistinction}
+            </div>
+          }
+          whatsappHref={buildWhatsappInquiryUrl()}
+          readyWhatsappBtn={copy.whatsappBtn}
+          onSubmit={handleSubmit}
+          formSpecificChildren={
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor={`${uid}-egypt-depart`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
+                  >
+                    {copy.departDateLabel} *
+                  </label>
+                  <input
+                    id={`${uid}-egypt-depart`}
+                    type="date"
+                    value={departDate}
+                    onChange={(e) => setDepartDate(e.target.value)}
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor={`${uid}-egypt-return`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
+                  >
+                    {copy.returnDateLabel}
+                  </label>
+                  <input
+                    id={`${uid}-egypt-return`}
+                    type="date"
+                    min={departDate || undefined}
+                    value={returnDate}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
+                  />
+                </div>
+              </div>
+
               <div
-                key={excl.key}
-                className={`rounded-xl p-5 space-y-2.5 ${
-                  excl.highlightFlights
-                    ? 'bg-amber-950/65 border-2 border-amber-400/75'
-                    : 'bg-[#0b1d3a] border border-[#d1a847]/45'
+                className={`rounded-xl px-4 py-3 text-xs flex items-start gap-2.5 ${
+                  dateEval.status === 'excluded_special' ||
+                  dateEval.status === 'outside' ||
+                  dateEval.status === 'invalid_range'
+                    ? 'bg-amber-50 border border-amber-400 text-amber-950'
+                    : 'bg-[#ede1ce]/70 border border-[#d1a847]/45 text-[#0b1d3a]'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  {excl.highlightFlights ? (
-                    <Plane className="w-5 h-5 text-amber-300 shrink-0" />
-                  ) : (
-                    <AlertCircle className="w-5 h-5 text-[#d1a847] shrink-0" />
-                  )}
-                  <h3
-                    className={`font-serif-crest text-lg font-semibold ${
-                      excl.highlightFlights ? 'text-amber-200' : 'text-[#fceda2]'
-                    }`}
-                  >
-                    {excl.title}
-                  </h3>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">{excl.detail}</p>
+                <Info className="w-4 h-4 text-[#9a7220] shrink-0 mt-0.5" />
+                <span className="font-medium">{copy.dateMessages[dateEval.status]}</span>
               </div>
-            ))}
-          </div>
-        </section>
 
-        {/* G. Booking Conditions ("Conditions et informations importantes") */}
-        <section className="space-y-6">
-          <div className="ggt-egypt-heading-3d space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.conditionsEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-4xl font-semibold text-[#0b1d3a]">
-              {copy.conditionsTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#2c405e]">{copy.conditionsSubtitle}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {copy.conditions.map((cond, idx) => (
-              <div
-                key={cond.id}
-                className="ggt-egypt-card-3d rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/55 p-5 sm:p-6 space-y-2.5 shadow-[0_12px_30px_rgba(11,29,58,0.06)]"
-              >
-                <div className="flex items-center justify-between gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#9a7220]">
-                  <span>{cond.title}</span>
-                  <span className="tabular-nums">0{idx + 1}</span>
-                </div>
-                <div className="font-serif-crest text-lg font-semibold text-[#0b1d3a]">
-                  {cond.emphasis}
-                </div>
-                <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">{cond.detail}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <div className="ggt-egypt-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/60 to-transparent" />
-
-        {/* H. Direct Golden Reservation Inquiry */}
-        <section
-          ref={formSectionRef}
-          id="grand-egypt-inquiry-form"
-          className="scroll-mt-28 space-y-6"
-        >
-          <div className="ggt-egypt-heading-3d space-y-1.5 max-w-3xl">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#9a7220] font-semibold">
-              {copy.formEyebrow}
-            </div>
-            <h2 className="font-serif-crest text-2xl sm:text-4xl font-semibold text-[#0b1d3a]">
-              {copy.formTitle}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#2c405e] leading-relaxed">{copy.formSubtitle}</p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-            <div className="lg:col-span-8">
-              {inquiryReady ? (
+              {dateEval.isArrivalSaturdayOrMonday !== null && dateEval.status === 'regular' && (
                 <div
-                  ref={inquiryReadyCardRef}
-                  className="rounded-2xl bg-[#071429] text-[#f5ede0] border-2 border-[#d1a847] p-6 sm:p-8 space-y-5 shadow-xl"
+                  className={`rounded-xl px-4 py-2.5 text-xs flex items-start gap-2.5 ${
+                    dateEval.isArrivalSaturdayOrMonday
+                      ? 'bg-emerald-50 border border-emerald-300 text-emerald-950'
+                      : 'bg-amber-50 border border-amber-300 text-amber-950'
+                  }`}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="font-serif-crest text-2xl font-semibold text-[#fceda2]">
-                      {copy.readyTitle}
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => setInquiryReady(false)}
-                      className="text-xs font-semibold uppercase tracking-wider text-[#fceda2] hover:underline cursor-pointer"
-                    >
-                      {copy.editBtn}
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
-                      <div className="text-slate-400">{copy.departDateLabel}</div>
-                      <div className="font-semibold text-white mt-0.5 tabular-nums">
-                        {departDate}
-                        {returnDate ? ` → ${returnDate}` : ''}
-                      </div>
-                    </div>
-                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
-                      <div className="text-slate-400">{copy.hotelChoiceLabel}</div>
-                      <div className="font-semibold text-white mt-0.5">{selectedHotel.name[lang]}</div>
-                    </div>
-                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
-                      <div className="text-slate-400">{copy.occupancyLabel}</div>
-                      <div className="font-semibold text-white mt-0.5">
-                        {selectedOccupancy === 'double'
-                          ? copy.doubleOptionLabel
-                          : copy.tripleOptionLabel}
-                        {includeSingleSupplement ? ` (+ ${copy.singleSuppCol})` : ''}
-                      </div>
-                    </div>
-                    <div className="ggt-3d-stagger p-3.5 rounded-xl bg-[#0b1d3a] border border-[#d1a847]/35">
-                      <div className="text-slate-400">{copy.quoteBoxTitle}</div>
-                      <div className="font-semibold text-[#fceda2] mt-0.5 tabular-nums">
-                        {pricingEligibility.canQuotePublishedFare
-                          ? `${pricingEligibility.baseUsd} USD / pers.`
-                          : pricingEligibility.reason === 'under_20_unpriced'
-                          ? copy.under20UnpricedLine
-                          : copy.onRequestLine}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl bg-amber-950/60 border border-amber-400/50 px-4 py-3 text-xs text-amber-100">
-                    {copy.cardFlightDistinction}
-                  </div>
-
-                  <a
-                    href={buildWhatsappInquiryUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg transition-colors"
-                  >
-                    <span>{copy.whatsappBtn}</span>
-                    <ExternalLink className="w-4 h-4 shrink-0 ggt-forward-arrow" />
-                  </a>
+                  {dateEval.isArrivalSaturdayOrMonday ? (
+                    <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                  )}
+                  <span>
+                    {dateEval.isArrivalSaturdayOrMonday
+                      ? copy.arrivalDayOkNote
+                      : copy.arrivalDayWarningNote}
+                  </span>
                 </div>
-              ) : (
-                <form
-                  onSubmit={handleSubmit}
-                  noValidate
-                  className="rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/60 p-5 sm:p-7 space-y-5 shadow-[0_18px_42px_rgba(11,29,58,0.08)]"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor={`${uid}-egypt-depart`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.departDateLabel}
-                      </label>
-                      <input
-                        id={`${uid}-egypt-depart`}
-                        type="date"
-                        value={departDate}
-                        onChange={(e) => setDepartDate(e.target.value)}
-                        className="w-full bg-[#f5ede0]/70 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor={`${uid}-egypt-return`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.returnDateLabel}
-                      </label>
-                      <input
-                        id={`${uid}-egypt-return`}
-                        type="date"
-                        min={departDate || undefined}
-                        value={returnDate}
-                        onChange={(e) => setReturnDate(e.target.value)}
-                        className="w-full bg-[#f5ede0]/70 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Date Window + Weekday Arrival + Gala Dinner Advisories */}
-                  <div
-                    className={`rounded-xl px-4 py-3 text-xs flex items-start gap-2.5 ${
-                      dateEval.status === 'excluded_special' ||
-                      dateEval.status === 'outside' ||
-                      dateEval.status === 'invalid_range'
-                        ? 'bg-amber-50 border border-amber-400 text-amber-950'
-                        : 'bg-[#ede1ce]/70 border border-[#d1a847]/45 text-[#0b1d3a]'
-                    }`}
-                  >
-                    <Info className="w-4 h-4 text-[#9a7220] shrink-0 mt-0.5" />
-                    <span className="font-medium">{copy.dateMessages[dateEval.status]}</span>
-                  </div>
-
-                  {dateEval.isArrivalSaturdayOrMonday !== null && dateEval.status === 'regular' && (
-                    <div
-                      className={`rounded-xl px-4 py-2.5 text-xs flex items-start gap-2.5 ${
-                        dateEval.isArrivalSaturdayOrMonday
-                          ? 'bg-emerald-50 border border-emerald-300 text-emerald-950'
-                          : 'bg-amber-50 border border-amber-300 text-amber-950'
-                      }`}
-                    >
-                      {dateEval.isArrivalSaturdayOrMonday ? (
-                        <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                      ) : (
-                        <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                      )}
-                      <span>
-                        {dateEval.isArrivalSaturdayOrMonday
-                          ? copy.arrivalDayOkNote
-                          : copy.arrivalDayWarningNote}
-                      </span>
-                    </div>
-                  )}
-
-                  {dateEval.requiresGalaCheck && (
-                    <div className="rounded-xl bg-amber-50 border border-amber-400 px-4 py-3 text-xs text-amber-950 flex items-start gap-2.5">
-                      <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                      <span className="font-medium">{copy.galaWarningNote}</span>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor={`${uid}-egypt-hotel`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.hotelChoiceLabel}
-                      </label>
-                      <select
-                        id={`${uid}-egypt-hotel`}
-                        value={selectedHotelId}
-                        onChange={(e) => setSelectedHotelId(e.target.value as GrandEgyptHotelId)}
-                        className="w-full bg-[#f5ede0]/70 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      >
-                        {GRAND_EGYPT_HOTELS.map((h) => (
-                          <option key={h.id} value={h.id}>
-                            {h.name[lang]}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor={`${uid}-egypt-occ`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.occupancyLabel}
-                      </label>
-                      <select
-                        id={`${uid}-egypt-occ`}
-                        value={selectedOccupancy}
-                        onChange={(e) =>
-                          setSelectedOccupancy(e.target.value as GrandEgyptOccupancyId)
-                        }
-                        className="w-full bg-[#f5ede0]/70 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      >
-                        <option value="triple">{copy.tripleOptionLabel}</option>
-                        <option value="double">{copy.doubleOptionLabel}</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-                    <div>
-                      <label
-                        htmlFor={`${uid}-egypt-pax`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.travelersLabel}
-                      </label>
-                      <input
-                        id={`${uid}-egypt-pax`}
-                        type="number"
-                        min={1}
-                        max={80}
-                        value={travelersCount}
-                        onChange={(e) =>
-                          setTravelersCount(Math.max(1, Math.min(80, Number(e.target.value) || 1)))
-                        }
-                        className="w-full bg-[#f5ede0]/70 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] tabular-nums focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                      <div className="mt-1.5 text-[11px] font-semibold text-[#9a7220]">
-                        {travelersCount >= GRAND_EGYPT_PRICING_META.minGroupPax
-                          ? copy.groupMin20Ok
-                          : copy.groupUnder20Notice}
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl bg-[#f5ede0]/80 border border-[#d1a847]/50 p-3.5 space-y-1.5">
-                      <label className="flex items-start gap-2.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={includeSingleSupplement}
-                          onChange={(e) => setIncludeSingleSupplement(e.target.checked)}
-                          className="mt-0.5 rounded border-[#d1a847] text-[#0b1d3a]"
-                        />
-                        <span className="text-xs font-semibold text-[#0b1d3a]">
-                          {copy.singleSupplementCheckLabel}
-                        </span>
-                      </label>
-                      <p className="text-[11px] text-[#2c405e] leading-snug ps-6">
-                        {copy.singleSupplementCheckHint}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor={`${uid}-egypt-name`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.nameLabel}
-                      </label>
-                      <input
-                        id={`${uid}-egypt-name`}
-                        type="text"
-                        maxLength={120}
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder={copy.namePlaceholder}
-                        className="w-full bg-[#f5ede0]/70 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor={`${uid}-egypt-phone`}
-                        className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                      >
-                        {copy.phoneLabel}
-                      </label>
-                      <input
-                        id={`${uid}-egypt-phone`}
-                        type="tel"
-                        maxLength={40}
-                        dir="ltr"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder={copy.phonePlaceholder}
-                        className="w-full bg-[#f5ede0]/70 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor={`${uid}-egypt-notes`}
-                      className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
-                    >
-                      {copy.notesLabel}
-                    </label>
-                    <textarea
-                      id={`${uid}-egypt-notes`}
-                      rows={2}
-                      maxLength={320}
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder={copy.notesPlaceholder}
-                      className="w-full bg-[#f5ede0]/70 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
-                    />
-                  </div>
-
-                  {formErrors.length > 0 && (
-                    <div
-                      role="alert"
-                      className="rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 text-xs text-amber-950 space-y-1"
-                    >
-                      {formErrors.map((err, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                          <span>{err}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="space-y-3 pt-1">
-                    <button
-                      type="submit"
-                      className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.15em] shadow-md transition-colors cursor-pointer"
-                    >
-                      <span>{copy.submitBtn}</span>
-                      <ArrowRight className={`w-4 h-4 text-[#d1a847] ggt-forward-arrow ${isRtl ? 'rotate-180' : ''}`} />
-                    </button>
-                    <p className="text-[11px] text-[#2c405e] leading-relaxed">
-                      {copy.noAutoConfirmNote}
-                    </p>
-                  </div>
-                </form>
               )}
-            </div>
 
-            {/* Sidebar: Strict Rate Readout (Tarif sur demande on special dates / <20 unpriced) */}
-            <aside className="lg:col-span-4 space-y-5">
-              <div
-                ref={quoteBoxRef}
-                className="rounded-2xl bg-[#0b1d3a] text-[#f5ede0] border border-[#d1a847]/65 p-5 sm:p-6 space-y-4 shadow-[0_18px_42px_rgba(4,12,28,0.25)]"
-              >
-                <div className="space-y-1">
-                  <div className="text-[11px] uppercase tracking-[0.2em] text-[#d1a847] font-semibold">
-                    {selectedHotel.name[lang]}
-                  </div>
-                  <h3 className="font-serif-crest text-xl font-semibold text-[#fcf9f2]">
-                    {copy.quoteBoxTitle}
-                  </h3>
+              {dateEval.requiresGalaCheck && (
+                <div className="rounded-xl bg-amber-50 border border-amber-400 px-4 py-3 text-xs text-amber-950 flex items-start gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                  <span className="font-medium">{copy.galaWarningNote}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor={`${uid}-egypt-hotel`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
+                  >
+                    {copy.hotelChoiceLabel}
+                  </label>
+                  <select
+                    id={`${uid}-egypt-hotel`}
+                    value={selectedHotelId}
+                    onChange={(e) => setSelectedHotelId(e.target.value as GrandEgyptHotelId)}
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
+                  >
+                    {GRAND_EGYPT_HOTELS.map((h) => (
+                      <option key={h.id} value={h.id}>
+                        {h.name[lang]}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                {pricingEligibility.canQuotePublishedFare ? (
-                  <div className="space-y-2.5 text-xs">
-                    <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#d1a847]/25">
-                      <span className="text-slate-300">{copy.baseFareLine}</span>
-                      <span className="font-serif-crest text-xl font-bold text-[#fceda2] tabular-nums">
-                        {pricingEligibility.baseUsd.toLocaleString('fr-FR')} USD
-                      </span>
-                    </div>
-
-                    {includeSingleSupplement && (
-                      <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#d1a847]/25">
-                        <span className="text-slate-300">{copy.singleSuppLine}</span>
-                        <span className="font-semibold text-[#fceda2] tabular-nums">
-                          +{pricingEligibility.singleSuppUsd} USD
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="rounded-xl bg-amber-950/65 border border-amber-400/55 p-3.5 text-xs text-amber-100 leading-relaxed">
-                    {pricingEligibility.reason === 'under_20_unpriced'
-                      ? copy.under20UnpricedLine
-                      : copy.onRequestLine}
-                  </div>
-                )}
-
-                <div className="rounded-xl bg-[#071429]/90 border border-[#d1a847]/35 p-3 text-[11px] text-slate-300 leading-relaxed">
-                  {copy.cardFlightDistinction}
+                <div>
+                  <label
+                    htmlFor={`${uid}-egypt-occ`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
+                  >
+                    {copy.occupancyLabel}
+                  </label>
+                  <select
+                    id={`${uid}-egypt-occ`}
+                    value={selectedOccupancy}
+                    onChange={(e) =>
+                      setSelectedOccupancy(e.target.value as GrandEgyptOccupancyId)
+                    }
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] focus:outline-none focus:border-[#0b1d3a]"
+                  >
+                    <option value="triple">{copy.tripleOptionLabel}</option>
+                    <option value="double">{copy.doubleOptionLabel}</option>
+                  </select>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-[#fcf9f2] border border-[#d1a847]/60 p-5 sm:p-6 space-y-4 shadow-sm">
-                <div className="space-y-1">
-                  <div className="text-[11px] uppercase tracking-[0.2em] text-[#9a7220] font-semibold">
-                    {copy.advisorLabel}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                <div>
+                  <label
+                    htmlFor={`${uid}-egypt-pax`}
+                    className="block text-xs font-bold uppercase tracking-[0.12em] text-[#0b1d3a] mb-1.5"
+                  >
+                    {copy.travelersLabel}
+                  </label>
+                  <input
+                    id={`${uid}-egypt-pax`}
+                    type="number"
+                    min={1}
+                    max={80}
+                    value={travelersCount}
+                    onChange={(e) =>
+                      setTravelersCount(Math.max(1, Math.min(80, Number(e.target.value) || 1)))
+                    }
+                    className="w-full bg-[#f5ede0]/80 border border-[#d1a847]/60 rounded-xl px-3.5 py-2.5 text-sm text-[#0b1d3a] tabular-nums focus:outline-none focus:border-[#0b1d3a]"
+                  />
+                  <div className="mt-1.5 text-[11px] font-semibold text-[#9a7220]">
+                    {travelersCount >= GRAND_EGYPT_PRICING_META.minGroupPax
+                      ? copy.groupMin20Ok
+                      : copy.groupUnder20Notice}
                   </div>
-                  <h4 className="font-serif-crest text-lg font-semibold text-[#0b1d3a]">
-                    {copy.advisorTitle}
-                  </h4>
                 </div>
 
-                <div className="space-y-2.5">
-                  <a
-                    href={buildDirectFlightAddonWhatsappUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.12em] transition-colors"
-                  >
-                    <span>WhatsApp ({displayPhone})</span>
-                    <ExternalLink className="w-3.5 h-3.5 text-[#d1a847] shrink-0" />
-                  </a>
-
-                  <a
-                    href="tel:0666484815"
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 min-h-[44px] rounded-xl bg-[#ede1ce] hover:bg-[#e3d2b6] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-[#9a7220] shrink-0" />
-                    <span dir="ltr">
-                      {copy.callAgencyBtn} · {displayPhone}
+                <div className="rounded-xl bg-[#f5ede0]/80 border border-[#d1a847]/50 p-3.5 space-y-1.5">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={includeSingleSupplement}
+                      onChange={(e) => setIncludeSingleSupplement(e.target.checked)}
+                      className="mt-0.5 rounded border-[#d1a847] text-[#0b1d3a]"
+                    />
+                    <span className="text-xs font-semibold text-[#0b1d3a]">
+                      {copy.singleSupplementCheckLabel}
                     </span>
-                  </a>
-
-                  <button
-                    type="button"
-                    onClick={onJumpToHomePlanner}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 min-h-[44px] rounded-xl bg-transparent hover:bg-[#f5ede0] text-[#0b1d3a] border border-[#d1a847]/45 text-xs font-semibold uppercase tracking-[0.1em] transition-colors cursor-pointer"
-                  >
-                    <MapPin className="w-3.5 h-3.5 text-[#c59b38] shrink-0" />
-                    <span>Google Maps · Salé</span>
-                  </button>
+                  </label>
+                  <p className="text-[11px] text-[#2c405e] leading-snug ps-6">
+                    {copy.singleSupplementCheckHint}
+                  </p>
                 </div>
               </div>
-            </aside>
-          </div>
-        </section>
+            </>
+          }
+          fullName={fullName}
+          onFullNameChange={setFullName}
+          nameLabel={copy.nameLabel}
+          namePlaceholder={copy.namePlaceholder}
+          phone={phone}
+          onPhoneChange={setPhone}
+          phoneLabel={copy.phoneLabel}
+          phonePlaceholder={copy.phonePlaceholder}
+          notes={notes}
+          onNotesChange={setNotes}
+          notesLabel={copy.notesLabel}
+          notesPlaceholder={copy.notesPlaceholder}
+          formErrors={formErrors}
+          submitBtnLabel={copy.submitBtn}
+          noAutoConfirmNote={copy.noAutoConfirmNote}
+          quoteBoxRef={quoteBoxRef}
+          quoteEyebrow={selectedHotel.name[lang]}
+          quoteTitle={copy.quoteBoxTitle}
+          quoteSubtitle={`${
+            selectedOccupancy === 'double'
+              ? copy.doubleOptionLabel
+              : copy.tripleOptionLabel
+          } · ${travelersCount} pers.`}
+          quoteBodyChildren={
+            <>
+              {pricingEligibility.canQuotePublishedFare ? (
+                <ProgramQuoteRateBlock
+                  breakdownRows={[
+                    {
+                      label: copy.baseFareLine,
+                      value: `${pricingEligibility.baseUsd.toLocaleString('fr-FR')} USD`
+                    },
+                    ...(includeSingleSupplement
+                      ? [
+                          {
+                            label: copy.singleSuppLine,
+                            value: `+${pricingEligibility.singleSuppUsd} USD`,
+                            accent: true
+                          }
+                        ]
+                      : [])
+                  ]}
+                  perPersonLabel={copy.baseFareLine}
+                  perPersonValue={`${pricingEligibility.baseUsd.toLocaleString('fr-FR')} USD`}
+                />
+              ) : (
+                <ProgramQuoteNoticeBox
+                  text={
+                    pricingEligibility.reason === 'under_20_unpriced'
+                      ? copy.under20UnpricedLine
+                      : copy.onRequestLine
+                  }
+                />
+              )}
 
-        {/* Bottom Return Navigation */}
-        <div className="ggt-egypt-divider h-px w-full bg-gradient-to-r from-transparent via-[#c59b38]/60 to-transparent" />
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4">
-          <Link
-            to={GRAND_EGYPT_TOURS_BACK_ROUTE}
-            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 min-h-[48px] rounded-xl bg-[#0b1d3a] hover:bg-[#132d56] text-[#fceda2] border border-[#d1a847] text-xs font-bold uppercase tracking-[0.14em] shadow-md transition-colors"
-          >
-            <ArrowLeft className={`w-4 h-4 text-[#d1a847] ggt-return-arrow ${isRtl ? 'rotate-180' : ''}`} />
-            <span>{copy.backToTours}</span>
-          </Link>
+              <ProgramQuoteRecapBox
+                title={copy.domesticVsIntlBannerTitle}
+                lines={[copy.domesticSideTitle, copy.internationalSideTitle]}
+              />
 
-          <Link
-            to="/"
-            className="ggt-btn-3d-return w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl bg-[#fcf9f2] hover:bg-[#ede1ce] text-[#0b1d3a] border border-[#d1a847]/65 text-xs font-semibold uppercase tracking-[0.12em] transition-colors"
-          >
-            <span>{copy.backToHome}</span>
-          </Link>
-        </div>
+              <ProgramQuoteNoticeBox text={copy.cardFlightDistinction} variant="neutral" />
+            </>
+          }
+          advisorLabel={copy.advisorLabel}
+          advisorTitle={copy.advisorTitle}
+          advisorWhatsappHref={buildDirectFlightAddonWhatsappUrl()}
+          advisorCallLabel={copy.callAgencyBtn}
+          advisorMapsLabel={lang === 'ar' ? 'خرائط جوجل · سلا' : 'Google Maps · Salé'}
+          displayPhone={displayPhone}
+          whatsappInternational={whatsappInternational}
+          onJumpToHomePlanner={onJumpToHomePlanner}
+        />
+
+        {/* SECTION 7: RETURN NAVIGATION */}
+        <ProgramBottomNav
+          backRoute={GRAND_EGYPT_TOURS_BACK_ROUTE}
+          backToCategoryLabel={copy.backToTours}
+          backToHomeLabel={copy.backToHome}
+          isRtl={isRtl}
+        />
       </div>
     </div>
   );
